@@ -21,7 +21,7 @@ class SemanticError(Exception):
 
 # Define token names
 tokens = (
-    'SIMPLEGAME', 'PROGRAM', 'SPRITESET', 'IMMOVABLE', 'MOOVINGAVATAR', 'SHOOTINGAVATAR', 'MISSILE', 'SPAWNER', 'PASSIVE', 'IMG', 'GENERATEDSPRITE', 'SPEED', 'PORTAL', 'SHRINKFACTOR', 'LIMIT', 'PROB', 'COOLDOWN', 'COLOR', 'HEALTHPOINTS', 'LIMITHEALTHPOINTS', 'WEAPONSPRITE', 'ENCOUNTERS', 'INTERACTIONLIST', 'KILLSPRITE', 'STEPBACK', 'SCORECHANGE', 'TRANSFORMTO', 'BOUNCEFORWARD', 'CHANGEHEALTHPOINTS', 'ADDTIMER', 'TIME', 'TRANSFORMALL', 'TERMINATIONGOALS', 'SPRITECOUNTER', 'SPRITE', 'MULTISPRITECOUNTER', 'TIMEOUT', 'WIN', 'MAPPING', 'MAP', 'FUNC', 'INT', 'FLOAT', 'STRING', 'CHAR', 'BOOLEAN', 'MAIN', 'VAR', 'PRINT', 'IF', 'ELSE', 'GETVALUE', 'GETLINE', 'GETBOOLEAN', 'GETCHAR', 'WHILE', 'SMALL_END', 'BIG_END', 'STARTGAME', 'RETURN', 'D_2P', 'D_PYC', 'D_C', 'D_PA', 'D_PC', 'EQUAL', 'PLUS', 'MINUS', 'TIMES', 'DIVISION', 'MENOR_QUE', 'MAYOR_QUE', 'DIFERENTE_DE', 'IGUAL_QUE', 'AND', 'OR', 'D_CA', 'D_CC', 'ID', 'INT_CT', 'FLOAT_CT', 'STRING_CT', 'BOOLEAN_CT', 'CHAR_CT', 'COLOR_CT', 'MOVEMENT_CT'
+    'SIMPLEGAME', 'PROGRAM', 'SPRITESET', 'IMMOVABLE', 'MOOVINGAVATAR', 'SHOOTINGAVATAR', 'MISSILE', 'SPAWNER', 'PASSIVE', 'IMG', 'GENERATEDSPRITE', 'SPEED', 'PORTAL', 'SHRINKFACTOR', 'LIMIT', 'PROB', 'COOLDOWN', 'COLOR', 'HEALTHPOINTS', 'LIMITHEALTHPOINTS', 'WEAPONSPRITE', 'ENCOUNTERS', 'INTERACTIONLIST', 'KILLSPRITE', 'STEPBACK', 'SCORECHANGE', 'TRANSFORMTO', 'BOUNCEFORWARD', 'CHANGEHEALTHPOINTS', 'ADDTIMER', 'TIME', 'TRANSFORMALL', 'TERMINATIONGOALS', 'SPRITECOUNTER', 'SPRITE', 'MULTISPRITECOUNTER', 'TIMEOUT', 'WIN', 'MAPPING', 'MAP', 'FUNC', 'INT', 'FLOAT', 'STRING', 'CHAR', 'BOOLEAN', 'MAIN', 'VAR', 'PRINT', 'IF', 'ELSE', 'GETVALUE', 'GETLINE', 'GETBOOLEAN', 'GETCHAR', 'WHILE', 'SMALL_END', 'BIG_END', 'STARTGAME', 'RETURN', 'D_2P', 'D_PYC', 'D_C', 'D_PA', 'D_PC', 'EQUAL', 'PLUS', 'MINUS', 'TIMES', 'DIVISION', 'MENOR_QUE', 'MAYOR_QUE', 'DIFERENTE_DE', 'IGUAL_QUE', 'AND', 'OR', 'D_CA', 'D_CC', 'ID', 'INT_CT', 'FLOAT_CT', 'STRING_CT', 'BOOLEAN_CT', 'CHAR_CT', 'COLOR_CT', 'MOVEMENT_CT', 'PULLWITHIT', 'SHIELDFROM'
 )
 
 # Define regular expressions of tokens
@@ -171,6 +171,18 @@ def t_KILLSPRITE(t):
 
 def t_STEPBACK(t):
     'stepBack'
+    if (debug):
+        print(t)
+    return t
+
+def t_PULLWITHIT(t):
+    'pullWithIt'
+    if (debug):
+        print(t)
+    return t
+
+def t_SHIELDFROM(t):
+    'shieldFrom'
     if (debug):
         print(t)
     return t
@@ -404,13 +416,13 @@ def t_D_C(t):
     return t
 
 def t_D_PA(t):
-    '('
+    '\('
     if (debug):
         print(t)
     return t
 
 def t_D_PC(t):
-    ')'
+    '\)'
     if (debug):
         print(t)
     return t
@@ -428,7 +440,7 @@ def t_EQUAL(t):
     return t
 
 def t_PLUS(t):
-    '+'
+    '\+'
     if (debug):
         print(t)
     return t
@@ -440,7 +452,7 @@ def t_MINUS(t):
     return t
 
 def t_TIMES(t):
-    '*'
+    '\*'
     if (debug):
         print(t)
     return t
@@ -476,19 +488,19 @@ def t_AND(t):
     return t
 
 def t_OR(t):
-    '||'
+    '\|\|'
     if (debug):
         print(t)
     return t
 
 def t_D_CA(t):
-    '['
+    '\['
     if (debug):
         print(t)
     return t
 
 def t_D_CC(t):
-    ']'
+    '\]'
     if (debug):
         print(t)
     return t
@@ -530,7 +542,7 @@ def t_MOVEMENT_CT(t):
     return t
 
 def t_STRING_CT(t):
-    r'\"([a-zA-Z]|[0-9]|[ \*\[\]\\\^\-\.\?\+\|\(\)\$\/\{\}\%\<\>=&;,_:\[\]|\'!$#@])*\"'
+    r'\"([a-zA-Z]|[0-9]|[ \*\[\]\\\^\-\.\?\+\|\(\)\$\/\{\}\%\<\>=&;,_:\[\]\'!$#@])*\"'
     if (debug):
         print(t)
     return t
@@ -554,7 +566,15 @@ def t_error(t):
 # Build the lexer
 import ply.lex as lex
 lex.lex()
+while True:
+    s = raw_input('arcadame > ')
+    lex.input(s)
+    while True:
+        tok = lex.token()
+        if not tok:
+            break      # No more input
 
+"""
 # Parsing rules
 
 start = 'programa'
@@ -592,3 +612,4 @@ while 1:
             parser.parse(completeString)
         except EOFError:
             break
+"""
