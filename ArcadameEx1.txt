@@ -1,0 +1,16 @@
+Program Example:
+    func sumatoria (int : n) = int:
+        if (n == 0):
+            return n;
+        else:
+            return sumatoria + n;
+        end;
+    end
+
+    Main:
+        var int[10]: lista;
+        lista[0] = 50;
+        lista[1] = 34;
+        print(sumatoria(lista[0]) + sumatoria(lista[1]));
+    end
+End

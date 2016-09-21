@@ -1,0 +1,66 @@
+SimpleGame Frogger:
+    SpriteSet:
+        forestDense = Spawner generatedSprite=log, prob=0.4, cooldown=10, img="forest.png";
+        forestSparse = Spawner generatedSprite=log, prob=0.1,  cooldown=5, img="forest.png";
+        water = Immovable color=blue, img="water.png";
+        goal  = Immovable color=green, img="goal.png", portal=true;
+        log = Missile orientation=left, speed=0.1, color=brown, img="log.png";
+        city = Spawner generatedSprite=fasttruck, prob=0.5, cooldown=4;
+        city2 = Spawner generatedSprite=slowtruck, prob=0.6, cooldown=8;
+        fasttruck = Missile orientation=right, speed=0.2,  color=orange, img="truck.png";
+        slowtruck = Missile orientation=right, speed=0.1,  color=red, img="truck.png";
+        wall = Immovable img="wall.txt";
+        floor = Immovable color=black;
+        avatar = MovingAvatar img="frog.png";
+    end
+        
+    InteractionList:
+        goal encounters avatar = killSprite(avatar), scoreChange(1.0);
+        avatar encounters log = shieldFrom(killSprite, water);
+        avatar encounters log = pullWithIt;
+        avatar encounters wall = stepBack;
+        avatar, truck encounters water = killSprite();
+        log encounters wall = killSprite();
+        truck encounters wall = killSprite();
+    end
+    
+    TerminationGoals:
+        spriteCounter sprite=goal   limit=0 win=true;
+    spriteCounter sprite=avatar limit=0 win=false;
+    end
+    
+    Mapping:
+        'g' = goal;
+        '0' = water;
+        '1' = forestDense, water;
+        '2' = forestDense, wall, log;
+        '3' = forestSparse, water;
+        '4' = forestSparse, wall, log;
+        '-' = slowtruck;
+        'x' = fasttruck;
+        '=' = log, water;
+        'A' = avatar;
+        'c' = city;
+        'C' = city2;
+        'w' = wall;
+        'f' = floor;'
+    end
+
+    Map:
+        "wwwwwwwwwwwwwwwwwwwwwwwwwwww";
+        "wfffffffffffwgwffffffffffffw";
+        "w00==000000===0000=====000=4";
+        "w0000====0000000000====00012";
+        "w00===000===000====0000===04";
+        "wwwfffwwfffwwwffffwwwffwwwww";
+        "wfff----fff---fff-ff----fffw";
+        "w-fffffxxxfffffffxxxffffxxfw";
+        "wf-fff---fffff-fff----f--ffw";
+        "wfffffffAffffffffffffffffffw";
+        "wwwwwwwwwwwwwwwwwwwwwwwwwwww";
+    end
+
+    Main:
+        StartGame();
+    end
+End

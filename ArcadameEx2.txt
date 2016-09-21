@@ -1,0 +1,29 @@
+Program Example2:
+    var boolean: b;
+    Main:
+        var float: ladoA;
+        var float: ladoB;
+        var float: ladoC;
+        var int: iterator;
+        b = true;
+        print("Teclea el lado A del triangulo");
+        getValue(ladoA);
+        print("Teclea el lado B del triangulo");
+        getValue(ladoB);
+        print("Teclea el lado C del triangulo");
+        getValue(ladoC);
+        if (ladoA > ladoB && ladoA > ladoC):
+            iterator = ladoA;
+            while (iterator > 0 && b):
+                print(iterator);
+                iterator = iterator - 1;
+            end;
+        else:
+            if (ladoB > ladoA && ladoC < ladoB):
+                print("El lado B es el mas grande");
+        else:
+                print("Lado C es el mas grande");
+            end;
+        end;
+    end
+End
