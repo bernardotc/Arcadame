@@ -43,7 +43,7 @@ SimpleGame Frogger:
         'c' = city;
         'C' = city2;
         'w' = wall;
-        'f' = floor;'
+        'f' = floor;
     end
 
     Map:

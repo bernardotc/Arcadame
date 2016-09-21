@@ -1,5 +1,6 @@
 # -----------------------------------------------------------------------------
 # Bernardo Daniel Trevino Caballero     A00813175
+# Myriam Maria Gutierrez Aburto         A00617060
 # arcadame.py
 #
 # A simple scanner and parser for the languange Arcadame
@@ -13,7 +14,17 @@ if sys.version_info[0] >= 3:
 
 debug = True
 
-class LexerError(Exception): pass
+class LexerError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
+class SyntaxError(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
 
 class SemanticError(Exception):
     def __init__(self, value):
@@ -574,22 +585,11 @@ def t_newline(t):
     t.lexer.lineno += t.value.count("\n")
 
 def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1)
+    raise LexerError("Illegal character at '%s'" % t.value[0])
 
 # Build the lexer
 import ply.lex as lex
 lex.lex()
-
-"""
-while True:
-    s = raw_input('arcadame > ')
-    lex.input(s)
-    while True:
-        tok = lex.token()
-        if not tok:
-            break      # No more input
-"""
 
 # Parsing rules
 start = 'programa'
@@ -874,8 +874,7 @@ def p_var_ct(p):
 
 def p_error(p):
     if p:
-        print("Syntax error at '%s'" % p.value)
-        raise LexerError("Illegal character '%s'" % p.value)
+        raise SyntaxError("Syntax error at '%s'" % p.value)
     if not p:
         print("EOF")
 
