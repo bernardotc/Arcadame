@@ -646,7 +646,8 @@ def p_programa(p):
     global functionDirectory, gameSections
     # Save SimpleGame in function directory
     if (p[1] == "SimpleGame"):
-        functionDirectory["SimpleGame"] = {"sections" : gameSections}
+        if (debug):
+            functionDirectory["SimpleGame"] = {"sections" : gameSections}
         gameSections = {}
 
 def p_sprites(p):
@@ -703,7 +704,10 @@ def p_sprite_attr(p):
     if (p[1] == "generatedSprite" or p[1] == "weaponSprite"):
         if (not variables.has_key(p[3])):
             raise SemanticError("Use of undeclared sprite id: " + p[3])
-    gameAttrs[p[1]] = p[3]
+    if (p[1] == "img"):
+        gameAttrs[p[1]] = p[3].replace('"', '')
+    else:
+        gameAttrs[p[1]] = p[3]
 
 def p_interactions(p):
     '''interactions : INTERACTIONLIST D_2P interaction D_PYC more_interactions SMALL_END'''
@@ -777,7 +781,6 @@ def p_action(p):
             raise SemanticError("Use of undeclared sprite id: " + p[5])
         gameAttrs[p[1]] = p[5]
     else:
-        print(p[3])
         gameAttrs[p[1]] = p[3]
 
 def p_kill_id(p):
@@ -853,8 +856,10 @@ def p_mapping_rule(p):
         raise SemanticError("Use of undeclared sprite id: " + p[3])
     if (p[1] in variables.values()):
         raise SemanticError("Repeated char for mapping: " + p[1])
+    if (p[1] == "'\"'"):
+        raise SemanticError("Forbidden char for mapping: " + '"')
     listSprites = [p[3]] + listSprites
-    variables[p[1]] = listSprites
+    variables[p[1].replace("'", "")] = listSprites
     listSprites = []
 
 def p_map(p):
@@ -862,9 +867,9 @@ def p_map(p):
     global gameSections, listSprites
     mapping = gameSections["Mapping"]
     for mapping_id in p[3]:
-        if ((not mapping.has_key("'" + mapping_id + "'")) and mapping_id != '"'):
+        if ((not mapping.has_key(mapping_id)) and mapping_id != '"'):
             raise SemanticError("Use of undeclared char for mapping: " + mapping_id)
-    listSprites = [p[3]] + listSprites
+    listSprites = [p[3].replace('"', '')] + listSprites
     gameSections[p[1]] = listSprites
     listSprites = []
 
@@ -875,9 +880,9 @@ def p_more_tiles(p):
     mapping = gameSections["Mapping"]
     try:
         for mapping_id in p[1]:
-            if ((not mapping.has_key("'" + mapping_id + "'")) and mapping_id != '"'):
+            if ((not mapping.has_key(mapping_id)) and mapping_id != '"'):
                 raise SemanticError("Use of undeclared char for mapping: " + mapping_id)
-        listSprites = [p[1]] + listSprites
+        listSprites = [p[1].replace('"', '')] + listSprites
     except IndexError:
         return
 
@@ -925,7 +930,8 @@ def p_function(p):
     # Save the function with its variables
     if (functionDirectory.has_key(p[2])):
         raise SemanticError("Repeated identifier for function: " + p[2])
-    functionDirectory[p[2]] = {"variables": variables}
+    if (debug):
+        functionDirectory[p[2]] = {"variables": variables}
     variables = {}
 
 def p_parameters(p):
@@ -959,7 +965,8 @@ def p_main_block(p):
     # Save Main function with its attributes.
     if (functionDirectory.has_key(p[1])):
         raise SemanticError("Repeated identifier for function: " + p[1])
-    functionDirectory[p[1]] = {"variables": variables}
+    if (debug):
+        functionDirectory[p[1]] = {"variables": variables}
     variables = {}
 
 def p_code_block(p):
@@ -1110,6 +1117,8 @@ while 1:
         # print completeString
         try:
             parser.parse(completeString)
-            print functionDirectory
+            if (debug):
+                print functionDirectory
+            print("Correct program")
         except EOFError:
             break
