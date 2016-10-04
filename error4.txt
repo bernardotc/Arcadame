@@ -1,0 +1,16 @@
+Program originalPrueba1:
+	func pruebaFunc () = int: 
+		print("OK");
+	end
+
+	func pruebaFunc (int : n) = int: 
+		return n*2;
+	end
+	Main: 
+		var int: fUno; 
+		var string: SUno;
+		fUno = 10;
+		pruebaFunc();
+		print(pruebaFunc(fUno));
+	end
+End

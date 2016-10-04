@@ -983,6 +983,7 @@ def p_statute(p):
 
 def p_function_use(p):
     '''function_use : ID D_PA expression more_ids D_PC
+                    | ID D_PA D_PC
                     | STARTGAME D_PA D_PC'''
 
 def p_more_ids(p):

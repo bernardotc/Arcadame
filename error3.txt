@@ -1,0 +1,14 @@
+Program originalPrueba3:
+	func pruebaFunc (int : n) = int: 
+		 if (n == 5):
+            return n;
+        else:
+            return n - 2;
+        end;
+	end
+	Main: 
+		var string: fUno; 
+		sUno = 10;
+		print(pruebaFunc(sUno));
+	end
+End

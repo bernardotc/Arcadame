@@ -1,0 +1,16 @@
+Program originalPrueba4:
+	func pruebaFunc () = int: 
+		print("OK");
+	end
+
+	func pruebaFunc (int : n) = int: 
+		return n*2;
+	end
+	Main: 
+		var int: fUno; 
+		var string: fUno;
+		fUno = 10
+		pruebaFunc();
+		ptint(pruebaFunc(fUno));
+	end
+End

@@ -1,0 +1,12 @@
+Program originalPrueba2:
+	func pruebaFunc (int : n) = int: 
+		return n+2;
+	end
+	Main: 
+		var string: fUno; 
+		var string: sUno;
+		sUno = 10;
+		pruebaFunc();
+		print(pruebaFunc(sUno));
+	end
+End
