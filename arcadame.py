@@ -36,8 +36,9 @@ sys.path.insert(0, "../..")
 if sys.version_info[0] >= 3:
     raw_input = input
 
-debug = True
+debug = False
 
+# Global variables, dictionaries and lists
 avail = {}
 stackTypes = []
 stackOperators = []
@@ -699,6 +700,7 @@ def p_programa(p):
 def p_sprites(p):
     '''sprites : SPRITESET D_2P sprite D_PYC more_sprites SMALL_END'''
     global gameSections, variables
+    # Add the sprites section to the game dictionary
     gameSections[p[1]] = variables
     variables = {}
 
@@ -709,6 +711,7 @@ def p_more_sprites(p):
 def p_sprite(p):
     '''sprite : ID EQUAL sprite_type sprite_attrs'''
     global variables, gameAttrs, type
+    # Check if the sprite id was not declared twice
     if (variables.has_key(p[1])):
         raise SemanticError("Repeated identifier for sprite: " + p[1])
     variables[p[1]] = {"type": convertAtomicTypeToCode(type), "attrs": gameAttrs}
@@ -747,7 +750,9 @@ def p_sprite_attr(p):
                    | WEAPONSPRITE EQUAL ID
                    | ORIENTATION EQUAL MOVEMENT_CT'''
     global variables, gameAttrs
+    # Save sprite attrs
     if (p[1] == "generatedSprite" or p[1] == "weaponSprite"):
+        # Check if the sprite id was declared before
         if (not variables.has_key(p[3])):
             raise SemanticError("Use of undeclared sprite id: " + p[3])
     if (p[1] == "img"):
@@ -758,6 +763,7 @@ def p_sprite_attr(p):
 def p_interactions(p):
     '''interactions : INTERACTIONLIST D_2P interaction D_PYC more_interactions SMALL_END'''
     global gameSections, variables
+    # Add the interaction section to the game dictionary
     gameSections[p[1]] = variables
     variables = {}
 
@@ -769,12 +775,15 @@ def p_interaction(p):
     '''interaction : ID more_spritesid ENCOUNTERS ID EQUAL action more_actions'''
     global gameSections, listSprites, gameAttrs, variables
     sprites = gameSections["SpriteSet"]
+    # Check if the sprite ids were declared before
     if (not sprites.has_key(p[1])):
         raise SemanticError("Use of undeclared sprite id: " + p[1])
     if (not sprites.has_key(p[4])):
         raise SemanticError("Use of undeclared sprite id: " + p[4])
     listSprites.append(p[1])
     listSprites.append(p[4])
+    # gameAttrs contain the special actions of some functions
+    # listSprites is used as a key in the dictionary (the last is the one that encounters)
     variables[tuple(listSprites)] = {"actions": gameAttrs}
     listSprites = []
     gameAttrs = {}
@@ -785,6 +794,7 @@ def p_more_spritesid(p):
     global gameSections, listSprites
     sprites = gameSections["SpriteSet"]
     try:
+        # Check if the sprite exists (this rule is used in mapping)
         if (not sprites.has_key(p[2])):
             raise SemanticError("Use of undeclared sprite id: " + p[2])
         listSprites.append(p[2])
@@ -807,22 +817,26 @@ def p_action(p):
               | PULLWITHIT'''
     global gameSections, listSprites, gameAttrs, killSprites
     sprites = gameSections["SpriteSet"]
+    # Check the different actions
     if (p[1] == "killSprite"):
         gameAttrs[p[1]] = killSprites
         killSprites = []
     elif (p[1] == "stepBack" or p[1] == "pullWithIt" or p[1] == "bounceForward"):
         gameAttrs[p[1]] = {}
     elif (p[1] == "transformTo"):
+        # Check if the sprite id was declared before
         if (not sprites.has_key(p[3])):
             raise SemanticError("Use of undeclared sprite id: " + p[3])
         gameAttrs[p[1]] = p[3]
     elif (p[1] == "addTimer"):
+        # Check if both sprite ids were declared before
         if (not sprites.has_key(p[7])):
             raise SemanticError("Use of undeclared sprite id: " + p[7])
         if (not sprites.has_key(p[9])):
             raise SemanticError("Use of undeclared sprite id: " + p[9])
         gameAttrs[p[1]] = {p[2]: p[4], "from": p[7], "to": p[9]}
     elif (p[1] == "shieldFrom"):
+        # Check if the sprite id was declared before
         if (not sprites.has_key(p[5])):
             raise SemanticError("Use of undeclared sprite id: " + p[5])
         gameAttrs[p[1]] = p[5]
@@ -835,6 +849,7 @@ def p_kill_id(p):
     global gameSections, killSprites
     sprites = gameSections["SpriteSet"]
     try:
+        # Check if the sprite id exists and append it to the killSprites if it does
         if (not sprites.has_key(p[1])):
             raise SemanticError("Use of undeclared sprite id: " + p[1])
         killSprites.append(p[1])
@@ -844,6 +859,7 @@ def p_kill_id(p):
 def p_goals(p):
     '''goals : TERMINATIONGOALS D_2P goal D_PYC more_goals SMALL_END'''
     global gameSections, variables
+    # Add the goal section to the game dictionary
     gameSections[p[1]] = variables
     variables = {}
 
@@ -854,7 +870,9 @@ def p_more_goals(p):
 def p_goal(p):
     '''goal : goal_type LIMIT EQUAL INT_CT WIN EQUAL BOOLEAN_CT'''
     global variables, gameAttrs, type, listSprites
+    # gameAttrs contains limit and win condition
     gameAttrs = {p[2]: p[4], p[5]: p[7]}
+    # variables has the type of goal and game Attrs
     variables[tuple(listSprites)] = {"type": type, "attrs": gameAttrs}
     listSprites = []
     gameAttrs = {}
@@ -865,8 +883,10 @@ def p_goal_type(p):
                  | TIMEOUT'''
     global gameSections, listSprites, type
     sprites = gameSections["SpriteSet"]
+    # Save the type of goal
     type = p[1]
     if (type == "spriteCounter"):
+        # Check if the sprite id was declared before
         if (not sprites.has_key(p[4])):
             raise SemanticError("Use of undeclared sprite id: " + p[4])
         listSprites.append(p[4])
@@ -875,6 +895,7 @@ def p_sprite_list(p):
     '''sprite_list : SPRITE EQUAL ID more_sprite_list'''
     global gameSections, listSprites
     sprites = gameSections["SpriteSet"]
+    # Check if the sprite id exists and if it does, append it to the list of sprites
     if (not sprites.has_key(p[3])):
         raise SemanticError("Use of undeclared sprite id: " + p[3])
     listSprites.append(p[2])
@@ -887,6 +908,7 @@ def p_more_sprite_list(p):
 def p_mapping(p):
     '''mapping : MAPPING D_2P mapping_rule D_PYC more_mapping_rules SMALL_END'''
     global gameSections, variables
+    # Add the mapping to the game dictionary
     gameSections[p[1]] = variables
     variables = {}
 
@@ -898,12 +920,14 @@ def p_mapping_rule(p):
     '''mapping_rule : CHAR_CT EQUAL ID more_spritesid'''
     global gameSections, listSprites, variables
     sprites = gameSections["SpriteSet"]
+    # Check all possible cases to conclude there is not semantic error
     if (not sprites.has_key(p[3])):
         raise SemanticError("Use of undeclared sprite id: " + p[3])
     if (p[1] in variables.values()):
         raise SemanticError("Repeated char for mapping: " + p[1])
     if (p[1] == "'\"'"):
         raise SemanticError("Forbidden char for mapping: " + '"')
+    # Append the sprite id to the beginning
     listSprites = [p[3]] + listSprites
     variables[p[1].replace("'", "")] = listSprites
     listSprites = []
@@ -912,10 +936,12 @@ def p_map(p):
     '''map : MAP D_2P STRING_CT D_PYC more_tiles SMALL_END'''
     global gameSections, listSprites
     mapping = gameSections["Mapping"]
+    # For every char in the string, check if there is a declared char mapping
     for mapping_id in p[3]:
         if ((not mapping.has_key(mapping_id)) and mapping_id != '"'):
             raise SemanticError("Use of undeclared char for mapping: " + mapping_id)
     listSprites = [p[3].replace('"', '')] + listSprites
+    # Add the map to the game dictionary
     gameSections[p[1]] = listSprites
     listSprites = []
 
@@ -925,6 +951,7 @@ def p_more_tiles(p):
     global listSprites, gameSections
     mapping = gameSections["Mapping"]
     try:
+        # For every char in the string, check if there is a declared char mapping
         for mapping_id in p[1]:
             if ((not mapping.has_key(mapping_id)) and mapping_id != '"'):
                 raise SemanticError("Use of undeclared char for mapping: " + mapping_id)
@@ -933,18 +960,26 @@ def p_more_tiles(p):
         return
 
 def p_block(p):
-    '''block : vars functions main_block'''
-    # Save global variables with its attributes.
-    global globalVariables, variables, avail
-    # TODO: - Guardar memoria virtual de una variable de lista
-    
-    # Obtener memoria virtual de la variable en el scope GLOBAL
-    for key in variables.iteritems():
+    '''block : vars save_vars_in_global_memory functions main_block'''
+    global globalVariables
+    globalVariables = {}
+
+# Helper function in sintaxis for semantic and compilation (virtual memory)
+def p_save_vars_in_global_memory(p):
+    '''save_vars_in_global_memory : '''
+    global functionDirectory, globalVariables, variables, avail
+    # TODO: - Virtual memory for lists
+
+    # Assign virtual memory to variables in global scope
+    for key in variables.keys():
         variables[key]["memory"] = avail[0][variables[key]["type"]]
         avail[0][variables[key]["type"]] += 1
-    
+
+    # Save global variables with its attributes.
     globalVariables = variables
     variables = {}
+    if (debug):
+        functionDirectory["global"] = globalVariables
 
 def p_vars(p):
     '''vars : var D_PYC vars
@@ -972,6 +1007,7 @@ def p_type(p):
             | CHAR
             | BOOLEAN'''
     global type
+    # Save the type of variable
     type = p[1]
 
 def p_functions(p):
@@ -1018,7 +1054,6 @@ def p_more_parameters(p):
 def p_main_block(p):
     '''main_block : MAIN D_2P code_block SMALL_END'''
     global functionDirectory, variables, avail
-    # Save Main function with its attributes.
     if (functionDirectory.has_key(p[1])):
         raise SemanticError("Repeated identifier for function: " + p[1])
     if (debug):
@@ -1026,14 +1061,15 @@ def p_main_block(p):
     variables = {}
 
 def p_code_block(p):
-    '''code_block : vars save_vars_in_memory mini_block'''
+    '''code_block : vars save_vars_in_local_memory mini_block'''
 
-def p_save_vars_in_memory(p):
-    '''save_vars_in_memory : '''
+# Helper function in sintaxis for semantic and compilation (virtual memory)
+def p_save_vars_in_local_memory(p):
+    '''save_vars_in_local_memory : '''
     global variables, avail
-    # TODO: - Guardar memoria virtual de una variable de lista
+    # TODO: - Virtual memory for a list
     
-    # Obtener memoria virtual de la variable en el scope GLOBAL
+    # Assign virtual memory to variables in local scope
     for key in variables.keys():
         typeInNumber = variables[key]["type"]
         if typeInNumber < 1000:
@@ -1049,11 +1085,13 @@ def p_statute(p):
                | function_use
                | return'''
 
+# Helper function in sintaxis for semantic (operators)
 def p_check_stack_equal(p):
     '''check_stack_equal : '''
     global stackOperators, stackTypes, stackOp, listCode
     if (stackOperators):
         if (stackOperators[-1] == '='):
+            # Different way to generate cuadruplet arithmetic != assignation
             operator = convertOperatorToCode(stackOperators.pop())
             op2 = stackOp.pop()
             op1 = stackOp.pop()
@@ -1075,6 +1113,7 @@ def p_more_ids(p):
 def p_assignation(p):
     '''assignation : received_id value_list push_equal expression'''
 
+# Helper function in sintaxis for semantic (operators)
 def p_push_equal(p):
     '''push_equal : EQUAL'''
     global stackOperators
@@ -1123,6 +1162,7 @@ def p_mini_block(p):
 def p_expression(p):
     '''expression : big_exp check_stack_or or_exp'''
 
+# Helper function in sintaxis for semantic (operators)
 def p_check_stack_or(p):
     '''check_stack_or : '''
     global stackOperators
@@ -1135,6 +1175,7 @@ def p_or_exp(p):
               | '''
     global stackOperators
     try:
+        # Add operator to the stack
         if (p[1] == '||'):
             stackOperators.append(p[1])
     except IndexError:
@@ -1143,6 +1184,7 @@ def p_or_exp(p):
 def p_big_exp(p):
     '''big_exp : medium_exp check_stack_and and_exp'''
 
+# Helper function in sintaxis for semantic (operators)
 def p_check_stack_and(p):
     '''check_stack_and : '''
     global stackOperators
@@ -1155,6 +1197,7 @@ def p_and_exp(p):
                | '''
     global stackOperators
     try:
+        # Add operator to the stack
         if (p[1] == '&&'):
             stackOperators.append(p[1])
     except IndexError:
@@ -1163,6 +1206,7 @@ def p_and_exp(p):
 def p_medium_exp(p):
     '''medium_exp : exp relational_exp check_stack_mmdi '''
 
+# Helper function in sintaxis for semantic (operators)
 def p_check_stack_mmdi(p):
     '''check_stack_mmdi : '''
     global stackOperators
@@ -1178,6 +1222,7 @@ def p_relational_exp(p):
                       | '''
     global stackOperators
     try:
+        # Add operator to the stack
         if (p[1] == '>' or p[1] == '<' or p[1] == '!=' or p[1] == '=='):
             stackOperators.append(p[1])
     except IndexError:
@@ -1186,6 +1231,7 @@ def p_relational_exp(p):
 def p_exp(p):
     '''exp : term check_stack_pm add_term'''
 
+# Helper function in sintaxis for semantic (operators)
 def p_check_stack_pm(p):
     '''check_stack_pm : '''
     global stackOperators
@@ -1197,6 +1243,7 @@ def p_add_term(p):
     '''add_term : push_pm exp
                 | '''
 
+# Helper function in sintaxis for semantic (operators)
 def p_push_pm(p):
     '''push_pm : PLUS
                | MINUS'''
@@ -1206,10 +1253,10 @@ def p_push_pm(p):
 def p_term(p):
     '''term : factor check_stack_td times_factor'''
 
+# Helper function in sintaxis for semantic (operators)
 def p_check_stack_td(p):
     '''check_stack_td : '''
     global stackOperators
-    print stackOperators
     if (stackOperators):
         if (stackOperators[-1] == '*' or stackOperators[-1] == '/'):
             generateArithmeticCode()
@@ -1218,6 +1265,7 @@ def p_times_factor(p):
     '''times_factor : push_td term
                     | '''
 
+# Helper function in sintaxis for semantic (operators)
 def p_push_td(p):
     '''push_td : TIMES
                | DIVISION'''
@@ -1225,8 +1273,20 @@ def p_push_td(p):
     stackOperators.append(p[1])
 
 def p_factor(p):
-    '''factor : D_PA expression D_PC
+    '''factor : push_pa expression pop_pc
               | var_ct'''
+
+# Helper function in sintaxis for semantic (operators)
+def p_push_pa(p):
+    '''push_pa : D_PA'''
+    global stackOperators
+    stackOperators.append(p[1])
+
+# Helper function in sintaxis for semantic (operators)
+def p_pop_pc(p):
+    '''pop_pc : D_PC'''
+    global stackOperators
+    stackOperators.pop()
 
 def p_var_ct(p):
     '''var_ct : received_id value_list
@@ -1239,15 +1299,22 @@ def p_var_ct(p):
     # TODO: - What happens when you receive a function
 
 
-# Helper functions of var_ct for semantic analysis
+# Helper functions of var_ct for semantic analysis (operands)
+# id checks if the id was declared, if not, there is an error.
 def p_received_id(p):
     '''received_id : ID'''
-    global stackTypes, stackOp, variables
+    global stackTypes, stackOp, variables, globalVariables
     if (not variables.has_key(p[1])):
-        raise SemanticError("Use of undeclared identifier for variable: " + p[1])
-    stackOp.append(variables[p[1]]["memory"])
-    stackTypes.append(variables[p[1]]["type"])
+        if (not globalVariables.has_key(p[1])):
+            raise SemanticError("Use of undeclared identifier for variable: " + p[1])
+        else:
+            stackOp.append(globalVariables[p[1]]["memory"])
+            stackTypes.append(globalVariables[p[1]]["type"])
+    else:
+        stackOp.append(variables[p[1]]["memory"])
+        stackTypes.append(variables[p[1]]["type"])
 
+# the rest of the variables check if they exists in virtual memory, if not, add them.
 def p_received_float(p):
     '''received_float : FLOAT_CT'''
     global variables, avail, stackOp, stackTypes
@@ -1299,22 +1366,27 @@ def p_error(p):
     if not p:
         print("EOF")
 
+# Helper function used to generate the code used for arithmetic, logic and relational operations
 def generateArithmeticCode():
     global stackOperators, stackTypes, stackOp, avail, listCode
     if (debug):
         print "stack of operators: ", stackOperators
         print "stack of operands: ", stackOp
         print "stack of types: ", stackTypes
+    
+    # Get all the variables to test and generate a cuadruplet
     operator = convertOperatorToCode(stackOperators.pop())
     op2 = stackOp.pop()
     op1 = stackOp.pop()
     op2Type = stackTypes.pop()
     op1Type = stackTypes.pop()
     newType = semanticCube[op1Type-100][op2Type-100][operator]
+    # If the semantic cube tell us that the operation is not possible
     if (newType == -1):
         raise SemanticError("Type Mismatch: Trying to " + str(operator) + " = " + str(op1Type) + " :: " + str(op2Type))
     result = avail[2][newType]
     avail[2][newType] += 1
+    # Generate the cuadruplet, append result to the stacks
     listCode.append((operator, op1, op2, result))
     stackOp.append(result)
     stackTypes.append(newType)
@@ -1329,6 +1401,7 @@ while 1:
         s = raw_input('arcadame > ')
     except EOFError:
         break
+    # Initialize the global variables in each run
     functionDirectory = {"global": {}}
     avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000, 106:7000}, 1: {101: 8000, 102:9000, 103:10000, 104:11000, 105:12000, 106:13000}, 2: {101: 14000, 102:15000, 103:16000, 104:17000, 105:18000, 106:19000}, 3: {101: 20000, 102:21000, 103:22000, 104:23000, 105:24000, 106:25000}}
     variables = {}
@@ -1342,6 +1415,8 @@ while 1:
     stackTypes = []
     stackOperators = []
     stackOp = []
+
+    # Start the scanning and parsing
     with open(s) as fp:
         completeString = ""
         for line in fp:
