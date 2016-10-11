@@ -6,12 +6,23 @@
 # A simple scanner and parser for the languange Arcadame
 # -----------------------------------------------------------------------------
 
-
+# + = 0
+# * = 1
+# - = 2
+# / = 3
+# && = 4
+# || = 5
+# < = 6
+# > = 7
+# != = 8
+# == = 9
+# = = 10
 # int = 101
 # float = 102
 # string = 103
 # char = 104
 # boolean = 105
+# list = 1000
 # Immovable = 201
 # MovingAvatar = 202
 # ShootingAvatar = 203
@@ -25,14 +36,20 @@ sys.path.insert(0, "../..")
 if sys.version_info[0] >= 3:
     raw_input = input
 
-debug = False
+debug = True
 
+avail = {}
+stackTypes = []
+stackOperators = []
+stackOp = []
+listCode = []
 listSprites = []
 killSprites = []
 gameAttrs = {}
 gameSections = {}
 functionDirectory = {}
 variables = {}
+parameters = []
 globalVariables = {}
 typeOfVariable = ""
 
@@ -53,6 +70,13 @@ class SemanticError(Exception):
         self.value = value
     def __str__(self):
         return repr(self.value)
+
+semanticCube = [[[-1,-1,-1,-1,-1,-1,-1,-1,-1,105], [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [101,101,101,101,-1,-1,105,105,105,105],   [102,102,102,102,-1,-1,105,105,105,105],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [102,102,102,102,-1,-1,105,105,105,105],   [102,102,102,102,-1,-1,105,105,105,105],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,105,105],  [-1,-1,-1,-1,-1,-1,-1,-1,105,105],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,105,105],  [-1,-1,-1,-1,-1,-1,-1,-1,105,105],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,105,105,-1,-1,105,105]]]
 
 def convertAtomicTypeToCode(type):
     if (type == "int"):
@@ -77,6 +101,28 @@ def convertAtomicTypeToCode(type):
         return 205
     elif (type == "Passive"):
         return 206
+
+def convertOperatorToCode(type):
+    if (type == '+'):
+        return 0
+    elif (type == '*'):
+        return 1
+    elif (type == '-'):
+        return 2
+    elif (type == '/'):
+        return 3
+    elif (type == '&&'):
+        return 4
+    elif (type == '||'):
+        return 5
+    elif (type == '<'):
+        return 6
+    elif (type == '>'):
+        return 7
+    elif (type == '!='):
+        return 8
+    elif (type == '=='):
+        return 9
 
 # Define token names
 tokens = (
@@ -889,7 +935,14 @@ def p_more_tiles(p):
 def p_block(p):
     '''block : vars functions main_block'''
     # Save global variables with its attributes.
-    global globalVariables, variables
+    global globalVariables, variables, avail
+    # TODO: - Guardar memoria virtual de una variable de lista
+    
+    # Obtener memoria virtual de la variable en el scope GLOBAL
+    for key in variables.iteritems():
+        variables[key]["memory"] = avail[0][variables[key]["type"]]
+        avail[0][variables[key]["type"]] += 1
+    
     globalVariables = variables
     variables = {}
 
@@ -909,7 +962,8 @@ def p_var(p):
     else:
         if (variables.has_key(p[4])):
             raise SemanticError("Repeated identifier for variable: " + p[4])
-        variables[p[4]] = {"type": convertAtomicTypeToCode(type)}
+        typeInNumber = convertAtomicTypeToCode(type)
+        variables[p[4]] = {"type": typeInNumber}
 
 def p_type(p):
     '''type : INT
@@ -926,12 +980,12 @@ def p_functions(p):
 
 def p_function(p):
     '''function : FUNC ID D_PA parameters D_PC EQUAL type D_2P code_block SMALL_END'''
-    global functionDirectory, variables
+    global functionDirectory, variables, parameters
     # Save the function with its variables
     if (functionDirectory.has_key(p[2])):
         raise SemanticError("Repeated identifier for function: " + p[2])
     if (debug):
-        functionDirectory[p[2]] = {"variables": variables}
+        functionDirectory[p[2]] = {"variables": variables, "parameters": parameters}
     variables = {}
 
 def p_parameters(p):
@@ -944,16 +998,18 @@ def p_parameter(p):
 def p_type_parameter(p):
     '''type_parameter : D_AMP ID
                       | ID'''
-    global variables, type
+    global variables, type, parameters
     # Get parameter attributes and save it.
     if (p[1] == '&'):
         if (variables.has_key(p[2])):
             raise SemanticError("Repeated identifier for variable: " + p[2])
         variables[p[2]] = {"type": convertAtomicTypeToCode(type), "reference_parameter": True}
+        parameters.append(convertAtomicTypeToCode(type))
     else:
         if (variables.has_key(p[1])):
             raise SemanticError("Repeated identifier for variable: " + p[1])
         variables[p[1]] = {"type": convertAtomicTypeToCode(type), "reference_parameter": False}
+        parameters.append(convertAtomicTypeToCode(type))
 
 def p_more_parameters(p):
     '''more_parameters : D_C parameter more_parameters
@@ -961,7 +1017,7 @@ def p_more_parameters(p):
 
 def p_main_block(p):
     '''main_block : MAIN D_2P code_block SMALL_END'''
-    global functionDirectory, variables
+    global functionDirectory, variables, avail
     # Save Main function with its attributes.
     if (functionDirectory.has_key(p[1])):
         raise SemanticError("Repeated identifier for function: " + p[1])
@@ -970,16 +1026,42 @@ def p_main_block(p):
     variables = {}
 
 def p_code_block(p):
-    '''code_block : vars mini_block'''
+    '''code_block : vars save_vars_in_memory mini_block'''
+
+def p_save_vars_in_memory(p):
+    '''save_vars_in_memory : '''
+    global variables, avail
+    # TODO: - Guardar memoria virtual de una variable de lista
+    
+    # Obtener memoria virtual de la variable en el scope GLOBAL
+    for key in variables.keys():
+        typeInNumber = variables[key]["type"]
+        if typeInNumber < 1000:
+            variables[key]["memory"] = avail[1][typeInNumber]
+            avail[1][typeInNumber] += 1
 
 def p_statute(p):
-    '''statute : assignation
+    '''statute : assignation check_stack_equal
                | condition
                | printing
                | reading
                | cycle
                | function_use
                | return'''
+
+def p_check_stack_equal(p):
+    '''check_stack_equal : '''
+    global stackOperators, stackTypes, stackOp, listCode
+    if (stackOperators):
+        if (stackOperators[-1] == '='):
+            operator = convertOperatorToCode(stackOperators.pop())
+            op2 = stackOp.pop()
+            op1 = stackOp.pop()
+            op2Type = stackTypes.pop()
+            op1Type = stackTypes.pop()
+            if (op1Type != op2Type):
+                raise SemanticError("Type Mismatch: Trying to assign " + str(op2Type) + " to a " + str(op1Type) + " var!")
+            listCode.append((operator, op2, 'null', op1))
 
 def p_function_use(p):
     '''function_use : ID D_PA expression more_ids D_PC
@@ -991,7 +1073,12 @@ def p_more_ids(p):
                 | '''
 
 def p_assignation(p):
-    '''assignation : ID value_list EQUAL expression'''
+    '''assignation : received_id value_list push_equal expression'''
+
+def p_push_equal(p):
+    '''push_equal : EQUAL'''
+    global stackOperators
+    stackOperators.append(p[1])
 
 def p_value_list(p):
     '''value_list : D_CA expression D_CC
@@ -1034,21 +1121,54 @@ def p_mini_block(p):
                   | '''
 
 def p_expression(p):
-    '''expression : big_exp or_exp'''
+    '''expression : big_exp check_stack_or or_exp'''
+
+def p_check_stack_or(p):
+    '''check_stack_or : '''
+    global stackOperators
+    if (stackOperators):
+        if (stackOperators[-1] == '||'):
+            generateArithmeticCode()
 
 def p_or_exp(p):
     '''or_exp : OR expression
               | '''
+    global stackOperators
+    try:
+        if (p[1] == '||'):
+            stackOperators.append(p[1])
+    except IndexError:
+        return
 
 def p_big_exp(p):
-    '''big_exp : medium_exp and_exp'''
+    '''big_exp : medium_exp check_stack_and and_exp'''
+
+def p_check_stack_and(p):
+    '''check_stack_and : '''
+    global stackOperators
+    if (stackOperators):
+        if (stackOperators[-1] == '&&'):
+            generateArithmeticCode()
 
 def p_and_exp(p):
     '''and_exp : AND big_exp
                | '''
+    global stackOperators
+    try:
+        if (p[1] == '&&'):
+            stackOperators.append(p[1])
+    except IndexError:
+        return
 
 def p_medium_exp(p):
-    '''medium_exp : exp relational_exp'''
+    '''medium_exp : exp relational_exp check_stack_mmdi '''
+
+def p_check_stack_mmdi(p):
+    '''check_stack_mmdi : '''
+    global stackOperators
+    if (stackOperators):
+        if (stackOperators[-1] == '>' or stackOperators[-1] == '<' or stackOperators[-1] == '!=' or stackOperators == '=='):
+            generateArithmeticCode()
 
 def p_relational_exp(p):
     '''relational_exp : MAYOR_QUE exp
@@ -1056,43 +1176,148 @@ def p_relational_exp(p):
                       | DIFERENTE_DE exp
                       | IGUAL_QUE exp
                       | '''
+    global stackOperators
+    try:
+        if (p[1] == '>' or p[1] == '<' or p[1] == '!=' or p[1] == '=='):
+            stackOperators.append(p[1])
+    except IndexError:
+        return
 
 def p_exp(p):
-    '''exp : term add_term'''
+    '''exp : term check_stack_pm add_term'''
+
+def p_check_stack_pm(p):
+    '''check_stack_pm : '''
+    global stackOperators
+    if (stackOperators):
+        if (stackOperators[-1] == '+' or stackOperators[-1] == '-'):
+            generateArithmeticCode()
 
 def p_add_term(p):
-    '''add_term : PLUS exp
-                | MINUS exp
+    '''add_term : push_pm exp
                 | '''
 
+def p_push_pm(p):
+    '''push_pm : PLUS
+               | MINUS'''
+    global stackOperators
+    stackOperators.append(p[1])
+
 def p_term(p):
-    '''term : factor times_factor'''
+    '''term : factor check_stack_td times_factor'''
+
+def p_check_stack_td(p):
+    '''check_stack_td : '''
+    global stackOperators
+    print stackOperators
+    if (stackOperators):
+        if (stackOperators[-1] == '*' or stackOperators[-1] == '/'):
+            generateArithmeticCode()
 
 def p_times_factor(p):
-    '''times_factor : TIMES term
-                    | DIVISION term
+    '''times_factor : push_td term
                     | '''
+
+def p_push_td(p):
+    '''push_td : TIMES
+               | DIVISION'''
+    global stackOperators
+    stackOperators.append(p[1])
 
 def p_factor(p):
     '''factor : D_PA expression D_PC
-              | PLUS var_ct
-              | MINUS var_ct
               | var_ct'''
 
 def p_var_ct(p):
-    '''var_ct : ID value_list
-              | FLOAT_CT
-              | INT_CT
-              | BOOLEAN_CT
-              | STRING_CT
-              | CHAR_CT
+    '''var_ct : received_id value_list
+              | received_float
+              | received_int
+              | received_boolean
+              | received_string
+              | received_char
               | function_use'''
+    # TODO: - What happens when you receive a function
+
+
+# Helper functions of var_ct for semantic analysis
+def p_received_id(p):
+    '''received_id : ID'''
+    global stackTypes, stackOp, variables
+    if (not variables.has_key(p[1])):
+        raise SemanticError("Use of undeclared identifier for variable: " + p[1])
+    stackOp.append(variables[p[1]]["memory"])
+    stackTypes.append(variables[p[1]]["type"])
+
+def p_received_float(p):
+    '''received_float : FLOAT_CT'''
+    global variables, avail, stackOp, stackTypes
+    if (not variables.has_key(p[1])):
+        variables[p[1]] = {"type": 102, "memory": avail[3][102]}
+        avail[3][102] += 1
+    stackOp.append(variables[p[1]]["memory"])
+    stackTypes.append(variables[p[1]]["type"])
+
+def p_received_int(p):
+    '''received_int : INT_CT'''
+    global variables, avail, stackOp, stackTypes
+    if (not variables.has_key(p[1])):
+        variables[p[1]] = {"type": 101, "memory": avail[3][101]}
+        avail[3][101] += 1
+    stackOp.append(variables[p[1]]["memory"])
+    stackTypes.append(variables[p[1]]["type"])
+
+def p_received_boolean(p):
+    '''received_boolean : BOOLEAN_CT'''
+    global variables, avail, stackOp, stackTypes
+    if (not variables.has_key(p[1])):
+        variables[p[1]] = {"type": 105, "memory": avail[3][105]}
+        avail[3][105] += 1
+    stackOp.append(variables[p[1]]["memory"])
+    stackTypes.append(variables[p[1]]["type"])
+
+def p_received_string(p):
+    '''received_string : STRING_CT'''
+    global variables, avail, stackOp, stackTypes
+    if (not variables.has_key(p[1])):
+        variables[p[1]] = {"type": 103, "memory": avail[3][103]}
+        avail[3][103] += 1
+    stackOp.append(variables[p[1]]["memory"])
+    stackTypes.append(variables[p[1]]["type"])
+
+def p_received_char(p):
+    '''received_char : CHAR_CT'''
+    global variables, avail, stackOp, stackTypes
+    if (not variables.has_key(p[1])):
+        variables[p[1]] = {"type": 104, "memory": avail[3][104]}
+        avail[3][104] += 1
+    stackOp.append(variables[p[1]]["memory"])
+    stackTypes.append(variables[p[1]]["type"])
 
 def p_error(p):
     if p:
         raise SyntaxError("Syntax error at '%s'" % p.value)
     if not p:
         print("EOF")
+
+def generateArithmeticCode():
+    global stackOperators, stackTypes, stackOp, avail, listCode
+    if (debug):
+        print "stack of operators: ", stackOperators
+        print "stack of operands: ", stackOp
+        print "stack of types: ", stackTypes
+    operator = convertOperatorToCode(stackOperators.pop())
+    op2 = stackOp.pop()
+    op1 = stackOp.pop()
+    op2Type = stackTypes.pop()
+    op1Type = stackTypes.pop()
+    newType = semanticCube[op1Type-100][op2Type-100][operator]
+    if (newType == -1):
+        raise SemanticError("Type Mismatch: Trying to " + str(operator) + " = " + str(op1Type) + " :: " + str(op2Type))
+    result = avail[2][newType]
+    avail[2][newType] += 1
+    listCode.append((operator, op1, op2, result))
+    stackOp.append(result)
+    stackTypes.append(newType)
 
 # Import yacc
 import ply.yacc as yacc
@@ -1105,21 +1330,27 @@ while 1:
     except EOFError:
         break
     functionDirectory = {"global": {}}
+    avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000, 106:7000}, 1: {101: 8000, 102:9000, 103:10000, 104:11000, 105:12000, 106:13000}, 2: {101: 14000, 102:15000, 103:16000, 104:17000, 105:18000, 106:19000}, 3: {101: 20000, 102:21000, 103:22000, 104:23000, 105:24000, 106:25000}}
     variables = {}
+    parameters = []
     globalVariables = {}
     gameSections = {}
     gameAttrs = {}
     killSprites = []
     listSprites = []
+    listCode = []
+    stackTypes = []
+    stackOperators = []
+    stackOp = []
     with open(s) as fp:
         completeString = ""
         for line in fp:
             completeString += line
-        # print completeString
         try:
             parser.parse(completeString)
             if (debug):
-                print functionDirectory
+                print "dictionary of functions: ", functionDirectory
+                print "list of cuadruplets: ", listCode
             print("Correct program")
         except EOFError:
             break

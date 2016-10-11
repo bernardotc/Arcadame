@@ -16,7 +16,7 @@ Program Example2:
             iterator = ladoA;
             while (iterator > 0 && b):
                 print(iterator);
-                iterator = iterator - 1;
+                iterator = iterator - 1 * (5 - 3 / 4) - 6 * 5 / 4;
             end;
         else:
             if (ladoB > ladoA && ladoC < ladoB):

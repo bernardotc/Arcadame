@@ -1,0 +1,9 @@
+Program Example2:
+    var boolean: b;
+    Main:
+        var float: ladoA;
+        var float: ladoB;
+        var float: ladoC;
+        ladoA = ladoB + 5 * 9 - ladoC / ladoA - 5 * 7.8;
+    end
+End
