@@ -36,13 +36,15 @@ sys.path.insert(0, "../..")
 if sys.version_info[0] >= 3:
     raw_input = input
 
-debug = False
+debug = True
 
 # Global variables, dictionaries and lists
 avail = {}
+stackJumps = []
 stackTypes = []
 stackOperators = []
 stackOp = []
+stackOpVisible = []
 listCode = []
 listSprites = []
 killSprites = []
@@ -50,6 +52,7 @@ gameAttrs = {}
 gameSections = {}
 functionDirectory = {}
 variables = {}
+constants = {}
 parameters = []
 globalVariables = {}
 typeOfVariable = ""
@@ -124,6 +127,22 @@ def convertOperatorToCode(type):
         return 8
     elif (type == '=='):
         return 9
+    elif (type == '='):
+        return 10
+    elif (type == 'goto'):
+        return 11
+    elif (type == 'gotoF'):
+        return 12
+    elif (type == 'print'):
+        return 13
+    elif (type == 'getValue'):
+        return 14
+    elif (type == 'getLine'):
+        return 15
+    elif (type == 'getBoolean'):
+        return 16
+    elif (type == 'getChar'):
+        return 17
 
 # Define token names
 tokens = (
@@ -690,12 +709,14 @@ start = 'programa'
 def p_programa(p):
     '''programa : SIMPLEGAME ID D_2P sprites interactions goals mapping map block BIG_END
                 | PROGRAM ID D_2P block BIG_END'''
-    global functionDirectory, gameSections
+    global functionDirectory, gameSections, constants
     # Save SimpleGame in function directory
     if (p[1] == "SimpleGame"):
         if (debug):
             functionDirectory["SimpleGame"] = {"sections" : gameSections}
         gameSections = {}
+    if (debug):
+        functionDirectory["constants"] = constants
 
 def p_sprites(p):
     '''sprites : SPRITESET D_2P sprite D_PYC more_sprites SMALL_END'''
@@ -1099,7 +1120,7 @@ def p_check_stack_equal(p):
             op1Type = stackTypes.pop()
             if (op1Type != op2Type):
                 raise SemanticError("Type Mismatch: Trying to assign " + str(op2Type) + " to a " + str(op1Type) + " var!")
-            listCode.append((operator, op2, 'null', op1))
+            listCode.append([operator, op2, 'null', op1])
 
 def p_function_use(p):
     '''function_use : ID D_PA expression more_ids D_PC
@@ -1132,25 +1153,117 @@ def p_printable(p):
 def p_more_printable(p):
     '''more_printable : D_C printable
                       | '''
+    global stackOp, stackTypes, stackOpVisible, listCode
+    expression = stackOp.pop()
+    stackTypes.pop()
+    stackOpVisible.pop()
+    listCode.append([convertOperatorToCode("print"), 'null', 'null', expression])
 
 def p_condition(p):
-    '''condition : IF D_PA expression D_PC D_2P mini_block else_condition SMALL_END'''
+    '''condition : IF D_PA expression D_PC generate_gotoF_if D_2P mini_block else_condition SMALL_END generate_end_if'''
+
+def p_generate_gotoF_if(p):
+    '''generate_gotoF_if : '''
+    global stackOp, stackTypes, stackOpVisible, stackJumps, listCode
+    condtionType = stackTypes.pop()
+    if (condtionType != convertAtomicTypeToCode("boolean")):
+        raise SemanticError("Expected boolean in if condition. Received: " + str(condtionType))
+    condition = stackOp.pop()
+    stackOpVisible.pop()
+    listCode.append([convertOperatorToCode("gotoF"), condition, 'null', 'pending'])
+    stackJumps.append(len(listCode) - 1) # Make it as a list that starts in 0.
+
+def p_generate_end_if(p):
+    '''generate_end_if : '''
+    global stackJumps, listCode
+    endJump = stackJumps.pop()
+    listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
 
 def p_else_condition(p):
-    '''else_condition : ELSE D_2P mini_block
+    '''else_condition : ELSE generate_goto_else D_2P mini_block
                       |'''
 
-def p_reading(p):
-    '''reading : reading_type D_PA ID D_PC'''
+def p_generate_goto_else(p):
+    '''generate_goto_else : '''
+    global stackJumps, listCode
+    listCode.append([convertOperatorToCode("goto"),'null','null','pending'])
+    falseJump = stackJumps.pop()
+    listCode[falseJump][3] = len(listCode) + 1
+    stackJumps.append(len(listCode) - 1)
 
-def p_reading_type(p):
-    '''reading_type : GETVALUE
-                    | GETLINE
-                    | GETBOOLEAN
-                    | GETCHAR'''
+def p_reading(p):
+    '''reading : GETVALUE D_PA received_id D_PC generate_read_value
+               | GETLINE D_PA received_id D_PC generate_read_line
+               | GETBOOLEAN D_PA received_id D_PC generate_read_boolean
+               | GETCHAR D_PA received_id D_PC generate_read_char'''
+
+# Helper functions in sintaxis for semantic (intermediate code generators)
+def p_generate_read_value(p):
+    '''generate_read_value : '''
+    global stackOp, stackTypes, stackOpVisible, listCode
+    typeOfVariable = stackTypes.pop()
+    if (not (typeOfVariable == convertAtomicTypeToCode('int') or typeOfVariable == convertAtomicTypeToCode('float'))):
+        raise SemanticError("Type mismatch: Trying to read an int or float and assign it to a variable type: " + str(typeOfVariable))
+    variable = stackOp.pop()
+    stackOpVisible.pop()
+    listCode.append([convertOperatorToCode("getValue"), 'null', 'null', variable])
+
+def p_generate_read_line(p):
+    '''generate_read_line : '''
+    global stackOp, stackTypes, stackOpVisible, listCode
+    typeOfVariable = stackTypes.pop()
+    if (not (typeOfVariable == convertOperatorToCode('string') or typeOfVariable == convertAtomicTypeToCode('char'))):
+        raise SemanticError("Type mismatch: Trying to read a string or char and assign it to a variable type: " + str(typeOfVariable))
+    variable = stackOp.pop()
+    stackOpVisible.pop()
+    listCode.append([convertOperatorToCode("getLine"), 'null', 'null', variable])
+
+def p_generate_read_boolean(p):
+    '''generate_read_boolean : '''
+    global stackOp, stackTypes, stackOpVisible, listCode
+    typeOfVariable = stackTypes.pop()
+    if (not (typeOfVariable == convertAtomicTypeToCode('boolean'))):
+        raise SemanticError("Type mismatch: Trying to read a boolean and assign it to a variable type: " + str(typeOfVariable))
+    variable = stackOp.pop()
+    stackOpVisible.pop()
+    listCode.append([convertOperatorToCode("getBoolean"), 'null', 'null', variable])
+
+def p_generate_read_char(p):
+    '''generate_read_char : '''
+    global stackOp, stackTypes, stackOpVisible, listCode
+    typeOfVariable = stackTypes.pop()
+    if (not (typeOfVariable == convertAtomicTypeToCode('char'))):
+        raise SemanticError("Type mismatch: Trying to read a char and assign it to a variable type: " + str(typeOfVariable))
+    variable = stackOp.pop()
+    stackOpVisible.pop()
+    listCode.append([convertOperatorToCode("getChar"), 'null', 'null', variable])
 
 def p_cycle(p):
-    '''cycle : WHILE D_PA expression D_PC D_2P mini_block SMALL_END'''
+    '''cycle : WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while'''
+
+def p_push_cont_in_stackJumps(p):
+    '''push_cont_in_stackJumps : '''
+    global stackJumps, listCode
+    stackJumps.append(len(listCode) + 1)
+
+def p_generate_gotoF_while(p):
+    '''generate_gotoF_while : '''
+    global stackOp, stackTypes, stackOpVisible, stackJumps, listCode
+    condtionType = stackTypes.pop()
+    if (condtionType != convertAtomicTypeToCode("boolean")):
+        raise SemanticError("Expected boolean in if condition. Received: " + str(condtionType))
+    condition = stackOp.pop()
+    stackOpVisible.pop()
+    listCode.append([convertOperatorToCode("gotoF"), condition, 'null', 'pending'])
+    stackJumps.append(len(listCode) - 1) # Make it as a list that starts in 0.
+
+def p_generate_end_while(p):
+    '''generate_end_while : '''
+    global stackJumps, listCode
+    falseJump = stackJumps.pop()
+    returnJump = stackJumps.pop()
+    listCode.append([convertOperatorToCode("goto"), 'null', 'null', returnJump])
+    listCode[falseJump][3] = len(listCode) + 1
 
 def p_return(p):
     '''return : RETURN expression'''
@@ -1303,62 +1416,69 @@ def p_var_ct(p):
 # id checks if the id was declared, if not, there is an error.
 def p_received_id(p):
     '''received_id : ID'''
-    global stackTypes, stackOp, variables, globalVariables
+    global stackTypes, stackOp, variables, globalVariables, stackOpVisible
     if (not variables.has_key(p[1])):
         if (not globalVariables.has_key(p[1])):
             raise SemanticError("Use of undeclared identifier for variable: " + p[1])
         else:
             stackOp.append(globalVariables[p[1]]["memory"])
+            stackOpVisible.append(p[1])
             stackTypes.append(globalVariables[p[1]]["type"])
     else:
         stackOp.append(variables[p[1]]["memory"])
+        stackOpVisible.append(p[1])
         stackTypes.append(variables[p[1]]["type"])
 
 # the rest of the variables check if they exists in virtual memory, if not, add them.
 def p_received_float(p):
     '''received_float : FLOAT_CT'''
-    global variables, avail, stackOp, stackTypes
-    if (not variables.has_key(p[1])):
-        variables[p[1]] = {"type": 102, "memory": avail[3][102]}
+    global constants, avail, stackOp, stackTypes, stackOpVisible
+    if (not constants.has_key(p[1])):
+        constants[p[1]] = {"type": 102, "memory": avail[3][102]}
         avail[3][102] += 1
-    stackOp.append(variables[p[1]]["memory"])
-    stackTypes.append(variables[p[1]]["type"])
+    stackOp.append(constants[p[1]]["memory"])
+    stackOpVisible.append(p[1])
+    stackTypes.append(constants[p[1]]["type"])
 
 def p_received_int(p):
     '''received_int : INT_CT'''
-    global variables, avail, stackOp, stackTypes
-    if (not variables.has_key(p[1])):
-        variables[p[1]] = {"type": 101, "memory": avail[3][101]}
+    global constants, avail, stackOp, stackTypes, stackOpVisible
+    if (not constants.has_key(p[1])):
+        constants[p[1]] = {"type": 101, "memory": avail[3][101]}
         avail[3][101] += 1
-    stackOp.append(variables[p[1]]["memory"])
-    stackTypes.append(variables[p[1]]["type"])
+    stackOp.append(constants[p[1]]["memory"])
+    stackOpVisible.append(p[1])
+    stackTypes.append(constants[p[1]]["type"])
 
 def p_received_boolean(p):
     '''received_boolean : BOOLEAN_CT'''
-    global variables, avail, stackOp, stackTypes
-    if (not variables.has_key(p[1])):
-        variables[p[1]] = {"type": 105, "memory": avail[3][105]}
+    global constants, avail, stackOp, stackTypes, stackOpVisible
+    if (not constants.has_key(p[1])):
+        constants[p[1]] = {"type": 105, "memory": avail[3][105]}
         avail[3][105] += 1
-    stackOp.append(variables[p[1]]["memory"])
-    stackTypes.append(variables[p[1]]["type"])
+    stackOp.append(constants[p[1]]["memory"])
+    stackOpVisible.append(p[1])
+    stackTypes.append(constants[p[1]]["type"])
 
 def p_received_string(p):
     '''received_string : STRING_CT'''
-    global variables, avail, stackOp, stackTypes
-    if (not variables.has_key(p[1])):
-        variables[p[1]] = {"type": 103, "memory": avail[3][103]}
+    global constants, avail, stackOp, stackTypes, stackOpVisible
+    if (not constants.has_key(p[1])):
+        constants[p[1]] = {"type": 103, "memory": avail[3][103]}
         avail[3][103] += 1
-    stackOp.append(variables[p[1]]["memory"])
+    stackOp.append(constants[p[1]]["memory"])
+    stackOpVisible.append(p[1])
     stackTypes.append(variables[p[1]]["type"])
 
 def p_received_char(p):
     '''received_char : CHAR_CT'''
-    global variables, avail, stackOp, stackTypes
-    if (not variables.has_key(p[1])):
-        variables[p[1]] = {"type": 104, "memory": avail[3][104]}
+    global constants, avail, stackOp, stackTypes, stackOpVisible
+    if (not constants.has_key(p[1])):
+        constants[p[1]] = {"type": 104, "memory": avail[3][104]}
         avail[3][104] += 1
-    stackOp.append(variables[p[1]]["memory"])
-    stackTypes.append(variables[p[1]]["type"])
+    stackOp.append(constants[p[1]]["memory"])
+    stackOpVisible.append(p[1])
+    stackTypes.append(constants[p[1]]["type"])
 
 def p_error(p):
     if p:
@@ -1368,9 +1488,10 @@ def p_error(p):
 
 # Helper function used to generate the code used for arithmetic, logic and relational operations
 def generateArithmeticCode():
-    global stackOperators, stackTypes, stackOp, avail, listCode
+    global stackOperators, stackTypes, stackOp, avail, listCode, stackOpVisible
     if (debug):
         print "stack of operators: ", stackOperators
+        print "stack of operands: ", stackOpVisible
         print "stack of operands: ", stackOp
         print "stack of types: ", stackTypes
     
@@ -1378,6 +1499,8 @@ def generateArithmeticCode():
     operator = convertOperatorToCode(stackOperators.pop())
     op2 = stackOp.pop()
     op1 = stackOp.pop()
+    stackOpVisible.pop()
+    stackOpVisible.pop()
     op2Type = stackTypes.pop()
     op1Type = stackTypes.pop()
     newType = semanticCube[op1Type-100][op2Type-100][operator]
@@ -1387,8 +1510,9 @@ def generateArithmeticCode():
     result = avail[2][newType]
     avail[2][newType] += 1
     # Generate the cuadruplet, append result to the stacks
-    listCode.append((operator, op1, op2, result))
+    listCode.append([operator, op1, op2, result])
     stackOp.append(result)
+    stackOpVisible.append(result)
     stackTypes.append(newType)
 
 # Import yacc
@@ -1405,6 +1529,7 @@ while 1:
     functionDirectory = {"global": {}}
     avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000, 106:7000}, 1: {101: 8000, 102:9000, 103:10000, 104:11000, 105:12000, 106:13000}, 2: {101: 14000, 102:15000, 103:16000, 104:17000, 105:18000, 106:19000}, 3: {101: 20000, 102:21000, 103:22000, 104:23000, 105:24000, 106:25000}}
     variables = {}
+    constants = {}
     parameters = []
     globalVariables = {}
     gameSections = {}
@@ -1415,6 +1540,8 @@ while 1:
     stackTypes = []
     stackOperators = []
     stackOp = []
+    stackOpVisible = []
+    stackJumps = []
 
     # Start the scanning and parsing
     with open(s) as fp:
