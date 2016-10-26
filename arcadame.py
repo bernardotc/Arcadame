@@ -56,6 +56,10 @@ constants = {}
 parameters = []
 globalVariables = {}
 typeOfVariable = ""
+functionId = ""
+paramCounter = 0
+goSubFunction = ""
+temporalStamp = {}
 
 class LexerError(Exception):
     def __init__(self, value):
@@ -143,6 +147,14 @@ def convertOperatorToCode(type):
         return 16
     elif (type == 'getChar'):
         return 17
+    elif (type == 'endFunc'):
+        return 18
+    elif (type == 'era'):
+        return 19
+    elif (type == 'gosub'):
+        return 20
+    elif (type == 'param'):
+        return 21
 
 # Define token names
 tokens = (
@@ -707,8 +719,8 @@ lex.lex()
 start = 'programa'
 
 def p_programa(p):
-    '''programa : SIMPLEGAME ID D_2P sprites interactions goals mapping map block BIG_END
-                | PROGRAM ID D_2P block BIG_END'''
+    '''programa : SIMPLEGAME generate_initial_goto ID D_2P sprites interactions goals mapping map block BIG_END
+                | PROGRAM generate_initial_goto ID D_2P block BIG_END'''
     global functionDirectory, gameSections, constants
     # Save SimpleGame in function directory
     if (p[1] == "SimpleGame"):
@@ -717,6 +729,12 @@ def p_programa(p):
         gameSections = {}
     if (debug):
         functionDirectory["constants"] = constants
+
+def p_generate_initial_goto(p):
+    '''generate_initial_goto : '''
+    global listCode, stackJumps
+    listCode.append([convertOperatorToCode('goto'),-1,-1,'pending'])
+    stackJumps.append(len(listCode))
 
 def p_sprites(p):
     '''sprites : SPRITESET D_2P sprite D_PYC more_sprites SMALL_END'''
@@ -1009,15 +1027,22 @@ def p_vars(p):
 def p_var(p):
     '''var : VAR type D_2P ID
            | VAR type D_CA INT_CT D_CC D_2P ID'''
-    global variables, type
+    global variables, type, functionDirectory
     # Get var attributes and save it.
+    ############# print functionDirectory
     if (p[3] != ':'):
         if (variables.has_key(p[7])):
             raise SemanticError("Repeated identifier for variable: " + p[7])
+        if (functionDirectory.has_key("variables")):
+            if (functionDirectory["variables"].has_value(p[7])):
+                raise SemanticError("Var identifier has the same name as a function: " + p[7])
         variables[p[7]] = {"type": convertAtomicTypeToCode(type)+1000}
     else:
         if (variables.has_key(p[4])):
             raise SemanticError("Repeated identifier for variable: " + p[4])
+        if (functionDirectory.has_key("variables")):
+            if (functionDirectory["variables"].has_value(p[4])):
+                raise SemanticError("Var identifier has the same name as a function: " + p[4])
         typeInNumber = convertAtomicTypeToCode(type)
         variables[p[4]] = {"type": typeInNumber}
 
@@ -1035,15 +1060,36 @@ def p_functions(p):
     '''functions : function functions
                  | '''
 
-def p_function(p):
-    '''function : FUNC ID D_PA parameters D_PC EQUAL type D_2P code_block SMALL_END'''
-    global functionDirectory, variables, parameters
+def p_save_function(p):
+    '''save_function : '''
+    global functionDirectory, variables, parameters, functionId, type, avail, listCode
     # Save the function with its variables
-    if (functionDirectory.has_key(p[2])):
+    if (functionDirectory.has_key(functionId)):
         raise SemanticError("Repeated identifier for function: " + p[2])
     if (debug):
-        functionDirectory[p[2]] = {"variables": variables, "parameters": parameters}
+        functionDirectory[functionId] = {"variables": variables, "parameters": parameters, "return": convertAtomicTypeToCode(type), "memory": avail[0][convertAtomicTypeToCode(type)], "start_cuadruplet": len(listCode) + 1}
+    avail[0][convertAtomicTypeToCode(type)] += 1
     variables = {}
+
+def p_function(p):
+    '''function : FUNC save_function_id D_PA parameters D_PC EQUAL type save_function D_2P code_block SMALL_END generate_end_func'''
+
+def p_generate_end_func(p):
+    '''generate_end_func : '''
+    global listCode, temporalStamp, functionDirectory, functionId, avail
+    listCode.append([convertOperatorToCode('endFunc'),-1,-1,-1])
+    temporalAuxDictionary = {}
+    print temporalStamp
+    for key in avail[2]:
+        temporalAuxDictionary[key] = avail[2][key] - temporalStamp[key]
+    functionDirectory[functionId]["temporals"] = temporalAuxDictionary
+
+def p_save_function_id(p):
+    '''save_function_id : ID'''
+    global functionId, temporalStamp, avail
+    functionId = p[1]
+    avail[2] = {101: 14000, 102: 15000, 103: 16000, 104: 17000, 105: 18000, 106: 19000}
+    temporalStamp = avail[2].copy()
 
 def p_parameters(p):
     '''parameters : parameter more_parameters
@@ -1055,31 +1101,41 @@ def p_parameter(p):
 def p_type_parameter(p):
     '''type_parameter : D_AMP ID
                       | ID'''
-    global variables, type, parameters
+    global variables, type, parameters, avail
     # Get parameter attributes and save it.
     if (p[1] == '&'):
         if (variables.has_key(p[2])):
             raise SemanticError("Repeated identifier for variable: " + p[2])
-        variables[p[2]] = {"type": convertAtomicTypeToCode(type), "reference_parameter": True}
+        variables[p[2]] = {"type": convertAtomicTypeToCode(type), "reference_parameter": True, "memory": avail[1][convertAtomicTypeToCode(type)]}
         parameters.append(convertAtomicTypeToCode(type))
     else:
         if (variables.has_key(p[1])):
             raise SemanticError("Repeated identifier for variable: " + p[1])
-        variables[p[1]] = {"type": convertAtomicTypeToCode(type), "reference_parameter": False}
+        variables[p[1]] = {"type": convertAtomicTypeToCode(type), "reference_parameter": False, "memory": avail[1][convertAtomicTypeToCode(type)]}
         parameters.append(convertAtomicTypeToCode(type))
+    avail[1][convertAtomicTypeToCode(type)] += 1
 
 def p_more_parameters(p):
     '''more_parameters : D_C parameter more_parameters
                        | '''
 
 def p_main_block(p):
-    '''main_block : MAIN D_2P code_block SMALL_END'''
+    '''main_block : MAIN set_function_id_main D_2P code_block SMALL_END'''
     global functionDirectory, variables, avail
     if (functionDirectory.has_key(p[1])):
         raise SemanticError("Repeated identifier for function: " + p[1])
     if (debug):
-        functionDirectory[p[1]] = {"variables": variables}
+        functionDirectory["main"]["variables"] = variables
     variables = {}
+
+def p_set_function_id_main(p):
+    '''set_function_id_main : '''
+    global functionDirectory, functionId, listCode, stackJumps, avail
+    functionId = "main"
+    functionDirectory[functionId] = {"variables" : {}}
+    firstJump = stackJumps.pop()
+    listCode[firstJump - 1][3] = len(listCode) + 1
+    avail[2] = {101: 14000, 102: 15000, 103: 16000, 104: 17000, 105: 18000, 106: 19000}
 
 def p_code_block(p):
     '''code_block : vars save_vars_in_local_memory mini_block'''
@@ -1120,15 +1176,46 @@ def p_check_stack_equal(p):
             op1Type = stackTypes.pop()
             if (op1Type != op2Type):
                 raise SemanticError("Type Mismatch: Trying to assign " + str(op2Type) + " to a " + str(op1Type) + " var!")
-            listCode.append([operator, op2, 'null', op1])
+            listCode.append([operator, op2, -1, op1])
 
 def p_function_use(p):
-    '''function_use : ID D_PA expression more_ids D_PC
-                    | ID D_PA D_PC
+    '''function_use : validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+                    | validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
                     | STARTGAME D_PA D_PC'''
 
+def p_validate_function_id_do_era(p):
+    '''validate_function_id_do_era : ID'''
+    global listCode, functionDirectory, parameters, paramCounter, goSubFunction
+    if (not functionDirectory.has_key(p[1])):
+        raise SemanticError("Use of undeclared function identifier: " + p[1])
+    listCode.append([convertOperatorToCode('era'), -1, -1, p[1]])
+    parameters = functionDirectory[p[1]]["parameters"]
+    paramCounter = 0
+    goSubFunction = p[1]
+
+def p_add_parameter(p):
+    '''add_parameter : expression'''
+    global stackOp, stackTypes, parameters, paramCounter, listCode
+    paramType = stackTypes.pop()
+    operand = stackOp.pop()
+    try:
+        if (parameters[paramCounter] != paramType):
+            raise SemanticError("Diferent type of parameter in function. Expected: " + parameters[paramCounter] + " received: " + paramType)
+    except IndexError:
+        raise SemanticError("Use of more parameters than function declaration.")
+    paramCounter += 1
+    listCode.append([convertOperatorToCode('param'), operand, -1, paramCounter])
+
+def p_validate_params_generate_gosub(p):
+    '''validate_params_generate_gosub : '''
+    global functionDirectory, listCode, goSubFunction, parameters, paramCounter
+    listCode.append([convertOperatorToCode('gosub'), -1, -1, goSubFunction])
+    goSubFunction = ""
+    parameters = []
+    paramCounter = 0
+
 def p_more_ids(p):
-    '''more_ids : D_C expression more_ids
+    '''more_ids : D_C add_parameter more_ids
                 | '''
 
 def p_assignation(p):
@@ -1157,20 +1244,20 @@ def p_more_printable(p):
     expression = stackOp.pop()
     stackTypes.pop()
     stackOpVisible.pop()
-    listCode.append([convertOperatorToCode("print"), 'null', 'null', expression])
+    listCode.append([convertOperatorToCode("print"), -1, -1, expression])
 
 def p_condition(p):
     '''condition : IF D_PA expression D_PC generate_gotoF_if D_2P mini_block else_condition SMALL_END generate_end_if'''
 
 def p_generate_gotoF_if(p):
     '''generate_gotoF_if : '''
-    global stackOp, stackTypes, stackOpVisible, stackJumps, listCode
+    global stackOp, stackTypes, stackOperators, stackOpVisible, stackJumps, listCode
     condtionType = stackTypes.pop()
     if (condtionType != convertAtomicTypeToCode("boolean")):
         raise SemanticError("Expected boolean in if condition. Received: " + str(condtionType))
     condition = stackOp.pop()
     stackOpVisible.pop()
-    listCode.append([convertOperatorToCode("gotoF"), condition, 'null', 'pending'])
+    listCode.append([convertOperatorToCode("gotoF"), condition, -1, 'pending'])
     stackJumps.append(len(listCode) - 1) # Make it as a list that starts in 0.
 
 def p_generate_end_if(p):
@@ -1206,7 +1293,7 @@ def p_generate_read_value(p):
         raise SemanticError("Type mismatch: Trying to read an int or float and assign it to a variable type: " + str(typeOfVariable))
     variable = stackOp.pop()
     stackOpVisible.pop()
-    listCode.append([convertOperatorToCode("getValue"), 'null', 'null', variable])
+    listCode.append([convertOperatorToCode("getValue"), -1, -1, variable])
 
 def p_generate_read_line(p):
     '''generate_read_line : '''
@@ -1216,7 +1303,7 @@ def p_generate_read_line(p):
         raise SemanticError("Type mismatch: Trying to read a string or char and assign it to a variable type: " + str(typeOfVariable))
     variable = stackOp.pop()
     stackOpVisible.pop()
-    listCode.append([convertOperatorToCode("getLine"), 'null', 'null', variable])
+    listCode.append([convertOperatorToCode("getLine"), -1, -1, variable])
 
 def p_generate_read_boolean(p):
     '''generate_read_boolean : '''
@@ -1226,7 +1313,7 @@ def p_generate_read_boolean(p):
         raise SemanticError("Type mismatch: Trying to read a boolean and assign it to a variable type: " + str(typeOfVariable))
     variable = stackOp.pop()
     stackOpVisible.pop()
-    listCode.append([convertOperatorToCode("getBoolean"), 'null', 'null', variable])
+    listCode.append([convertOperatorToCode("getBoolean"), -1, -1, variable])
 
 def p_generate_read_char(p):
     '''generate_read_char : '''
@@ -1236,7 +1323,7 @@ def p_generate_read_char(p):
         raise SemanticError("Type mismatch: Trying to read a char and assign it to a variable type: " + str(typeOfVariable))
     variable = stackOp.pop()
     stackOpVisible.pop()
-    listCode.append([convertOperatorToCode("getChar"), 'null', 'null', variable])
+    listCode.append([convertOperatorToCode("getChar"), -1, -1, variable])
 
 def p_cycle(p):
     '''cycle : WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while'''
@@ -1254,7 +1341,7 @@ def p_generate_gotoF_while(p):
         raise SemanticError("Expected boolean in if condition. Received: " + str(condtionType))
     condition = stackOp.pop()
     stackOpVisible.pop()
-    listCode.append([convertOperatorToCode("gotoF"), condition, 'null', 'pending'])
+    listCode.append([convertOperatorToCode("gotoF"), condition, -1, 'pending'])
     stackJumps.append(len(listCode) - 1) # Make it as a list that starts in 0.
 
 def p_generate_end_while(p):
@@ -1262,7 +1349,7 @@ def p_generate_end_while(p):
     global stackJumps, listCode
     falseJump = stackJumps.pop()
     returnJump = stackJumps.pop()
-    listCode.append([convertOperatorToCode("goto"), 'null', 'null', returnJump])
+    listCode.append([convertOperatorToCode("goto"), -1, -1, returnJump])
     listCode[falseJump][3] = len(listCode) + 1
 
 def p_return(p):
@@ -1273,7 +1360,7 @@ def p_mini_block(p):
                   | '''
 
 def p_expression(p):
-    '''expression : big_exp check_stack_or or_exp'''
+    '''expression : big_exp or_exp check_stack_or'''
 
 # Helper function in sintaxis for semantic (operators)
 def p_check_stack_or(p):
@@ -1295,7 +1382,7 @@ def p_or_exp(p):
         return
 
 def p_big_exp(p):
-    '''big_exp : medium_exp check_stack_and and_exp'''
+    '''big_exp : medium_exp and_exp check_stack_and'''
 
 # Helper function in sintaxis for semantic (operators)
 def p_check_stack_and(p):
@@ -1324,7 +1411,7 @@ def p_check_stack_mmdi(p):
     '''check_stack_mmdi : '''
     global stackOperators
     if (stackOperators):
-        if (stackOperators[-1] == '>' or stackOperators[-1] == '<' or stackOperators[-1] == '!=' or stackOperators == '=='):
+        if (stackOperators[-1] == '>' or stackOperators[-1] == '<' or stackOperators[-1] == '!=' or stackOperators[-1] == '=='):
             generateArithmeticCode()
 
 def p_relational_exp(p):
@@ -1416,8 +1503,9 @@ def p_var_ct(p):
 # id checks if the id was declared, if not, there is an error.
 def p_received_id(p):
     '''received_id : ID'''
-    global stackTypes, stackOp, variables, globalVariables, stackOpVisible
-    if (not variables.has_key(p[1])):
+    global stackTypes, stackOp, variables, globalVariables, stackOpVisible, functionDirectory, functionId
+    #print variables, functionDirectory, p[1], functionId
+    if (not variables.has_key(p[1]) and not functionDirectory[functionId]["variables"].has_key(p[1])):
         if (not globalVariables.has_key(p[1])):
             raise SemanticError("Use of undeclared identifier for variable: " + p[1])
         else:
@@ -1425,9 +1513,14 @@ def p_received_id(p):
             stackOpVisible.append(p[1])
             stackTypes.append(globalVariables[p[1]]["type"])
     else:
-        stackOp.append(variables[p[1]]["memory"])
-        stackOpVisible.append(p[1])
-        stackTypes.append(variables[p[1]]["type"])
+        if (variables.has_key(p[1])):
+            stackOp.append(variables[p[1]]["memory"])
+            stackOpVisible.append(p[1])
+            stackTypes.append(variables[p[1]]["type"])
+        else:
+            stackOp.append(functionDirectory[functionId]["variables"][p[1]]["memory"])
+            stackOpVisible.append(p[1])
+            stackTypes.append(functionDirectory[functionId]["variables"][p[1]]["type"])
 
 # the rest of the variables check if they exists in virtual memory, if not, add them.
 def p_received_float(p):

@@ -3,7 +3,7 @@ Program Example:
         if (n == 0):
             return n;
         else:
-            return sumatoria + n;
+            return sumatoria(n-1) + n;
         end;
     end
 
