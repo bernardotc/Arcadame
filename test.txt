@@ -1,9 +1,9 @@
 Program Example2:
+    var int: b;
     func imprimir(int: n) = int :
         var int: x;
         x = 5 + 0;
-        print(x,n);
-        return 1;
+        return imprimir(n - 1);
     end
     Main:
         var int: z;

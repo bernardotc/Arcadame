@@ -155,6 +155,8 @@ def convertOperatorToCode(type):
         return 20
     elif (type == 'param'):
         return 21
+    elif (type == 'return'):
+        return 22
 
 # Define token names
 tokens = (
@@ -1088,6 +1090,7 @@ def p_save_function_id(p):
     '''save_function_id : ID'''
     global functionId, temporalStamp, avail
     functionId = p[1]
+    avail[1] = {101: 8000, 102: 9000, 103: 10000, 104: 11000, 105: 12000, 106: 13000}
     avail[2] = {101: 14000, 102: 15000, 103: 16000, 104: 17000, 105: 18000, 106: 19000}
     temporalStamp = avail[2].copy()
 
@@ -1135,6 +1138,7 @@ def p_set_function_id_main(p):
     functionDirectory[functionId] = {"variables" : {}}
     firstJump = stackJumps.pop()
     listCode[firstJump - 1][3] = len(listCode) + 1
+    avail[1] = {101: 8000, 102: 9000, 103: 10000, 104: 11000, 105: 12000, 106: 13000}
     avail[2] = {101: 14000, 102: 15000, 103: 16000, 104: 17000, 105: 18000, 106: 19000}
 
 def p_code_block(p):
@@ -1208,8 +1212,15 @@ def p_add_parameter(p):
 
 def p_validate_params_generate_gosub(p):
     '''validate_params_generate_gosub : '''
-    global functionDirectory, listCode, goSubFunction, parameters, paramCounter
+    global functionDirectory, listCode, goSubFunction, parameters, paramCounter, functionId, avail, stackOp, stackTypes
+    if (paramCounter != len(parameters)):
+        raise SemanticError("Use of less parameters than expected in function declaration.")
     listCode.append([convertOperatorToCode('gosub'), -1, -1, goSubFunction])
+    if (functionId != 'main'):
+        listCode.append([convertOperatorToCode('='), functionDirectory[functionId]['memory'], -1, avail[2][functionDirectory[functionId]['return']]])
+        stackOp.append(avail[2][functionDirectory[functionId]['return']])
+        stackTypes.append(functionDirectory[functionId]['return'])
+        avail[2][functionDirectory[functionId]['return']] += 1
     goSubFunction = ""
     parameters = []
     paramCounter = 0
@@ -1354,6 +1365,14 @@ def p_generate_end_while(p):
 
 def p_return(p):
     '''return : RETURN expression'''
+    global listCode, functionDirectory, functionId, stackOp, stackTypes
+    if (functionId == 'main'):
+        raise SemanticError("Trying to return something inside Main.")
+    op = stackOp.pop()
+    opType = stackTypes.pop()
+    if (opType != functionDirectory[functionId]['return']):
+        raise SemanticError("Returning a value of type: " + opType + ", expected: " + functionDirectory[functionId]['return'])
+    listCode.append([convertOperatorToCode('return'), -1, -1, op])
 
 def p_mini_block(p):
     '''mini_block : statute D_PYC mini_block
