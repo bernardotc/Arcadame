@@ -726,11 +726,9 @@ def p_programa(p):
     global functionDirectory, gameSections, constants
     # Save SimpleGame in function directory
     if (p[1] == "SimpleGame"):
-        if (debug):
-            functionDirectory["SimpleGame"] = {"sections" : gameSections}
+        functionDirectory["SimpleGame"] = {"sections" : gameSections}
         gameSections = {}
-    if (debug):
-        functionDirectory["constants"] = constants
+    functionDirectory["constants"] = constants
 
 def p_generate_initial_goto(p):
     '''generate_initial_goto : '''
@@ -1019,8 +1017,7 @@ def p_save_vars_in_global_memory(p):
     # Save global variables with its attributes.
     globalVariables = variables
     variables = {}
-    if (debug):
-        functionDirectory["global"] = globalVariables
+    functionDirectory["global"] = globalVariables
 
 def p_vars(p):
     '''vars : var D_PYC vars
@@ -1031,7 +1028,8 @@ def p_var(p):
            | VAR type D_CA INT_CT D_CC D_2P ID'''
     global variables, type, functionDirectory
     # Get var attributes and save it.
-    ############# print functionDirectory
+    if (debug):
+        print functionDirectory
     if (p[3] != ':'):
         if (variables.has_key(p[7])):
             raise SemanticError("Repeated identifier for variable: " + p[7])
@@ -1066,19 +1064,20 @@ def p_save_function(p):
     '''save_function : '''
     global functionDirectory, variables, parameters, functionId, type, avail, listCode
     # Save the function with its variables
+    print "#############", variables
     if (functionDirectory.has_key(functionId)):
         raise SemanticError("Repeated identifier for function: " + p[2])
-    if (debug):
-        functionDirectory[functionId] = {"variables": variables, "parameters": parameters, "return": convertAtomicTypeToCode(type), "memory": avail[0][convertAtomicTypeToCode(type)], "start_cuadruplet": len(listCode) + 1}
+    functionDirectory[functionId] = {"variables": variables, "parameters": parameters, "return": convertAtomicTypeToCode(type), "memory": avail[0][convertAtomicTypeToCode(type)], "start_cuadruplet": len(listCode) + 1}
     avail[0][convertAtomicTypeToCode(type)] += 1
-    variables = {}
 
 def p_function(p):
     '''function : FUNC save_function_id D_PA parameters D_PC EQUAL type save_function D_2P code_block SMALL_END generate_end_func'''
 
 def p_generate_end_func(p):
     '''generate_end_func : '''
-    global listCode, temporalStamp, functionDirectory, functionId, avail
+    global listCode, temporalStamp, functionDirectory, functionId, avail, variables
+    functionDirectory[functionId]['variables'] = variables
+    variables = {}
     listCode.append([convertOperatorToCode('endFunc'),-1,-1,-1])
     temporalAuxDictionary = {}
     print temporalStamp
@@ -1127,8 +1126,7 @@ def p_main_block(p):
     global functionDirectory, variables, avail
     if (functionDirectory.has_key(p[1])):
         raise SemanticError("Repeated identifier for function: " + p[1])
-    if (debug):
-        functionDirectory["main"]["variables"] = variables
+    functionDirectory["main"]["variables"] = variables
     variables = {}
 
 def p_set_function_id_main(p):
@@ -1523,7 +1521,8 @@ def p_var_ct(p):
 def p_received_id(p):
     '''received_id : ID'''
     global stackTypes, stackOp, variables, globalVariables, stackOpVisible, functionDirectory, functionId
-    #print variables, functionDirectory, p[1], functionId
+    if (debug):
+        print variables, functionDirectory, p[1], functionId
     if (not variables.has_key(p[1]) and not functionDirectory[functionId]["variables"].has_key(p[1])):
         if (not globalVariables.has_key(p[1])):
             raise SemanticError("Use of undeclared identifier for variable: " + p[1])
@@ -1627,6 +1626,61 @@ def generateArithmeticCode():
     stackOpVisible.append(result)
     stackTypes.append(newType)
 
+def generateIntermediateCodeFile():
+    global functionDirectory, listCode
+    file = open('rawCode.xml', 'w')
+    # Functions
+    file.write('<functions>\n')
+    for function in functionDirectory:
+        if (not (function == 'global' or function == 'main' or function == 'constants')):
+            spaceForEra = [0, 0, 0, 0, 0, 0]
+            file.write('\t<function>\n\t\t<functionName>' + str(function) + '</functionName>\n')
+            for param in functionDirectory[function]['parameters']:
+                file.write('\t\t<parameter>' + str(param) + '</parameter>\n')
+            file.write('\t\t<return>' + str(functionDirectory[function]['return']) + '</return>\n')
+            file.write('\t\t<memory>' + str(functionDirectory[function]['memory']) + '</memory>\n')
+            file.write('\t\t<quadruplet>' + str(functionDirectory[function]['start_cuadruplet']) + '</quadruplet>\n')
+            for vars in functionDirectory[function]['variables']:
+                for var in vars:
+                    spaceForEra[functionDirectory[function]['variables'][var]['type'] - 101] += 1
+            spaceForEra[0] += functionDirectory[function]['temporals'][101]
+            spaceForEra[1] += functionDirectory[function]['temporals'][102]
+            spaceForEra[2] += functionDirectory[function]['temporals'][103]
+            spaceForEra[3] += functionDirectory[function]['temporals'][104]
+            spaceForEra[4] += functionDirectory[function]['temporals'][105]
+            spaceForEra[5] += functionDirectory[function]['temporals'][106]
+            file.write('\t\t<era>\n' +
+                       '\t\t\t<101>' + str(spaceForEra[0]) + '</101>\n' +
+                       '\t\t\t<102>' + str(spaceForEra[1]) + '</102>\n' +
+                       '\t\t\t<103>' + str(spaceForEra[2]) + '</103>\n' +
+                       '\t\t\t<104>' + str(spaceForEra[3]) + '</104>\n' +
+                       '\t\t\t<105>' + str(spaceForEra[4]) + '</105>\n' +
+                       '\t\t\t<106>' + str(spaceForEra[5]) + '</106>\n' +
+                       '\t\t</era>\n')
+            file.write('\t</function>\n')
+    file.write('</functions>\n\n')
+
+    # Constants
+    file.write('<constants>\n')
+    constants = functionDirectory['constants']
+    for constant in constants:
+        file.write('\t<constant>\n\t\t<constantValue>' + str(constant) + '</constantValue>\n')
+        file.write('\t\t<type>' + str(constants[constant]['type']) + '</type>\n')
+        file.write('\t\t<memory>' + str(constants[constant]['memory']) + '</memory>\n')
+        file.write('\t</constant>\n')
+    file.write('</constants>\n\n')
+
+    # Quadruplets
+    file.write('<quadruplets>\n')
+    for index, quadruplet in enumerate(listCode):
+        file.write('\t<quadruplet>\n\t\t<index>' + str(index) + '</index>\n')
+        file.write('\t\t<operation>' + str(quadruplet[0]) + '</operation>\n')
+        file.write('\t\t<element1>' + str(quadruplet[1]) + '</element1>\n')
+        file.write('\t\t<element2>' + str(quadruplet[2]) + '</element2>\n')
+        file.write('\t\t<result>' + str(quadruplet[3]) + '</result>\n')
+        file.write('\t</quaruplet>\n')
+    file.write('</quadruplets>\n\n')
+
 # Import yacc
 import ply.yacc as yacc
 parser = yacc.yacc()
@@ -1665,6 +1719,7 @@ while 1:
             if (debug):
                 print "dictionary of functions: ", functionDirectory
                 print "list of cuadruplets: ", listCode
+            generateIntermediateCodeFile()
             print("Correct program")
         except EOFError:
             break
