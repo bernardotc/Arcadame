@@ -1,13 +1,11 @@
 Program Example2:
     var int: b;
-    func imprimir(int: n) = int :
-        var int: x;
-        x = 5 + 0;
-        return imprimir(n - 1);
-    end
     Main:
         var int: z;
+        var float: x;
         z = 5 + 6;
-        imprimir(5);
+        getValue(b);
+        x = z * b - 1;
+        print(x, "hola");
     end
 End

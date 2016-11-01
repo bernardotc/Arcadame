@@ -79,12 +79,12 @@ class SemanticError(Exception):
     def __str__(self):
         return repr(self.value)
 
-semanticCube = [[[-1,-1,-1,-1,-1,-1,-1,-1,-1,105], [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
-                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [101,101,101,101,-1,-1,105,105,105,105],   [102,102,102,102,-1,-1,105,105,105,105],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
-                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [102,102,102,102,-1,-1,105,105,105,105],   [102,102,102,102,-1,-1,105,105,105,105],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
-                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,105,105],  [-1,-1,-1,-1,-1,-1,-1,-1,105,105],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
-                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,105,105],  [-1,-1,-1,-1,-1,-1,-1,-1,105,105],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
-                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,105,105,-1,-1,105,105]]]
+semanticCube = [[[-1,-1,-1,-1,-1,-1,-1,-1,-1,105,1000], [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [101,101,101,101,-1,-1,105,105,105,105,101],   [102,102,102,102,-1,-1,105,105,105,105,102],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [102,102,102,102,-1,-1,105,105,105,105,102],   [102,102,102,102,-1,-1,105,105,105,105,102],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,105,105,103],  [-1,-1,-1,-1,-1,-1,-1,-1,105,105,103],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,105,105,103],  [-1,-1,-1,-1,-1,-1,-1,-1,105,105,104],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
+                [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,105,105,-1,-1,105,105,105]]]
 
 def convertAtomicTypeToCode(type):
     if (type == "int"):
@@ -157,6 +157,8 @@ def convertOperatorToCode(type):
         return 21
     elif (type == 'return'):
         return 22
+    elif (type == 'end'):
+        return 30
 
 # Define token names
 tokens = (
@@ -721,8 +723,8 @@ lex.lex()
 start = 'programa'
 
 def p_programa(p):
-    '''programa : SIMPLEGAME generate_initial_goto ID D_2P sprites interactions goals mapping map block BIG_END
-                | PROGRAM generate_initial_goto ID D_2P block BIG_END'''
+    '''programa : SIMPLEGAME generate_initial_goto ID D_2P sprites interactions goals mapping map block generate_end
+                | PROGRAM generate_initial_goto ID D_2P block generate_end'''
     global functionDirectory, gameSections, constants
     # Save SimpleGame in function directory
     if (p[1] == "SimpleGame"):
@@ -735,6 +737,11 @@ def p_generate_initial_goto(p):
     global listCode, stackJumps
     listCode.append([convertOperatorToCode('goto'),-1,-1,'pending'])
     stackJumps.append(len(listCode))
+
+def p_generate_end(p):
+    '''generate_end : BIG_END'''
+    global listCode
+    listCode.append([convertOperatorToCode('end'), -1, -1, -1])
 
 def p_sprites(p):
     '''sprites : SPRITESET D_2P sprite D_PYC more_sprites SMALL_END'''
@@ -1167,7 +1174,7 @@ def p_statute(p):
 # Helper function in sintaxis for semantic (operators)
 def p_check_stack_equal(p):
     '''check_stack_equal : '''
-    global stackOperators, stackTypes, stackOp, listCode
+    global stackOperators, stackTypes, stackOp, listCode, semanticCube
     if (stackOperators):
         if (stackOperators[-1] == '='):
             # Different way to generate cuadruplet arithmetic != assignation
@@ -1176,8 +1183,12 @@ def p_check_stack_equal(p):
             op1 = stackOp.pop()
             op2Type = stackTypes.pop()
             op1Type = stackTypes.pop()
-            if (op1Type != op2Type):
+            print op1Type, op2Type
+            newType = semanticCube[op1Type-100][op2Type-100][operator]
+            if (newType == -1):
                 raise SemanticError("Type Mismatch: Trying to assign " + str(op2Type) + " to a " + str(op1Type) + " var!")
+            if (op1 >= 14000):
+                raise SemanticError("Trying to assign value to a temporal value or constant" + str(op1));
             listCode.append([operator, op2, -1, op1])
 
 def p_function_use(p):
@@ -1244,16 +1255,19 @@ def p_printing(p):
     '''printing : PRINT D_PA printable D_PC'''
 
 def p_printable(p):
-    '''printable : expression more_printable'''
+    '''printable : expression generate_print more_printable'''
 
-def p_more_printable(p):
-    '''more_printable : D_C printable
-                      | '''
+def p_generate_print(p):
+    '''generate_print : '''
     global stackOp, stackTypes, stackOpVisible, listCode
     expression = stackOp.pop()
     stackTypes.pop()
     stackOpVisible.pop()
     listCode.append([convertOperatorToCode("print"), -1, -1, expression])
+
+def p_more_printable(p):
+    '''more_printable : D_C printable
+                      | '''
 
 def p_condition(p):
     '''condition : IF D_PA expression D_PC generate_gotoF_if D_2P mini_block else_condition SMALL_END generate_end_if'''
@@ -1579,7 +1593,7 @@ def p_received_string(p):
         avail[3][103] += 1
     stackOp.append(constants[p[1]]["memory"])
     stackOpVisible.append(p[1])
-    stackTypes.append(variables[p[1]]["type"])
+    stackTypes.append(constants[p[1]]["type"])
 
 def p_received_char(p):
     '''received_char : CHAR_CT'''
@@ -1630,16 +1644,17 @@ def generateIntermediateCodeFile():
     global functionDirectory, listCode
     file = open('rawCode.xml', 'w')
     # Functions
-    file.write('<functions>\n')
+    file.write('<intermediateCode>\n\n')
+    file.write('\t<functions>\n')
     for function in functionDirectory:
         if (not (function == 'global' or function == 'main' or function == 'constants')):
-            spaceForEra = [0, 0, 0, 0, 0, 0]
-            file.write('\t<function>\n\t\t<functionName>' + str(function) + '</functionName>\n')
+            spaceForEra = [0, 0, 0, 0, 0]
+            file.write('\t\t<function>\n\t\t<functionName>' + str(function) + '</functionName>\n')
             for param in functionDirectory[function]['parameters']:
-                file.write('\t\t<parameter>' + str(param) + '</parameter>\n')
-            file.write('\t\t<return>' + str(functionDirectory[function]['return']) + '</return>\n')
-            file.write('\t\t<memory>' + str(functionDirectory[function]['memory']) + '</memory>\n')
-            file.write('\t\t<quadruplet>' + str(functionDirectory[function]['start_cuadruplet']) + '</quadruplet>\n')
+                file.write('\t\t\t<parameter>' + str(param) + '</parameter>\n')
+            file.write('\t\t\t<return>' + str(functionDirectory[function]['return']) + '</return>\n')
+            file.write('\t\t\t<memory>' + str(functionDirectory[function]['memory']) + '</memory>\n')
+            file.write('\t\t\t<quadruplet>' + str(functionDirectory[function]['start_cuadruplet']) + '</quadruplet>\n')
             for vars in functionDirectory[function]['variables']:
                 for var in vars:
                     spaceForEra[functionDirectory[function]['variables'][var]['type'] - 101] += 1
@@ -1648,38 +1663,37 @@ def generateIntermediateCodeFile():
             spaceForEra[2] += functionDirectory[function]['temporals'][103]
             spaceForEra[3] += functionDirectory[function]['temporals'][104]
             spaceForEra[4] += functionDirectory[function]['temporals'][105]
-            spaceForEra[5] += functionDirectory[function]['temporals'][106]
-            file.write('\t\t<era>\n' +
-                       '\t\t\t<101>' + str(spaceForEra[0]) + '</101>\n' +
-                       '\t\t\t<102>' + str(spaceForEra[1]) + '</102>\n' +
-                       '\t\t\t<103>' + str(spaceForEra[2]) + '</103>\n' +
-                       '\t\t\t<104>' + str(spaceForEra[3]) + '</104>\n' +
-                       '\t\t\t<105>' + str(spaceForEra[4]) + '</105>\n' +
-                       '\t\t\t<106>' + str(spaceForEra[5]) + '</106>\n' +
-                       '\t\t</era>\n')
-            file.write('\t</function>\n')
-    file.write('</functions>\n\n')
+            file.write('\t\t\t<era>\n' +
+                       '\t\t\t\t<int>' + str(spaceForEra[0]) + '</int>\n' +
+                       '\t\t\t\t<float>' + str(spaceForEra[1]) + '</float>\n' +
+                       '\t\t\t\t<string>' + str(spaceForEra[2]) + '</string>\n' +
+                       '\t\t\t\t<char>' + str(spaceForEra[3]) + '</char>\n' +
+                       '\t\t\t\t<boolean>' + str(spaceForEra[4]) + '</boolean>\n' +
+                       '\t\t\t</era>\n')
+            file.write('\t\t</function>\n')
+    file.write('\t</functions>\n\n')
 
     # Constants
-    file.write('<constants>\n')
+    file.write('\t<constants>\n')
     constants = functionDirectory['constants']
     for constant in constants:
-        file.write('\t<constant>\n\t\t<constantValue>' + str(constant) + '</constantValue>\n')
-        file.write('\t\t<type>' + str(constants[constant]['type']) + '</type>\n')
-        file.write('\t\t<memory>' + str(constants[constant]['memory']) + '</memory>\n')
-        file.write('\t</constant>\n')
-    file.write('</constants>\n\n')
+        file.write('\t\t<constant>\n\t\t\t<constantValue>' + str(constant) + '</constantValue>\n')
+        file.write('\t\t\t<type>' + str(constants[constant]['type']) + '</type>\n')
+        file.write('\t\t\t<memory>' + str(constants[constant]['memory']) + '</memory>\n')
+        file.write('\t\t</constant>\n')
+    file.write('\t</constants>\n\n')
 
     # Quadruplets
-    file.write('<quadruplets>\n')
+    file.write('\t<quadruplets>\n')
     for index, quadruplet in enumerate(listCode):
-        file.write('\t<quadruplet>\n\t\t<index>' + str(index) + '</index>\n')
-        file.write('\t\t<operation>' + str(quadruplet[0]) + '</operation>\n')
-        file.write('\t\t<element1>' + str(quadruplet[1]) + '</element1>\n')
-        file.write('\t\t<element2>' + str(quadruplet[2]) + '</element2>\n')
-        file.write('\t\t<result>' + str(quadruplet[3]) + '</result>\n')
-        file.write('\t</quaruplet>\n')
-    file.write('</quadruplets>\n\n')
+        file.write('\t\t<quadruplet>\n\t\t\t<index>' + str(index + 1) + '</index>\n')
+        file.write('\t\t\t<operation>' + str(quadruplet[0]) + '</operation>\n')
+        file.write('\t\t\t<element1>' + str(quadruplet[1]) + '</element1>\n')
+        file.write('\t\t\t<element2>' + str(quadruplet[2]) + '</element2>\n')
+        file.write('\t\t\t<result>' + str(quadruplet[3]) + '</result>\n')
+        file.write('\t\t</quadruplet>\n')
+    file.write('\t</quadruplets>\n\n')
+    file.write('</intermediateCode>\n')
 
 # Import yacc
 import ply.yacc as yacc
