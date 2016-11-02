@@ -1,11 +1,13 @@
 Program Example2:
-    var int: b;
+    func factorial(int: x) = int:
+        if (x == 1):
+            return 1;
+        end;
+        return x * factorial(x - 1);
+    end
     Main:
-        var int: z;
-        var float: x;
-        z = 5 + 6;
-        getValue(b);
-        x = z * b - 1;
-        print(x, "hola");
+        var int: x;
+        x = factorial(5);
+        print(x);
     end
 End

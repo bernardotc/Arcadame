@@ -1076,6 +1076,8 @@ def p_save_function(p):
         raise SemanticError("Repeated identifier for function: " + p[2])
     functionDirectory[functionId] = {"variables": variables, "parameters": parameters, "return": convertAtomicTypeToCode(type), "memory": avail[0][convertAtomicTypeToCode(type)], "start_cuadruplet": len(listCode) + 1}
     avail[0][convertAtomicTypeToCode(type)] += 1
+    variables = {}
+    parameters = []
 
 def p_function(p):
     '''function : FUNC save_function_id D_PA parameters D_PC EQUAL type save_function D_2P code_block SMALL_END generate_end_func'''
@@ -1096,8 +1098,8 @@ def p_save_function_id(p):
     '''save_function_id : ID'''
     global functionId, temporalStamp, avail
     functionId = p[1]
-    avail[1] = {101: 8000, 102: 9000, 103: 10000, 104: 11000, 105: 12000, 106: 13000}
-    avail[2] = {101: 14000, 102: 15000, 103: 16000, 104: 17000, 105: 18000, 106: 19000}
+    avail[1] = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
+    avail[2] = {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105: 16000}
     temporalStamp = avail[2].copy()
 
 def p_parameters(p):
@@ -1110,8 +1112,9 @@ def p_parameter(p):
 def p_type_parameter(p):
     '''type_parameter : D_AMP ID
                       | ID'''
-    global variables, type, parameters, avail
+    global variables, type, parameters, avail, functionDirectory
     # Get parameter attributes and save it.
+    print "####################", functionDirectory
     if (p[1] == '&'):
         if (variables.has_key(p[2])):
             raise SemanticError("Repeated identifier for variable: " + p[2])
@@ -1143,8 +1146,8 @@ def p_set_function_id_main(p):
     functionDirectory[functionId] = {"variables" : {}}
     firstJump = stackJumps.pop()
     listCode[firstJump - 1][3] = len(listCode) + 1
-    avail[1] = {101: 8000, 102: 9000, 103: 10000, 104: 11000, 105: 12000, 106: 13000}
-    avail[2] = {101: 14000, 102: 15000, 103: 16000, 104: 17000, 105: 18000, 106: 19000}
+    avail[1] = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
+    avail[2] = {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105: 16000}
 
 def p_code_block(p):
     '''code_block : vars save_vars_in_local_memory mini_block'''
@@ -1192,19 +1195,22 @@ def p_check_stack_equal(p):
             listCode.append([operator, op2, -1, op1])
 
 def p_function_use(p):
-    '''function_use : validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    '''function_use : validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
                     | validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
                     | STARTGAME D_PA D_PC'''
 
 def p_validate_function_id_do_era(p):
     '''validate_function_id_do_era : ID'''
-    global listCode, functionDirectory, parameters, paramCounter, goSubFunction
+    global listCode, functionDirectory, parameters, paramCounter, goSubFunction, stackOp, stackTypes, functionId
     if (not functionDirectory.has_key(p[1])):
         raise SemanticError("Use of undeclared function identifier: " + p[1])
     listCode.append([convertOperatorToCode('era'), -1, -1, p[1]])
     parameters = functionDirectory[p[1]]["parameters"]
     paramCounter = 0
     goSubFunction = p[1]
+    if (functionId == 'main'):
+        stackOp.append(functionDirectory[p[1]]['memory'])
+        stackTypes.append(functionDirectory[p[1]]['return'])
 
 def p_add_parameter(p):
     '''add_parameter : expression'''
@@ -1296,7 +1302,7 @@ def p_else_condition(p):
 def p_generate_goto_else(p):
     '''generate_goto_else : '''
     global stackJumps, listCode
-    listCode.append([convertOperatorToCode("goto"),'null','null','pending'])
+    listCode.append([convertOperatorToCode("goto"),'-1','-1','pending'])
     falseJump = stackJumps.pop()
     listCode[falseJump][3] = len(listCode) + 1
     stackJumps.append(len(listCode) - 1)
@@ -1707,7 +1713,7 @@ while 1:
         break
     # Initialize the global variables in each run
     functionDirectory = {"global": {}}
-    avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000, 106:7000}, 1: {101: 8000, 102:9000, 103:10000, 104:11000, 105:12000, 106:13000}, 2: {101: 14000, 102:15000, 103:16000, 104:17000, 105:18000, 106:19000}, 3: {101: 20000, 102:21000, 103:22000, 104:23000, 105:24000, 106:25000}}
+    avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000}, 1: {101: 7000, 102: 8000, 103:9000, 104: 10000, 105: 11000}, 2: {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105:16000}, 3: {101: 17000, 102: 18000, 103: 19000, 104: 20000, 105: 21000}}
     variables = {}
     constants = {}
     parameters = []

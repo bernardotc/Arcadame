@@ -106,7 +106,7 @@ Rule 100   statute -> cycle
 Rule 101   statute -> function_use
 Rule 102   statute -> return
 Rule 103   check_stack_equal -> <empty>
-Rule 104   function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+Rule 104   function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
 Rule 105   function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
 Rule 106   function_use -> STARTGAME D_PA D_PC
 Rule 107   validate_function_id_do_era -> ID
@@ -210,8 +210,8 @@ D_AMP                : 88
 D_C                  : 17 36 38 46 47 59 90 110 119
 D_CA                 : 73 114
 D_CC                 : 73 114
-D_PA                 : 40 42 43 45 46 47 82 104 105 106 116 121 127 128 129 130 135 171
-D_PC                 : 40 42 43 45 46 47 82 104 105 106 116 121 127 128 129 130 135 172
+D_PA                 : 40 42 43 45 46 47 82 105 106 116 121 127 128 129 130 135 171
+D_PC                 : 40 42 43 45 46 47 82 105 106 116 121 127 128 129 130 135 172
 D_PYC                : 5 6 32 33 51 52 61 62 65 66 70 140
 ELSE                 : 124
 ENCOUNTERS           : 35
@@ -348,13 +348,13 @@ more_tiles           : 65 66
 or_exp               : 142
 parameter            : 85 90
 parameters           : 82
-pop_pc               : 169
+pop_pc               : 104 169
 printable            : 116 119
 printing             : 98
 programa             : 0
 push_cont_in_stackJumps : 135
 push_equal           : 112
-push_pa              : 169
+push_pa              : 104 169
 push_pm              : 159
 push_td              : 165
 reading              : 99
@@ -2072,7 +2072,7 @@ state 174
     (129) reading -> . GETBOOLEAN D_PA received_id D_PC generate_read_boolean
     (130) reading -> . GETCHAR D_PA received_id D_PC generate_read_char
     (135) cycle -> . WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (139) return -> . RETURN expression
@@ -2326,7 +2326,7 @@ state 199
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -2510,17 +2510,19 @@ state 217
 
 state 218
 
-    (104) function_use -> validate_function_id_do_era . D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> validate_function_id_do_era . push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> validate_function_id_do_era . D_PA D_PC validate_params_generate_gosub
+    (171) push_pa -> . D_PA
 
-    D_PA            shift and go to state 268
+    D_PA            shift and go to state 269
 
+    push_pa                        shift and go to state 268
 
 state 219
 
     (130) reading -> GETCHAR . D_PA received_id D_PC generate_read_char
 
-    D_PA            shift and go to state 269
+    D_PA            shift and go to state 270
 
 
 state 220
@@ -2530,7 +2532,7 @@ state 220
 
     D_2P            reduce using rule 81 (save_function -> .)
 
-    save_function                  shift and go to state 270
+    save_function                  shift and go to state 271
 
 state 221
 
@@ -2558,7 +2560,7 @@ state 224
 
     (54) goal -> goal_type LIMIT EQUAL INT_CT WIN EQUAL . BOOLEAN_CT
 
-    BOOLEAN_CT      shift and go to state 271
+    BOOLEAN_CT      shift and go to state 272
 
 
 state 225
@@ -2586,34 +2588,34 @@ state 227
     STRING_CT       shift and go to state 188
     SMALL_END       reduce using rule 67 (more_tiles -> .)
 
-    more_tiles                     shift and go to state 272
+    more_tiles                     shift and go to state 273
 
 state 228
 
     (46) action -> ADDTIMER TIME . EQUAL INT_CT TRANSFORMALL D_PA ID D_C ID D_PC
 
-    EQUAL           shift and go to state 273
+    EQUAL           shift and go to state 274
 
 
 state 229
 
     (47) action -> SHIELDFROM D_PA . KILLSPRITE D_C ID D_PC
 
-    KILLSPRITE      shift and go to state 274
+    KILLSPRITE      shift and go to state 275
 
 
 state 230
 
     (42) action -> SCORECHANGE D_PA . FLOAT_CT D_PC
 
-    FLOAT_CT        shift and go to state 275
+    FLOAT_CT        shift and go to state 276
 
 
 state 231
 
     (43) action -> TRANSFORMTO D_PA . ID D_PC
 
-    ID              shift and go to state 276
+    ID              shift and go to state 277
 
 
 state 232
@@ -2622,16 +2624,16 @@ state 232
     (49) kill_id -> . ID
     (50) kill_id -> .
 
-    ID              shift and go to state 277
+    ID              shift and go to state 278
     D_PC            reduce using rule 50 (kill_id -> .)
 
-    kill_id                        shift and go to state 278
+    kill_id                        shift and go to state 279
 
 state 233
 
     (45) action -> CHANGEHEALTHPOINTS D_PA . INT_CT D_PC
 
-    INT_CT          shift and go to state 279
+    INT_CT          shift and go to state 280
 
 
 state 234
@@ -2664,7 +2666,7 @@ state 235
     SHIELDFROM      shift and go to state 191
     PULLWITHIT      shift and go to state 193
 
-    action                         shift and go to state 280
+    action                         shift and go to state 281
 
 state 236
 
@@ -2680,8 +2682,8 @@ state 236
     IGUAL_QUE       reduce using rule 177 (var_ct -> received_string .)
     AND             reduce using rule 177 (var_ct -> received_string .)
     OR              reduce using rule 177 (var_ct -> received_string .)
-    D_PC            reduce using rule 177 (var_ct -> received_string .)
     D_PYC           reduce using rule 177 (var_ct -> received_string .)
+    D_PC            reduce using rule 177 (var_ct -> received_string .)
     D_C             reduce using rule 177 (var_ct -> received_string .)
     D_CC            reduce using rule 177 (var_ct -> received_string .)
 
@@ -2694,16 +2696,16 @@ state 237
     DIVISION        reduce using rule 170 (factor -> var_ct .)
     PLUS            reduce using rule 170 (factor -> var_ct .)
     MINUS           reduce using rule 170 (factor -> var_ct .)
+    MAYOR_QUE       reduce using rule 170 (factor -> var_ct .)
+    MENOR_QUE       reduce using rule 170 (factor -> var_ct .)
+    DIFERENTE_DE    reduce using rule 170 (factor -> var_ct .)
+    IGUAL_QUE       reduce using rule 170 (factor -> var_ct .)
     AND             reduce using rule 170 (factor -> var_ct .)
     OR              reduce using rule 170 (factor -> var_ct .)
     D_PYC           reduce using rule 170 (factor -> var_ct .)
     D_PC            reduce using rule 170 (factor -> var_ct .)
     D_C             reduce using rule 170 (factor -> var_ct .)
     D_CC            reduce using rule 170 (factor -> var_ct .)
-    MAYOR_QUE       reduce using rule 170 (factor -> var_ct .)
-    MENOR_QUE       reduce using rule 170 (factor -> var_ct .)
-    DIFERENTE_DE    reduce using rule 170 (factor -> var_ct .)
-    IGUAL_QUE       reduce using rule 170 (factor -> var_ct .)
 
 
 state 238
@@ -2720,8 +2722,8 @@ state 238
     IGUAL_QUE       reduce using rule 179 (var_ct -> function_use .)
     AND             reduce using rule 179 (var_ct -> function_use .)
     OR              reduce using rule 179 (var_ct -> function_use .)
-    D_PC            reduce using rule 179 (var_ct -> function_use .)
     D_PYC           reduce using rule 179 (var_ct -> function_use .)
+    D_PC            reduce using rule 179 (var_ct -> function_use .)
     D_C             reduce using rule 179 (var_ct -> function_use .)
     D_CC            reduce using rule 179 (var_ct -> function_use .)
 
@@ -2740,8 +2742,8 @@ state 239
     IGUAL_QUE       reduce using rule 176 (var_ct -> received_boolean .)
     AND             reduce using rule 176 (var_ct -> received_boolean .)
     OR              reduce using rule 176 (var_ct -> received_boolean .)
-    D_PC            reduce using rule 176 (var_ct -> received_boolean .)
     D_PYC           reduce using rule 176 (var_ct -> received_boolean .)
+    D_PC            reduce using rule 176 (var_ct -> received_boolean .)
     D_C             reduce using rule 176 (var_ct -> received_boolean .)
     D_CC            reduce using rule 176 (var_ct -> received_boolean .)
 
@@ -2788,7 +2790,7 @@ state 241
     D_C             reduce using rule 115 (value_list -> .)
     D_CC            reduce using rule 115 (value_list -> .)
 
-    value_list                     shift and go to state 281
+    value_list                     shift and go to state 282
 
 state 242
 
@@ -2798,16 +2800,16 @@ state 242
     DIVISION        reduce using rule 185 (received_char -> CHAR_CT .)
     PLUS            reduce using rule 185 (received_char -> CHAR_CT .)
     MINUS           reduce using rule 185 (received_char -> CHAR_CT .)
+    AND             reduce using rule 185 (received_char -> CHAR_CT .)
+    OR              reduce using rule 185 (received_char -> CHAR_CT .)
+    D_PYC           reduce using rule 185 (received_char -> CHAR_CT .)
+    D_PC            reduce using rule 185 (received_char -> CHAR_CT .)
+    D_C             reduce using rule 185 (received_char -> CHAR_CT .)
+    D_CC            reduce using rule 185 (received_char -> CHAR_CT .)
     MAYOR_QUE       reduce using rule 185 (received_char -> CHAR_CT .)
     MENOR_QUE       reduce using rule 185 (received_char -> CHAR_CT .)
     DIFERENTE_DE    reduce using rule 185 (received_char -> CHAR_CT .)
     IGUAL_QUE       reduce using rule 185 (received_char -> CHAR_CT .)
-    AND             reduce using rule 185 (received_char -> CHAR_CT .)
-    OR              reduce using rule 185 (received_char -> CHAR_CT .)
-    D_C             reduce using rule 185 (received_char -> CHAR_CT .)
-    D_PC            reduce using rule 185 (received_char -> CHAR_CT .)
-    D_PYC           reduce using rule 185 (received_char -> CHAR_CT .)
-    D_CC            reduce using rule 185 (received_char -> CHAR_CT .)
 
 
 state 243
@@ -2816,14 +2818,14 @@ state 243
     (148) and_exp -> . AND big_exp
     (149) and_exp -> .
 
-    AND             shift and go to state 283
+    AND             shift and go to state 284
     OR              reduce using rule 149 (and_exp -> .)
     D_PYC           reduce using rule 149 (and_exp -> .)
     D_PC            reduce using rule 149 (and_exp -> .)
     D_C             reduce using rule 149 (and_exp -> .)
     D_CC            reduce using rule 149 (and_exp -> .)
 
-    and_exp                        shift and go to state 282
+    and_exp                        shift and go to state 283
 
 state 244
 
@@ -2849,7 +2851,7 @@ state 244
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -2877,7 +2879,7 @@ state 244
     big_exp                        shift and go to state 252
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
-    expression                     shift and go to state 284
+    expression                     shift and go to state 285
     validate_function_id_do_era    shift and go to state 218
 
 state 245
@@ -2900,7 +2902,7 @@ state 245
     D_C             reduce using rule 164 (check_stack_td -> .)
     D_CC            reduce using rule 164 (check_stack_td -> .)
 
-    check_stack_td                 shift and go to state 285
+    check_stack_td                 shift and go to state 286
 
 state 246
 
@@ -2936,8 +2938,8 @@ state 247
     IGUAL_QUE       reduce using rule 175 (var_ct -> received_int .)
     AND             reduce using rule 175 (var_ct -> received_int .)
     OR              reduce using rule 175 (var_ct -> received_int .)
-    D_PC            reduce using rule 175 (var_ct -> received_int .)
     D_PYC           reduce using rule 175 (var_ct -> received_int .)
+    D_PC            reduce using rule 175 (var_ct -> received_int .)
     D_C             reduce using rule 175 (var_ct -> received_int .)
     D_CC            reduce using rule 175 (var_ct -> received_int .)
 
@@ -2950,16 +2952,16 @@ state 248
     DIVISION        reduce using rule 184 (received_string -> STRING_CT .)
     PLUS            reduce using rule 184 (received_string -> STRING_CT .)
     MINUS           reduce using rule 184 (received_string -> STRING_CT .)
-    MAYOR_QUE       reduce using rule 184 (received_string -> STRING_CT .)
-    MENOR_QUE       reduce using rule 184 (received_string -> STRING_CT .)
-    DIFERENTE_DE    reduce using rule 184 (received_string -> STRING_CT .)
-    IGUAL_QUE       reduce using rule 184 (received_string -> STRING_CT .)
     AND             reduce using rule 184 (received_string -> STRING_CT .)
     OR              reduce using rule 184 (received_string -> STRING_CT .)
     D_PYC           reduce using rule 184 (received_string -> STRING_CT .)
     D_PC            reduce using rule 184 (received_string -> STRING_CT .)
     D_C             reduce using rule 184 (received_string -> STRING_CT .)
     D_CC            reduce using rule 184 (received_string -> STRING_CT .)
+    MAYOR_QUE       reduce using rule 184 (received_string -> STRING_CT .)
+    MENOR_QUE       reduce using rule 184 (received_string -> STRING_CT .)
+    DIFERENTE_DE    reduce using rule 184 (received_string -> STRING_CT .)
+    IGUAL_QUE       reduce using rule 184 (received_string -> STRING_CT .)
 
 
 state 249
@@ -2980,7 +2982,7 @@ state 249
     D_C             reduce using rule 158 (check_stack_pm -> .)
     D_CC            reduce using rule 158 (check_stack_pm -> .)
 
-    check_stack_pm                 shift and go to state 286
+    check_stack_pm                 shift and go to state 287
 
 state 250
 
@@ -2996,8 +2998,8 @@ state 250
     IGUAL_QUE       reduce using rule 174 (var_ct -> received_float .)
     AND             reduce using rule 174 (var_ct -> received_float .)
     OR              reduce using rule 174 (var_ct -> received_float .)
-    D_PC            reduce using rule 174 (var_ct -> received_float .)
     D_PYC           reduce using rule 174 (var_ct -> received_float .)
+    D_PC            reduce using rule 174 (var_ct -> received_float .)
     D_C             reduce using rule 174 (var_ct -> received_float .)
     D_CC            reduce using rule 174 (var_ct -> received_float .)
 
@@ -3028,13 +3030,13 @@ state 252
     (144) or_exp -> . OR expression
     (145) or_exp -> .
 
-    OR              shift and go to state 288
+    OR              shift and go to state 289
     D_PYC           reduce using rule 145 (or_exp -> .)
     D_PC            reduce using rule 145 (or_exp -> .)
     D_C             reduce using rule 145 (or_exp -> .)
     D_CC            reduce using rule 145 (or_exp -> .)
 
-    or_exp                         shift and go to state 287
+    or_exp                         shift and go to state 288
 
 state 253
 
@@ -3050,8 +3052,8 @@ state 253
     IGUAL_QUE       reduce using rule 178 (var_ct -> received_char .)
     AND             reduce using rule 178 (var_ct -> received_char .)
     OR              reduce using rule 178 (var_ct -> received_char .)
-    D_PC            reduce using rule 178 (var_ct -> received_char .)
     D_PYC           reduce using rule 178 (var_ct -> received_char .)
+    D_PC            reduce using rule 178 (var_ct -> received_char .)
     D_C             reduce using rule 178 (var_ct -> received_char .)
     D_CC            reduce using rule 178 (var_ct -> received_char .)
 
@@ -3065,10 +3067,10 @@ state 254
     (155) relational_exp -> . IGUAL_QUE exp
     (156) relational_exp -> .
 
-    MAYOR_QUE       shift and go to state 293
-    MENOR_QUE       shift and go to state 292
-    DIFERENTE_DE    shift and go to state 291
-    IGUAL_QUE       shift and go to state 289
+    MAYOR_QUE       shift and go to state 294
+    MENOR_QUE       shift and go to state 293
+    DIFERENTE_DE    shift and go to state 292
+    IGUAL_QUE       shift and go to state 290
     AND             reduce using rule 156 (relational_exp -> .)
     OR              reduce using rule 156 (relational_exp -> .)
     D_PYC           reduce using rule 156 (relational_exp -> .)
@@ -3076,7 +3078,7 @@ state 254
     D_C             reduce using rule 156 (relational_exp -> .)
     D_CC            reduce using rule 156 (relational_exp -> .)
 
-    relational_exp                 shift and go to state 290
+    relational_exp                 shift and go to state 291
 
 state 255
 
@@ -3103,7 +3105,7 @@ state 257
 
     (135) cycle -> WHILE push_cont_in_stackJumps . D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while
 
-    D_PA            shift and go to state 294
+    D_PA            shift and go to state 295
 
 
 state 258
@@ -3131,7 +3133,7 @@ state 258
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -3153,21 +3155,21 @@ state 258
     medium_exp                     shift and go to state 243
     push_pa                        shift and go to state 244
     factor                         shift and go to state 245
-    printable                      shift and go to state 295
+    printable                      shift and go to state 296
     received_int                   shift and go to state 247
     term                           shift and go to state 249
     received_float                 shift and go to state 250
     big_exp                        shift and go to state 252
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
-    expression                     shift and go to state 296
+    expression                     shift and go to state 297
     validate_function_id_do_era    shift and go to state 218
 
 state 259
 
     (106) function_use -> STARTGAME D_PA . D_PC
 
-    D_PC            shift and go to state 297
+    D_PC            shift and go to state 298
 
 
 state 260
@@ -3175,9 +3177,9 @@ state 260
     (112) assignation -> received_id value_list . push_equal expression
     (113) push_equal -> . EQUAL
 
-    EQUAL           shift and go to state 299
+    EQUAL           shift and go to state 300
 
-    push_equal                     shift and go to state 298
+    push_equal                     shift and go to state 299
 
 state 261
 
@@ -3203,7 +3205,7 @@ state 261
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -3231,7 +3233,7 @@ state 261
     big_exp                        shift and go to state 252
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
-    expression                     shift and go to state 300
+    expression                     shift and go to state 301
     validate_function_id_do_era    shift and go to state 218
 
 state 262
@@ -3239,27 +3241,27 @@ state 262
     (129) reading -> GETBOOLEAN D_PA . received_id D_PC generate_read_boolean
     (180) received_id -> . ID
 
-    ID              shift and go to state 302
+    ID              shift and go to state 303
 
-    received_id                    shift and go to state 301
+    received_id                    shift and go to state 302
 
 state 263
 
     (127) reading -> GETVALUE D_PA . received_id D_PC generate_read_value
     (180) received_id -> . ID
 
-    ID              shift and go to state 302
+    ID              shift and go to state 303
 
-    received_id                    shift and go to state 303
+    received_id                    shift and go to state 304
 
 state 264
 
     (128) reading -> GETLINE D_PA . received_id D_PC generate_read_line
     (180) received_id -> . ID
 
-    ID              shift and go to state 302
+    ID              shift and go to state 303
 
-    received_id                    shift and go to state 304
+    received_id                    shift and go to state 305
 
 state 265
 
@@ -3285,7 +3287,7 @@ state 265
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -3313,7 +3315,7 @@ state 265
     big_exp                        shift and go to state 252
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
-    expression                     shift and go to state 305
+    expression                     shift and go to state 306
     validate_function_id_do_era    shift and go to state 218
 
 state 266
@@ -3336,7 +3338,7 @@ state 266
     (129) reading -> . GETBOOLEAN D_PA received_id D_PC generate_read_boolean
     (130) reading -> . GETCHAR D_PA received_id D_PC generate_read_char
     (135) cycle -> . WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (139) return -> . RETURN expression
@@ -3358,7 +3360,7 @@ state 266
 
     function_use                   shift and go to state 200
     received_id                    shift and go to state 204
-    mini_block                     shift and go to state 306
+    mini_block                     shift and go to state 307
     printing                       shift and go to state 217
     reading                        shift and go to state 208
     return                         shift and go to state 209
@@ -3377,8 +3379,7 @@ state 267
 
 state 268
 
-    (104) function_use -> validate_function_id_do_era D_PA . add_parameter more_ids D_PC validate_params_generate_gosub
-    (105) function_use -> validate_function_id_do_era D_PA . D_PC validate_params_generate_gosub
+    (104) function_use -> validate_function_id_do_era push_pa . add_parameter more_ids pop_pc validate_params_generate_gosub
     (108) add_parameter -> . expression
     (142) expression -> . big_exp or_exp check_stack_or
     (146) big_exp -> . medium_exp and_exp check_stack_and
@@ -3401,12 +3402,11 @@ state 268
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
 
-    D_PC            shift and go to state 309
     D_PA            shift and go to state 256
     ID              shift and go to state 207
     FLOAT_CT        shift and go to state 251
@@ -3421,7 +3421,7 @@ state 268
     function_use                   shift and go to state 238
     received_boolean               shift and go to state 239
     received_id                    shift and go to state 241
-    add_parameter                  shift and go to state 307
+    add_parameter                  shift and go to state 308
     medium_exp                     shift and go to state 243
     push_pa                        shift and go to state 244
     factor                         shift and go to state 245
@@ -3431,89 +3431,105 @@ state 268
     big_exp                        shift and go to state 252
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
-    expression                     shift and go to state 308
+    expression                     shift and go to state 309
     validate_function_id_do_era    shift and go to state 218
 
 state 269
 
-    (130) reading -> GETCHAR D_PA . received_id D_PC generate_read_char
-    (180) received_id -> . ID
+    (105) function_use -> validate_function_id_do_era D_PA . D_PC validate_params_generate_gosub
+    (171) push_pa -> D_PA .
 
-    ID              shift and go to state 302
+    D_PC            shift and go to state 310
+    D_PA            reduce using rule 171 (push_pa -> D_PA .)
+    ID              reduce using rule 171 (push_pa -> D_PA .)
+    FLOAT_CT        reduce using rule 171 (push_pa -> D_PA .)
+    INT_CT          reduce using rule 171 (push_pa -> D_PA .)
+    BOOLEAN_CT      reduce using rule 171 (push_pa -> D_PA .)
+    STRING_CT       reduce using rule 171 (push_pa -> D_PA .)
+    CHAR_CT         reduce using rule 171 (push_pa -> D_PA .)
+    STARTGAME       reduce using rule 171 (push_pa -> D_PA .)
 
-    received_id                    shift and go to state 310
 
 state 270
 
-    (82) function -> FUNC save_function_id D_PA parameters D_PC EQUAL type save_function . D_2P code_block SMALL_END generate_end_func
+    (130) reading -> GETCHAR D_PA . received_id D_PC generate_read_char
+    (180) received_id -> . ID
 
-    D_2P            shift and go to state 311
+    ID              shift and go to state 303
 
+    received_id                    shift and go to state 311
 
 state 271
+
+    (82) function -> FUNC save_function_id D_PA parameters D_PC EQUAL type save_function . D_2P code_block SMALL_END generate_end_func
+
+    D_2P            shift and go to state 312
+
+
+state 272
 
     (54) goal -> goal_type LIMIT EQUAL INT_CT WIN EQUAL BOOLEAN_CT .
 
     D_PYC           reduce using rule 54 (goal -> goal_type LIMIT EQUAL INT_CT WIN EQUAL BOOLEAN_CT .)
 
 
-state 272
+state 273
 
     (66) more_tiles -> STRING_CT D_PYC more_tiles .
 
     SMALL_END       reduce using rule 66 (more_tiles -> STRING_CT D_PYC more_tiles .)
 
 
-state 273
+state 274
 
     (46) action -> ADDTIMER TIME EQUAL . INT_CT TRANSFORMALL D_PA ID D_C ID D_PC
 
-    INT_CT          shift and go to state 312
-
-
-state 274
-
-    (47) action -> SHIELDFROM D_PA KILLSPRITE . D_C ID D_PC
-
-    D_C             shift and go to state 313
+    INT_CT          shift and go to state 313
 
 
 state 275
 
-    (42) action -> SCORECHANGE D_PA FLOAT_CT . D_PC
+    (47) action -> SHIELDFROM D_PA KILLSPRITE . D_C ID D_PC
 
-    D_PC            shift and go to state 314
+    D_C             shift and go to state 314
 
 
 state 276
 
-    (43) action -> TRANSFORMTO D_PA ID . D_PC
+    (42) action -> SCORECHANGE D_PA FLOAT_CT . D_PC
 
     D_PC            shift and go to state 315
 
 
 state 277
 
+    (43) action -> TRANSFORMTO D_PA ID . D_PC
+
+    D_PC            shift and go to state 316
+
+
+state 278
+
     (49) kill_id -> ID .
 
     D_PC            reduce using rule 49 (kill_id -> ID .)
 
 
-state 278
-
-    (40) action -> KILLSPRITE D_PA kill_id . D_PC
-
-    D_PC            shift and go to state 316
-
-
 state 279
 
-    (45) action -> CHANGEHEALTHPOINTS D_PA INT_CT . D_PC
+    (40) action -> KILLSPRITE D_PA kill_id . D_PC
 
     D_PC            shift and go to state 317
 
 
 state 280
+
+    (45) action -> CHANGEHEALTHPOINTS D_PA INT_CT . D_PC
+
+    D_PC            shift and go to state 318
+
+
+state 281
 
     (38) more_actions -> D_C action . more_actions
     (38) more_actions -> . D_C action more_actions
@@ -3522,9 +3538,9 @@ state 280
     D_C             shift and go to state 235
     D_PYC           reduce using rule 39 (more_actions -> .)
 
-    more_actions                   shift and go to state 318
+    more_actions                   shift and go to state 319
 
-state 281
+state 282
 
     (173) var_ct -> received_id value_list .
 
@@ -3538,13 +3554,13 @@ state 281
     IGUAL_QUE       reduce using rule 173 (var_ct -> received_id value_list .)
     AND             reduce using rule 173 (var_ct -> received_id value_list .)
     OR              reduce using rule 173 (var_ct -> received_id value_list .)
-    D_PC            reduce using rule 173 (var_ct -> received_id value_list .)
     D_PYC           reduce using rule 173 (var_ct -> received_id value_list .)
+    D_PC            reduce using rule 173 (var_ct -> received_id value_list .)
     D_C             reduce using rule 173 (var_ct -> received_id value_list .)
     D_CC            reduce using rule 173 (var_ct -> received_id value_list .)
 
 
-state 282
+state 283
 
     (146) big_exp -> medium_exp and_exp . check_stack_and
     (147) check_stack_and -> .
@@ -3555,9 +3571,9 @@ state 282
     D_C             reduce using rule 147 (check_stack_and -> .)
     D_CC            reduce using rule 147 (check_stack_and -> .)
 
-    check_stack_and                shift and go to state 319
+    check_stack_and                shift and go to state 320
 
-state 283
+state 284
 
     (148) and_exp -> AND . big_exp
     (146) big_exp -> . medium_exp and_exp check_stack_and
@@ -3580,7 +3596,7 @@ state 283
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -3605,21 +3621,21 @@ state 283
     received_int                   shift and go to state 247
     term                           shift and go to state 249
     received_float                 shift and go to state 250
-    big_exp                        shift and go to state 320
+    big_exp                        shift and go to state 321
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
     validate_function_id_do_era    shift and go to state 218
 
-state 284
+state 285
 
     (169) factor -> push_pa expression . pop_pc
     (172) pop_pc -> . D_PC
 
-    D_PC            shift and go to state 321
+    D_PC            shift and go to state 322
 
-    pop_pc                         shift and go to state 322
+    pop_pc                         shift and go to state 323
 
-state 285
+state 286
 
     (163) term -> factor check_stack_td . times_factor
     (165) times_factor -> . push_td term
@@ -3639,13 +3655,13 @@ state 285
     D_PC            reduce using rule 166 (times_factor -> .)
     D_C             reduce using rule 166 (times_factor -> .)
     D_CC            reduce using rule 166 (times_factor -> .)
-    TIMES           shift and go to state 324
-    DIVISION        shift and go to state 323
+    TIMES           shift and go to state 325
+    DIVISION        shift and go to state 324
 
-    times_factor                   shift and go to state 325
-    push_td                        shift and go to state 326
+    times_factor                   shift and go to state 326
+    push_td                        shift and go to state 327
 
-state 286
+state 287
 
     (157) exp -> term check_stack_pm . add_term
     (159) add_term -> . push_pm exp
@@ -3663,13 +3679,13 @@ state 286
     D_PC            reduce using rule 160 (add_term -> .)
     D_C             reduce using rule 160 (add_term -> .)
     D_CC            reduce using rule 160 (add_term -> .)
-    PLUS            shift and go to state 328
-    MINUS           shift and go to state 330
+    PLUS            shift and go to state 329
+    MINUS           shift and go to state 331
 
-    push_pm                        shift and go to state 329
-    add_term                       shift and go to state 327
+    push_pm                        shift and go to state 330
+    add_term                       shift and go to state 328
 
-state 287
+state 288
 
     (142) expression -> big_exp or_exp . check_stack_or
     (143) check_stack_or -> .
@@ -3679,9 +3695,9 @@ state 287
     D_C             reduce using rule 143 (check_stack_or -> .)
     D_CC            reduce using rule 143 (check_stack_or -> .)
 
-    check_stack_or                 shift and go to state 331
+    check_stack_or                 shift and go to state 332
 
-state 288
+state 289
 
     (144) or_exp -> OR . expression
     (142) expression -> . big_exp or_exp check_stack_or
@@ -3705,7 +3721,7 @@ state 288
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -3733,10 +3749,10 @@ state 288
     big_exp                        shift and go to state 252
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
-    expression                     shift and go to state 332
+    expression                     shift and go to state 333
     validate_function_id_do_era    shift and go to state 218
 
-state 289
+state 290
 
     (155) relational_exp -> IGUAL_QUE . exp
     (157) exp -> . term check_stack_pm add_term
@@ -3757,7 +3773,7 @@ state 289
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -3782,10 +3798,10 @@ state 289
     term                           shift and go to state 249
     received_float                 shift and go to state 250
     received_char                  shift and go to state 253
-    exp                            shift and go to state 333
+    exp                            shift and go to state 334
     validate_function_id_do_era    shift and go to state 218
 
-state 290
+state 291
 
     (150) medium_exp -> exp relational_exp . check_stack_mmdi
     (151) check_stack_mmdi -> .
@@ -3797,9 +3813,9 @@ state 290
     D_C             reduce using rule 151 (check_stack_mmdi -> .)
     D_CC            reduce using rule 151 (check_stack_mmdi -> .)
 
-    check_stack_mmdi               shift and go to state 334
+    check_stack_mmdi               shift and go to state 335
 
-state 291
+state 292
 
     (154) relational_exp -> DIFERENTE_DE . exp
     (157) exp -> . term check_stack_pm add_term
@@ -3820,56 +3836,7 @@ state 291
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
-    (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
-    (106) function_use -> . STARTGAME D_PA D_PC
-    (107) validate_function_id_do_era -> . ID
-
-    D_PA            shift and go to state 256
-    ID              shift and go to state 207
-    FLOAT_CT        shift and go to state 251
-    INT_CT          shift and go to state 240
-    BOOLEAN_CT      shift and go to state 246
-    STRING_CT       shift and go to state 248
-    CHAR_CT         shift and go to state 242
-    STARTGAME       shift and go to state 203
-
-    received_string                shift and go to state 236
-    var_ct                         shift and go to state 237
-    function_use                   shift and go to state 238
-    received_boolean               shift and go to state 239
-    received_id                    shift and go to state 241
-    push_pa                        shift and go to state 244
-    factor                         shift and go to state 245
-    received_int                   shift and go to state 247
-    term                           shift and go to state 249
-    received_float                 shift and go to state 250
-    received_char                  shift and go to state 253
-    exp                            shift and go to state 335
-    validate_function_id_do_era    shift and go to state 218
-
-state 292
-
-    (153) relational_exp -> MENOR_QUE . exp
-    (157) exp -> . term check_stack_pm add_term
-    (163) term -> . factor check_stack_td times_factor
-    (169) factor -> . push_pa expression pop_pc
-    (170) factor -> . var_ct
-    (171) push_pa -> . D_PA
-    (173) var_ct -> . received_id value_list
-    (174) var_ct -> . received_float
-    (175) var_ct -> . received_int
-    (176) var_ct -> . received_boolean
-    (177) var_ct -> . received_string
-    (178) var_ct -> . received_char
-    (179) var_ct -> . function_use
-    (180) received_id -> . ID
-    (181) received_float -> . FLOAT_CT
-    (182) received_int -> . INT_CT
-    (183) received_boolean -> . BOOLEAN_CT
-    (184) received_string -> . STRING_CT
-    (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -3899,7 +3866,7 @@ state 292
 
 state 293
 
-    (152) relational_exp -> MAYOR_QUE . exp
+    (153) relational_exp -> MENOR_QUE . exp
     (157) exp -> . term check_stack_pm add_term
     (163) term -> . factor check_stack_td times_factor
     (169) factor -> . push_pa expression pop_pc
@@ -3918,7 +3885,7 @@ state 293
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -3948,6 +3915,55 @@ state 293
 
 state 294
 
+    (152) relational_exp -> MAYOR_QUE . exp
+    (157) exp -> . term check_stack_pm add_term
+    (163) term -> . factor check_stack_td times_factor
+    (169) factor -> . push_pa expression pop_pc
+    (170) factor -> . var_ct
+    (171) push_pa -> . D_PA
+    (173) var_ct -> . received_id value_list
+    (174) var_ct -> . received_float
+    (175) var_ct -> . received_int
+    (176) var_ct -> . received_boolean
+    (177) var_ct -> . received_string
+    (178) var_ct -> . received_char
+    (179) var_ct -> . function_use
+    (180) received_id -> . ID
+    (181) received_float -> . FLOAT_CT
+    (182) received_int -> . INT_CT
+    (183) received_boolean -> . BOOLEAN_CT
+    (184) received_string -> . STRING_CT
+    (185) received_char -> . CHAR_CT
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
+    (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
+    (106) function_use -> . STARTGAME D_PA D_PC
+    (107) validate_function_id_do_era -> . ID
+
+    D_PA            shift and go to state 256
+    ID              shift and go to state 207
+    FLOAT_CT        shift and go to state 251
+    INT_CT          shift and go to state 240
+    BOOLEAN_CT      shift and go to state 246
+    STRING_CT       shift and go to state 248
+    CHAR_CT         shift and go to state 242
+    STARTGAME       shift and go to state 203
+
+    received_string                shift and go to state 236
+    var_ct                         shift and go to state 237
+    function_use                   shift and go to state 238
+    received_boolean               shift and go to state 239
+    received_id                    shift and go to state 241
+    push_pa                        shift and go to state 244
+    factor                         shift and go to state 245
+    received_int                   shift and go to state 247
+    term                           shift and go to state 249
+    received_float                 shift and go to state 250
+    received_char                  shift and go to state 253
+    exp                            shift and go to state 338
+    validate_function_id_do_era    shift and go to state 218
+
+state 295
+
     (135) cycle -> WHILE push_cont_in_stackJumps D_PA . expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while
     (142) expression -> . big_exp or_exp check_stack_or
     (146) big_exp -> . medium_exp and_exp check_stack_and
@@ -3970,7 +3986,7 @@ state 294
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -3998,17 +4014,17 @@ state 294
     received_float                 shift and go to state 250
     big_exp                        shift and go to state 252
     exp                            shift and go to state 254
-    expression                     shift and go to state 338
+    expression                     shift and go to state 339
     validate_function_id_do_era    shift and go to state 218
 
-state 295
+state 296
 
     (116) printing -> PRINT D_PA printable . D_PC
 
-    D_PC            shift and go to state 339
+    D_PC            shift and go to state 340
 
 
-state 296
+state 297
 
     (117) printable -> expression . generate_print more_printable
     (118) generate_print -> .
@@ -4016,9 +4032,9 @@ state 296
     D_C             reduce using rule 118 (generate_print -> .)
     D_PC            reduce using rule 118 (generate_print -> .)
 
-    generate_print                 shift and go to state 340
+    generate_print                 shift and go to state 341
 
-state 297
+state 298
 
     (106) function_use -> STARTGAME D_PA D_PC .
 
@@ -4026,19 +4042,19 @@ state 297
     DIVISION        reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
     PLUS            reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
     MINUS           reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
+    AND             reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
+    OR              reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
+    D_PYC           reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
+    D_PC            reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
+    D_C             reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
+    D_CC            reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
     MAYOR_QUE       reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
     MENOR_QUE       reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
     DIFERENTE_DE    reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
     IGUAL_QUE       reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
-    AND             reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
-    OR              reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
-    D_PC            reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
-    D_PYC           reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
-    D_C             reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
-    D_CC            reduce using rule 106 (function_use -> STARTGAME D_PA D_PC .)
 
 
-state 298
+state 299
 
     (112) assignation -> received_id value_list push_equal . expression
     (142) expression -> . big_exp or_exp check_stack_or
@@ -4062,7 +4078,7 @@ state 298
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -4090,10 +4106,10 @@ state 298
     big_exp                        shift and go to state 252
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
-    expression                     shift and go to state 341
+    expression                     shift and go to state 342
     validate_function_id_do_era    shift and go to state 218
 
-state 299
+state 300
 
     (113) push_equal -> EQUAL .
 
@@ -4107,49 +4123,49 @@ state 299
     STARTGAME       reduce using rule 113 (push_equal -> EQUAL .)
 
 
-state 300
+state 301
 
     (114) value_list -> D_CA expression . D_CC
 
-    D_CC            shift and go to state 342
-
-
-state 301
-
-    (129) reading -> GETBOOLEAN D_PA received_id . D_PC generate_read_boolean
-
-    D_PC            shift and go to state 343
+    D_CC            shift and go to state 343
 
 
 state 302
+
+    (129) reading -> GETBOOLEAN D_PA received_id . D_PC generate_read_boolean
+
+    D_PC            shift and go to state 344
+
+
+state 303
 
     (180) received_id -> ID .
 
     D_PC            reduce using rule 180 (received_id -> ID .)
 
 
-state 303
-
-    (127) reading -> GETVALUE D_PA received_id . D_PC generate_read_value
-
-    D_PC            shift and go to state 344
-
-
 state 304
 
-    (128) reading -> GETLINE D_PA received_id . D_PC generate_read_line
+    (127) reading -> GETVALUE D_PA received_id . D_PC generate_read_value
 
     D_PC            shift and go to state 345
 
 
 state 305
 
-    (121) condition -> IF D_PA expression . D_PC generate_gotoF_if D_2P mini_block else_condition SMALL_END generate_end_if
+    (128) reading -> GETLINE D_PA received_id . D_PC generate_read_line
 
     D_PC            shift and go to state 346
 
 
 state 306
+
+    (121) condition -> IF D_PA expression . D_PC generate_gotoF_if D_2P mini_block else_condition SMALL_END generate_end_if
+
+    D_PC            shift and go to state 347
+
+
+state 307
 
     (140) mini_block -> statute D_PYC mini_block .
 
@@ -4157,18 +4173,18 @@ state 306
     ELSE            reduce using rule 140 (mini_block -> statute D_PYC mini_block .)
 
 
-state 307
+state 308
 
-    (104) function_use -> validate_function_id_do_era D_PA add_parameter . more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> validate_function_id_do_era push_pa add_parameter . more_ids pop_pc validate_params_generate_gosub
     (110) more_ids -> . D_C add_parameter more_ids
     (111) more_ids -> .
 
-    D_C             shift and go to state 347
+    D_C             shift and go to state 348
     D_PC            reduce using rule 111 (more_ids -> .)
 
-    more_ids                       shift and go to state 348
+    more_ids                       shift and go to state 349
 
-state 308
+state 309
 
     (108) add_parameter -> expression .
 
@@ -4176,7 +4192,7 @@ state 308
     D_PC            reduce using rule 108 (add_parameter -> expression .)
 
 
-state 309
+state 310
 
     (105) function_use -> validate_function_id_do_era D_PA D_PC . validate_params_generate_gosub
     (109) validate_params_generate_gosub -> .
@@ -4196,16 +4212,16 @@ state 309
     D_C             reduce using rule 109 (validate_params_generate_gosub -> .)
     D_CC            reduce using rule 109 (validate_params_generate_gosub -> .)
 
-    validate_params_generate_gosub shift and go to state 349
+    validate_params_generate_gosub shift and go to state 350
 
-state 310
+state 311
 
     (130) reading -> GETCHAR D_PA received_id . D_PC generate_read_char
 
-    D_PC            shift and go to state 350
+    D_PC            shift and go to state 351
 
 
-state 311
+state 312
 
     (82) function -> FUNC save_function_id D_PA parameters D_PC EQUAL type save_function D_2P . code_block SMALL_END generate_end_func
     (94) code_block -> . vars save_vars_in_local_memory mini_block
@@ -4228,24 +4244,24 @@ state 311
     VAR             shift and go to state 14
 
     vars                           shift and go to state 142
-    code_block                     shift and go to state 351
+    code_block                     shift and go to state 352
     var                            shift and go to state 13
-
-state 312
-
-    (46) action -> ADDTIMER TIME EQUAL INT_CT . TRANSFORMALL D_PA ID D_C ID D_PC
-
-    TRANSFORMALL    shift and go to state 352
-
 
 state 313
 
-    (47) action -> SHIELDFROM D_PA KILLSPRITE D_C . ID D_PC
+    (46) action -> ADDTIMER TIME EQUAL INT_CT . TRANSFORMALL D_PA ID D_C ID D_PC
 
-    ID              shift and go to state 353
+    TRANSFORMALL    shift and go to state 353
 
 
 state 314
+
+    (47) action -> SHIELDFROM D_PA KILLSPRITE D_C . ID D_PC
+
+    ID              shift and go to state 354
+
+
+state 315
 
     (42) action -> SCORECHANGE D_PA FLOAT_CT D_PC .
 
@@ -4253,7 +4269,7 @@ state 314
     D_PYC           reduce using rule 42 (action -> SCORECHANGE D_PA FLOAT_CT D_PC .)
 
 
-state 315
+state 316
 
     (43) action -> TRANSFORMTO D_PA ID D_PC .
 
@@ -4261,7 +4277,7 @@ state 315
     D_PYC           reduce using rule 43 (action -> TRANSFORMTO D_PA ID D_PC .)
 
 
-state 316
+state 317
 
     (40) action -> KILLSPRITE D_PA kill_id D_PC .
 
@@ -4269,7 +4285,7 @@ state 316
     D_PYC           reduce using rule 40 (action -> KILLSPRITE D_PA kill_id D_PC .)
 
 
-state 317
+state 318
 
     (45) action -> CHANGEHEALTHPOINTS D_PA INT_CT D_PC .
 
@@ -4277,25 +4293,25 @@ state 317
     D_PYC           reduce using rule 45 (action -> CHANGEHEALTHPOINTS D_PA INT_CT D_PC .)
 
 
-state 318
+state 319
 
     (38) more_actions -> D_C action more_actions .
 
     D_PYC           reduce using rule 38 (more_actions -> D_C action more_actions .)
 
 
-state 319
+state 320
 
     (146) big_exp -> medium_exp and_exp check_stack_and .
 
     OR              reduce using rule 146 (big_exp -> medium_exp and_exp check_stack_and .)
-    D_PC            reduce using rule 146 (big_exp -> medium_exp and_exp check_stack_and .)
     D_PYC           reduce using rule 146 (big_exp -> medium_exp and_exp check_stack_and .)
+    D_PC            reduce using rule 146 (big_exp -> medium_exp and_exp check_stack_and .)
     D_C             reduce using rule 146 (big_exp -> medium_exp and_exp check_stack_and .)
     D_CC            reduce using rule 146 (big_exp -> medium_exp and_exp check_stack_and .)
 
 
-state 320
+state 321
 
     (148) and_exp -> AND big_exp .
 
@@ -4306,10 +4322,11 @@ state 320
     D_CC            reduce using rule 148 (and_exp -> AND big_exp .)
 
 
-state 321
+state 322
 
     (172) pop_pc -> D_PC .
 
+    D_PYC           reduce using rule 172 (pop_pc -> D_PC .)
     TIMES           reduce using rule 172 (pop_pc -> D_PC .)
     DIVISION        reduce using rule 172 (pop_pc -> D_PC .)
     PLUS            reduce using rule 172 (pop_pc -> D_PC .)
@@ -4320,13 +4337,12 @@ state 321
     IGUAL_QUE       reduce using rule 172 (pop_pc -> D_PC .)
     AND             reduce using rule 172 (pop_pc -> D_PC .)
     OR              reduce using rule 172 (pop_pc -> D_PC .)
-    D_PYC           reduce using rule 172 (pop_pc -> D_PC .)
     D_PC            reduce using rule 172 (pop_pc -> D_PC .)
     D_C             reduce using rule 172 (pop_pc -> D_PC .)
     D_CC            reduce using rule 172 (pop_pc -> D_PC .)
 
 
-state 322
+state 323
 
     (169) factor -> push_pa expression pop_pc .
 
@@ -4334,19 +4350,19 @@ state 322
     DIVISION        reduce using rule 169 (factor -> push_pa expression pop_pc .)
     PLUS            reduce using rule 169 (factor -> push_pa expression pop_pc .)
     MINUS           reduce using rule 169 (factor -> push_pa expression pop_pc .)
+    MAYOR_QUE       reduce using rule 169 (factor -> push_pa expression pop_pc .)
+    MENOR_QUE       reduce using rule 169 (factor -> push_pa expression pop_pc .)
+    DIFERENTE_DE    reduce using rule 169 (factor -> push_pa expression pop_pc .)
+    IGUAL_QUE       reduce using rule 169 (factor -> push_pa expression pop_pc .)
     AND             reduce using rule 169 (factor -> push_pa expression pop_pc .)
     OR              reduce using rule 169 (factor -> push_pa expression pop_pc .)
     D_PYC           reduce using rule 169 (factor -> push_pa expression pop_pc .)
     D_PC            reduce using rule 169 (factor -> push_pa expression pop_pc .)
     D_C             reduce using rule 169 (factor -> push_pa expression pop_pc .)
     D_CC            reduce using rule 169 (factor -> push_pa expression pop_pc .)
-    MAYOR_QUE       reduce using rule 169 (factor -> push_pa expression pop_pc .)
-    MENOR_QUE       reduce using rule 169 (factor -> push_pa expression pop_pc .)
-    DIFERENTE_DE    reduce using rule 169 (factor -> push_pa expression pop_pc .)
-    IGUAL_QUE       reduce using rule 169 (factor -> push_pa expression pop_pc .)
 
 
-state 323
+state 324
 
     (168) push_td -> DIVISION .
 
@@ -4360,7 +4376,7 @@ state 323
     STARTGAME       reduce using rule 168 (push_td -> DIVISION .)
 
 
-state 324
+state 325
 
     (167) push_td -> TIMES .
 
@@ -4374,7 +4390,7 @@ state 324
     STARTGAME       reduce using rule 167 (push_td -> TIMES .)
 
 
-state 325
+state 326
 
     (163) term -> factor check_stack_td times_factor .
 
@@ -4392,7 +4408,7 @@ state 325
     D_CC            reduce using rule 163 (term -> factor check_stack_td times_factor .)
 
 
-state 326
+state 327
 
     (165) times_factor -> push_td . term
     (163) term -> . factor check_stack_td times_factor
@@ -4412,7 +4428,7 @@ state 326
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -4428,7 +4444,7 @@ state 326
 
     received_id                    shift and go to state 241
     received_string                shift and go to state 236
-    term                           shift and go to state 354
+    term                           shift and go to state 355
     received_float                 shift and go to state 250
     var_ct                         shift and go to state 237
     function_use                   shift and go to state 238
@@ -4439,7 +4455,7 @@ state 326
     validate_function_id_do_era    shift and go to state 218
     received_char                  shift and go to state 253
 
-state 327
+state 328
 
     (157) exp -> term check_stack_pm add_term .
 
@@ -4450,12 +4466,12 @@ state 327
     AND             reduce using rule 157 (exp -> term check_stack_pm add_term .)
     OR              reduce using rule 157 (exp -> term check_stack_pm add_term .)
     D_PC            reduce using rule 157 (exp -> term check_stack_pm add_term .)
-    D_PYC           reduce using rule 157 (exp -> term check_stack_pm add_term .)
     D_C             reduce using rule 157 (exp -> term check_stack_pm add_term .)
+    D_PYC           reduce using rule 157 (exp -> term check_stack_pm add_term .)
     D_CC            reduce using rule 157 (exp -> term check_stack_pm add_term .)
 
 
-state 328
+state 329
 
     (161) push_pm -> PLUS .
 
@@ -4469,7 +4485,7 @@ state 328
     STARTGAME       reduce using rule 161 (push_pm -> PLUS .)
 
 
-state 329
+state 330
 
     (159) add_term -> push_pm . exp
     (157) exp -> . term check_stack_pm add_term
@@ -4490,7 +4506,7 @@ state 329
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -4515,10 +4531,10 @@ state 329
     term                           shift and go to state 249
     received_float                 shift and go to state 250
     received_char                  shift and go to state 253
-    exp                            shift and go to state 355
+    exp                            shift and go to state 356
     validate_function_id_do_era    shift and go to state 218
 
-state 330
+state 331
 
     (162) push_pm -> MINUS .
 
@@ -4532,17 +4548,17 @@ state 330
     STARTGAME       reduce using rule 162 (push_pm -> MINUS .)
 
 
-state 331
+state 332
 
     (142) expression -> big_exp or_exp check_stack_or .
 
-    D_C             reduce using rule 142 (expression -> big_exp or_exp check_stack_or .)
     D_PC            reduce using rule 142 (expression -> big_exp or_exp check_stack_or .)
+    D_C             reduce using rule 142 (expression -> big_exp or_exp check_stack_or .)
     D_PYC           reduce using rule 142 (expression -> big_exp or_exp check_stack_or .)
     D_CC            reduce using rule 142 (expression -> big_exp or_exp check_stack_or .)
 
 
-state 332
+state 333
 
     (144) or_exp -> OR expression .
 
@@ -4552,7 +4568,7 @@ state 332
     D_CC            reduce using rule 144 (or_exp -> OR expression .)
 
 
-state 333
+state 334
 
     (155) relational_exp -> IGUAL_QUE exp .
 
@@ -4564,19 +4580,19 @@ state 333
     D_CC            reduce using rule 155 (relational_exp -> IGUAL_QUE exp .)
 
 
-state 334
+state 335
 
     (150) medium_exp -> exp relational_exp check_stack_mmdi .
 
     AND             reduce using rule 150 (medium_exp -> exp relational_exp check_stack_mmdi .)
     OR              reduce using rule 150 (medium_exp -> exp relational_exp check_stack_mmdi .)
-    D_PYC           reduce using rule 150 (medium_exp -> exp relational_exp check_stack_mmdi .)
     D_C             reduce using rule 150 (medium_exp -> exp relational_exp check_stack_mmdi .)
     D_PC            reduce using rule 150 (medium_exp -> exp relational_exp check_stack_mmdi .)
+    D_PYC           reduce using rule 150 (medium_exp -> exp relational_exp check_stack_mmdi .)
     D_CC            reduce using rule 150 (medium_exp -> exp relational_exp check_stack_mmdi .)
 
 
-state 335
+state 336
 
     (154) relational_exp -> DIFERENTE_DE exp .
 
@@ -4588,7 +4604,7 @@ state 335
     D_CC            reduce using rule 154 (relational_exp -> DIFERENTE_DE exp .)
 
 
-state 336
+state 337
 
     (153) relational_exp -> MENOR_QUE exp .
 
@@ -4600,7 +4616,7 @@ state 336
     D_CC            reduce using rule 153 (relational_exp -> MENOR_QUE exp .)
 
 
-state 337
+state 338
 
     (152) relational_exp -> MAYOR_QUE exp .
 
@@ -4612,39 +4628,39 @@ state 337
     D_CC            reduce using rule 152 (relational_exp -> MAYOR_QUE exp .)
 
 
-state 338
+state 339
 
     (135) cycle -> WHILE push_cont_in_stackJumps D_PA expression . D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while
 
-    D_PC            shift and go to state 356
+    D_PC            shift and go to state 357
 
 
-state 339
+state 340
 
     (116) printing -> PRINT D_PA printable D_PC .
 
     D_PYC           reduce using rule 116 (printing -> PRINT D_PA printable D_PC .)
 
 
-state 340
+state 341
 
     (117) printable -> expression generate_print . more_printable
     (119) more_printable -> . D_C printable
     (120) more_printable -> .
 
-    D_C             shift and go to state 358
+    D_C             shift and go to state 359
     D_PC            reduce using rule 120 (more_printable -> .)
 
-    more_printable                 shift and go to state 357
+    more_printable                 shift and go to state 358
 
-state 341
+state 342
 
     (112) assignation -> received_id value_list push_equal expression .
 
     D_PYC           reduce using rule 112 (assignation -> received_id value_list push_equal expression .)
 
 
-state 342
+state 343
 
     (114) value_list -> D_CA expression D_CC .
 
@@ -4665,43 +4681,43 @@ state 342
     D_CC            reduce using rule 114 (value_list -> D_CA expression D_CC .)
 
 
-state 343
+state 344
 
     (129) reading -> GETBOOLEAN D_PA received_id D_PC . generate_read_boolean
     (133) generate_read_boolean -> .
 
     D_PYC           reduce using rule 133 (generate_read_boolean -> .)
 
-    generate_read_boolean          shift and go to state 359
+    generate_read_boolean          shift and go to state 360
 
-state 344
+state 345
 
     (127) reading -> GETVALUE D_PA received_id D_PC . generate_read_value
     (131) generate_read_value -> .
 
     D_PYC           reduce using rule 131 (generate_read_value -> .)
 
-    generate_read_value            shift and go to state 360
+    generate_read_value            shift and go to state 361
 
-state 345
+state 346
 
     (128) reading -> GETLINE D_PA received_id D_PC . generate_read_line
     (132) generate_read_line -> .
 
     D_PYC           reduce using rule 132 (generate_read_line -> .)
 
-    generate_read_line             shift and go to state 361
+    generate_read_line             shift and go to state 362
 
-state 346
+state 347
 
     (121) condition -> IF D_PA expression D_PC . generate_gotoF_if D_2P mini_block else_condition SMALL_END generate_end_if
     (122) generate_gotoF_if -> .
 
     D_2P            reduce using rule 122 (generate_gotoF_if -> .)
 
-    generate_gotoF_if              shift and go to state 362
+    generate_gotoF_if              shift and go to state 363
 
-state 347
+state 348
 
     (110) more_ids -> D_C . add_parameter more_ids
     (108) add_parameter -> . expression
@@ -4726,7 +4742,7 @@ state 347
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -4745,7 +4761,7 @@ state 347
     function_use                   shift and go to state 238
     received_boolean               shift and go to state 239
     received_id                    shift and go to state 241
-    add_parameter                  shift and go to state 363
+    add_parameter                  shift and go to state 364
     medium_exp                     shift and go to state 243
     push_pa                        shift and go to state 244
     factor                         shift and go to state 245
@@ -4755,17 +4771,19 @@ state 347
     big_exp                        shift and go to state 252
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
-    expression                     shift and go to state 308
+    expression                     shift and go to state 309
     validate_function_id_do_era    shift and go to state 218
 
-state 348
-
-    (104) function_use -> validate_function_id_do_era D_PA add_parameter more_ids . D_PC validate_params_generate_gosub
-
-    D_PC            shift and go to state 364
-
-
 state 349
+
+    (104) function_use -> validate_function_id_do_era push_pa add_parameter more_ids . pop_pc validate_params_generate_gosub
+    (172) pop_pc -> . D_PC
+
+    D_PC            shift and go to state 322
+
+    pop_pc                         shift and go to state 365
+
+state 350
 
     (105) function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .
 
@@ -4773,49 +4791,49 @@ state 349
     DIVISION        reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
     PLUS            reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
     MINUS           reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
+    AND             reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
+    OR              reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
+    D_PYC           reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
+    D_PC            reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
+    D_C             reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
+    D_CC            reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
     MAYOR_QUE       reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
     MENOR_QUE       reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
     DIFERENTE_DE    reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
     IGUAL_QUE       reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
-    AND             reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
-    OR              reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
-    D_PC            reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
-    D_PYC           reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
-    D_C             reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
-    D_CC            reduce using rule 105 (function_use -> validate_function_id_do_era D_PA D_PC validate_params_generate_gosub .)
 
 
-state 350
+state 351
 
     (130) reading -> GETCHAR D_PA received_id D_PC . generate_read_char
     (134) generate_read_char -> .
 
     D_PYC           reduce using rule 134 (generate_read_char -> .)
 
-    generate_read_char             shift and go to state 365
-
-state 351
-
-    (82) function -> FUNC save_function_id D_PA parameters D_PC EQUAL type save_function D_2P code_block . SMALL_END generate_end_func
-
-    SMALL_END       shift and go to state 366
-
+    generate_read_char             shift and go to state 366
 
 state 352
 
-    (46) action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL . D_PA ID D_C ID D_PC
+    (82) function -> FUNC save_function_id D_PA parameters D_PC EQUAL type save_function D_2P code_block . SMALL_END generate_end_func
 
-    D_PA            shift and go to state 367
+    SMALL_END       shift and go to state 367
 
 
 state 353
 
-    (47) action -> SHIELDFROM D_PA KILLSPRITE D_C ID . D_PC
+    (46) action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL . D_PA ID D_C ID D_PC
 
-    D_PC            shift and go to state 368
+    D_PA            shift and go to state 368
 
 
 state 354
+
+    (47) action -> SHIELDFROM D_PA KILLSPRITE D_C ID . D_PC
+
+    D_PC            shift and go to state 369
+
+
+state 355
 
     (165) times_factor -> push_td term .
 
@@ -4833,7 +4851,7 @@ state 354
     D_CC            reduce using rule 165 (times_factor -> push_td term .)
 
 
-state 355
+state 356
 
     (159) add_term -> push_pm exp .
 
@@ -4849,23 +4867,23 @@ state 355
     D_CC            reduce using rule 159 (add_term -> push_pm exp .)
 
 
-state 356
+state 357
 
     (135) cycle -> WHILE push_cont_in_stackJumps D_PA expression D_PC . generate_gotoF_while D_2P mini_block SMALL_END generate_end_while
     (137) generate_gotoF_while -> .
 
     D_2P            reduce using rule 137 (generate_gotoF_while -> .)
 
-    generate_gotoF_while           shift and go to state 369
+    generate_gotoF_while           shift and go to state 370
 
-state 357
+state 358
 
     (117) printable -> expression generate_print more_printable .
 
     D_PC            reduce using rule 117 (printable -> expression generate_print more_printable .)
 
 
-state 358
+state 359
 
     (119) more_printable -> D_C . printable
     (117) printable -> . expression generate_print more_printable
@@ -4890,7 +4908,7 @@ state 358
     (183) received_boolean -> . BOOLEAN_CT
     (184) received_string -> . STRING_CT
     (185) received_char -> . CHAR_CT
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (107) validate_function_id_do_era -> . ID
@@ -4912,58 +4930,58 @@ state 358
     medium_exp                     shift and go to state 243
     push_pa                        shift and go to state 244
     factor                         shift and go to state 245
-    printable                      shift and go to state 370
+    printable                      shift and go to state 371
     received_int                   shift and go to state 247
     term                           shift and go to state 249
     received_float                 shift and go to state 250
     big_exp                        shift and go to state 252
     received_char                  shift and go to state 253
     exp                            shift and go to state 254
-    expression                     shift and go to state 296
+    expression                     shift and go to state 297
     validate_function_id_do_era    shift and go to state 218
 
-state 359
+state 360
 
     (129) reading -> GETBOOLEAN D_PA received_id D_PC generate_read_boolean .
 
     D_PYC           reduce using rule 129 (reading -> GETBOOLEAN D_PA received_id D_PC generate_read_boolean .)
 
 
-state 360
+state 361
 
     (127) reading -> GETVALUE D_PA received_id D_PC generate_read_value .
 
     D_PYC           reduce using rule 127 (reading -> GETVALUE D_PA received_id D_PC generate_read_value .)
 
 
-state 361
+state 362
 
     (128) reading -> GETLINE D_PA received_id D_PC generate_read_line .
 
     D_PYC           reduce using rule 128 (reading -> GETLINE D_PA received_id D_PC generate_read_line .)
 
 
-state 362
+state 363
 
     (121) condition -> IF D_PA expression D_PC generate_gotoF_if . D_2P mini_block else_condition SMALL_END generate_end_if
 
-    D_2P            shift and go to state 371
+    D_2P            shift and go to state 372
 
 
-state 363
+state 364
 
     (110) more_ids -> D_C add_parameter . more_ids
     (110) more_ids -> . D_C add_parameter more_ids
     (111) more_ids -> .
 
-    D_C             shift and go to state 347
+    D_C             shift and go to state 348
     D_PC            reduce using rule 111 (more_ids -> .)
 
-    more_ids                       shift and go to state 372
+    more_ids                       shift and go to state 373
 
-state 364
+state 365
 
-    (104) function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC . validate_params_generate_gosub
+    (104) function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc . validate_params_generate_gosub
     (109) validate_params_generate_gosub -> .
 
     D_PYC           reduce using rule 109 (validate_params_generate_gosub -> .)
@@ -4981,16 +4999,16 @@ state 364
     D_C             reduce using rule 109 (validate_params_generate_gosub -> .)
     D_CC            reduce using rule 109 (validate_params_generate_gosub -> .)
 
-    validate_params_generate_gosub shift and go to state 373
+    validate_params_generate_gosub shift and go to state 374
 
-state 365
+state 366
 
     (130) reading -> GETCHAR D_PA received_id D_PC generate_read_char .
 
     D_PYC           reduce using rule 130 (reading -> GETCHAR D_PA received_id D_PC generate_read_char .)
 
 
-state 366
+state 367
 
     (82) function -> FUNC save_function_id D_PA parameters D_PC EQUAL type save_function D_2P code_block SMALL_END . generate_end_func
     (83) generate_end_func -> .
@@ -4998,16 +5016,16 @@ state 366
     FUNC            reduce using rule 83 (generate_end_func -> .)
     MAIN            reduce using rule 83 (generate_end_func -> .)
 
-    generate_end_func              shift and go to state 374
+    generate_end_func              shift and go to state 375
 
-state 367
+state 368
 
     (46) action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL D_PA . ID D_C ID D_PC
 
-    ID              shift and go to state 375
+    ID              shift and go to state 376
 
 
-state 368
+state 369
 
     (47) action -> SHIELDFROM D_PA KILLSPRITE D_C ID D_PC .
 
@@ -5015,21 +5033,21 @@ state 368
     D_PYC           reduce using rule 47 (action -> SHIELDFROM D_PA KILLSPRITE D_C ID D_PC .)
 
 
-state 369
+state 370
 
     (135) cycle -> WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while . D_2P mini_block SMALL_END generate_end_while
 
-    D_2P            shift and go to state 376
+    D_2P            shift and go to state 377
 
 
-state 370
+state 371
 
     (119) more_printable -> D_C printable .
 
     D_PC            reduce using rule 119 (more_printable -> D_C printable .)
 
 
-state 371
+state 372
 
     (121) condition -> IF D_PA expression D_PC generate_gotoF_if D_2P . mini_block else_condition SMALL_END generate_end_if
     (140) mini_block -> . statute D_PYC mini_block
@@ -5049,7 +5067,7 @@ state 371
     (129) reading -> . GETBOOLEAN D_PA received_id D_PC generate_read_boolean
     (130) reading -> . GETCHAR D_PA received_id D_PC generate_read_char
     (135) cycle -> . WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (139) return -> . RETURN expression
@@ -5071,7 +5089,7 @@ state 371
 
     function_use                   shift and go to state 200
     received_id                    shift and go to state 204
-    mini_block                     shift and go to state 377
+    mini_block                     shift and go to state 378
     printing                       shift and go to state 217
     reading                        shift and go to state 208
     return                         shift and go to state 209
@@ -5081,34 +5099,34 @@ state 371
     assignation                    shift and go to state 216
     validate_function_id_do_era    shift and go to state 218
 
-state 372
+state 373
 
     (110) more_ids -> D_C add_parameter more_ids .
 
     D_PC            reduce using rule 110 (more_ids -> D_C add_parameter more_ids .)
 
 
-state 373
-
-    (104) function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .
-
-    TIMES           reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    DIVISION        reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    PLUS            reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    MINUS           reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    MAYOR_QUE       reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    MENOR_QUE       reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    DIFERENTE_DE    reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    IGUAL_QUE       reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    AND             reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    OR              reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    D_PC            reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    D_PYC           reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    D_C             reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-    D_CC            reduce using rule 104 (function_use -> validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub .)
-
-
 state 374
+
+    (104) function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .
+
+    TIMES           reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    DIVISION        reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    PLUS            reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    MINUS           reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    AND             reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    OR              reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    D_PYC           reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    D_PC            reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    D_C             reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    D_CC            reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    MAYOR_QUE       reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    MENOR_QUE       reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    DIFERENTE_DE    reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+    IGUAL_QUE       reduce using rule 104 (function_use -> validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub .)
+
+
+state 375
 
     (82) function -> FUNC save_function_id D_PA parameters D_PC EQUAL type save_function D_2P code_block SMALL_END generate_end_func .
 
@@ -5116,14 +5134,14 @@ state 374
     MAIN            reduce using rule 82 (function -> FUNC save_function_id D_PA parameters D_PC EQUAL type save_function D_2P code_block SMALL_END generate_end_func .)
 
 
-state 375
+state 376
 
     (46) action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL D_PA ID . D_C ID D_PC
 
-    D_C             shift and go to state 378
+    D_C             shift and go to state 379
 
 
-state 376
+state 377
 
     (135) cycle -> WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P . mini_block SMALL_END generate_end_while
     (140) mini_block -> . statute D_PYC mini_block
@@ -5143,7 +5161,7 @@ state 376
     (129) reading -> . GETBOOLEAN D_PA received_id D_PC generate_read_boolean
     (130) reading -> . GETCHAR D_PA received_id D_PC generate_read_char
     (135) cycle -> . WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (139) return -> . RETURN expression
@@ -5164,7 +5182,7 @@ state 376
 
     function_use                   shift and go to state 200
     received_id                    shift and go to state 204
-    mini_block                     shift and go to state 379
+    mini_block                     shift and go to state 380
     reading                        shift and go to state 208
     return                         shift and go to state 209
     condition                      shift and go to state 213
@@ -5174,80 +5192,80 @@ state 376
     printing                       shift and go to state 217
     validate_function_id_do_era    shift and go to state 218
 
-state 377
+state 378
 
     (121) condition -> IF D_PA expression D_PC generate_gotoF_if D_2P mini_block . else_condition SMALL_END generate_end_if
     (124) else_condition -> . ELSE generate_goto_else D_2P mini_block
     (125) else_condition -> .
 
-    ELSE            shift and go to state 380
+    ELSE            shift and go to state 381
     SMALL_END       reduce using rule 125 (else_condition -> .)
 
-    else_condition                 shift and go to state 381
-
-state 378
-
-    (46) action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL D_PA ID D_C . ID D_PC
-
-    ID              shift and go to state 382
-
+    else_condition                 shift and go to state 382
 
 state 379
 
-    (135) cycle -> WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block . SMALL_END generate_end_while
+    (46) action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL D_PA ID D_C . ID D_PC
 
-    SMALL_END       shift and go to state 383
+    ID              shift and go to state 383
 
 
 state 380
+
+    (135) cycle -> WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block . SMALL_END generate_end_while
+
+    SMALL_END       shift and go to state 384
+
+
+state 381
 
     (124) else_condition -> ELSE . generate_goto_else D_2P mini_block
     (126) generate_goto_else -> .
 
     D_2P            reduce using rule 126 (generate_goto_else -> .)
 
-    generate_goto_else             shift and go to state 384
-
-state 381
-
-    (121) condition -> IF D_PA expression D_PC generate_gotoF_if D_2P mini_block else_condition . SMALL_END generate_end_if
-
-    SMALL_END       shift and go to state 385
-
+    generate_goto_else             shift and go to state 385
 
 state 382
 
-    (46) action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL D_PA ID D_C ID . D_PC
+    (121) condition -> IF D_PA expression D_PC generate_gotoF_if D_2P mini_block else_condition . SMALL_END generate_end_if
 
-    D_PC            shift and go to state 386
+    SMALL_END       shift and go to state 386
 
 
 state 383
+
+    (46) action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL D_PA ID D_C ID . D_PC
+
+    D_PC            shift and go to state 387
+
+
+state 384
 
     (135) cycle -> WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END . generate_end_while
     (138) generate_end_while -> .
 
     D_PYC           reduce using rule 138 (generate_end_while -> .)
 
-    generate_end_while             shift and go to state 387
+    generate_end_while             shift and go to state 388
 
-state 384
+state 385
 
     (124) else_condition -> ELSE generate_goto_else . D_2P mini_block
 
-    D_2P            shift and go to state 388
+    D_2P            shift and go to state 389
 
 
-state 385
+state 386
 
     (121) condition -> IF D_PA expression D_PC generate_gotoF_if D_2P mini_block else_condition SMALL_END . generate_end_if
     (123) generate_end_if -> .
 
     D_PYC           reduce using rule 123 (generate_end_if -> .)
 
-    generate_end_if                shift and go to state 389
+    generate_end_if                shift and go to state 390
 
-state 386
+state 387
 
     (46) action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL D_PA ID D_C ID D_PC .
 
@@ -5255,14 +5273,14 @@ state 386
     D_PYC           reduce using rule 46 (action -> ADDTIMER TIME EQUAL INT_CT TRANSFORMALL D_PA ID D_C ID D_PC .)
 
 
-state 387
+state 388
 
     (135) cycle -> WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while .
 
     D_PYC           reduce using rule 135 (cycle -> WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while .)
 
 
-state 388
+state 389
 
     (124) else_condition -> ELSE generate_goto_else D_2P . mini_block
     (140) mini_block -> . statute D_PYC mini_block
@@ -5282,7 +5300,7 @@ state 388
     (129) reading -> . GETBOOLEAN D_PA received_id D_PC generate_read_boolean
     (130) reading -> . GETCHAR D_PA received_id D_PC generate_read_char
     (135) cycle -> . WHILE push_cont_in_stackJumps D_PA expression D_PC generate_gotoF_while D_2P mini_block SMALL_END generate_end_while
-    (104) function_use -> . validate_function_id_do_era D_PA add_parameter more_ids D_PC validate_params_generate_gosub
+    (104) function_use -> . validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
     (105) function_use -> . validate_function_id_do_era D_PA D_PC validate_params_generate_gosub
     (106) function_use -> . STARTGAME D_PA D_PC
     (139) return -> . RETURN expression
@@ -5303,7 +5321,7 @@ state 388
 
     function_use                   shift and go to state 200
     received_id                    shift and go to state 204
-    mini_block                     shift and go to state 390
+    mini_block                     shift and go to state 391
     printing                       shift and go to state 217
     reading                        shift and go to state 208
     return                         shift and go to state 209
@@ -5313,14 +5331,14 @@ state 388
     assignation                    shift and go to state 216
     validate_function_id_do_era    shift and go to state 218
 
-state 389
+state 390
 
     (121) condition -> IF D_PA expression D_PC generate_gotoF_if D_2P mini_block else_condition SMALL_END generate_end_if .
 
     D_PYC           reduce using rule 121 (condition -> IF D_PA expression D_PC generate_gotoF_if D_2P mini_block else_condition SMALL_END generate_end_if .)
 
 
-state 390
+state 391
 
     (124) else_condition -> ELSE generate_goto_else D_2P mini_block .
 

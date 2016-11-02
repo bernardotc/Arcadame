@@ -1,28 +1,32 @@
 <intermediateCode>
 
 	<functions>
+		<function>
+		<functionName>factorial</functionName>
+			<parameter>101</parameter>
+			<return>101</return>
+			<memory>2000</memory>
+			<quadruplet>2</quadruplet>
+			<era>
+				<int>3</int>
+				<float>0</float>
+				<string>0</string>
+				<char>0</char>
+				<boolean>1</boolean>
+			</era>
+		</function>
 	</functions>
 
 	<constants>
 		<constant>
 			<constantValue>1</constantValue>
 			<type>101</type>
-			<memory>20002</memory>
-		</constant>
-		<constant>
-			<constantValue>"hola"</constantValue>
-			<type>103</type>
-			<memory>22000</memory>
+			<memory>17000</memory>
 		</constant>
 		<constant>
 			<constantValue>5</constantValue>
 			<type>101</type>
-			<memory>20000</memory>
-		</constant>
-		<constant>
-			<constantValue>6</constantValue>
-			<type>101</type>
-			<memory>20001</memory>
+			<memory>17001</memory>
 		</constant>
 	</constants>
 
@@ -32,66 +36,122 @@
 			<operation>11</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>2</result>
+			<result>13</result>
 		</quadruplet>
 		<quadruplet>
 			<index>2</index>
-			<operation>0</operation>
-			<element1>20000</element1>
-			<element2>20001</element2>
-			<result>14000</result>
+			<operation>9</operation>
+			<element1>7000</element1>
+			<element2>17000</element2>
+			<result>16000</result>
 		</quadruplet>
 		<quadruplet>
 			<index>3</index>
-			<operation>10</operation>
-			<element1>14000</element1>
+			<operation>12</operation>
+			<element1>16000</element1>
 			<element2>-1</element2>
-			<result>8000</result>
+			<result>5</result>
 		</quadruplet>
 		<quadruplet>
 			<index>4</index>
-			<operation>14</operation>
+			<operation>22</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>2000</result>
+			<result>17000</result>
 		</quadruplet>
 		<quadruplet>
 			<index>5</index>
-			<operation>1</operation>
-			<element1>8000</element1>
-			<element2>2000</element2>
-			<result>14001</result>
+			<operation>19</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>factorial</result>
 		</quadruplet>
 		<quadruplet>
 			<index>6</index>
 			<operation>2</operation>
-			<element1>14001</element1>
-			<element2>20002</element2>
-			<result>14002</result>
+			<element1>7000</element1>
+			<element2>17000</element2>
+			<result>12000</result>
 		</quadruplet>
 		<quadruplet>
 			<index>7</index>
-			<operation>10</operation>
-			<element1>14002</element1>
+			<operation>21</operation>
+			<element1>12000</element1>
 			<element2>-1</element2>
-			<result>9000</result>
+			<result>1</result>
 		</quadruplet>
 		<quadruplet>
 			<index>8</index>
-			<operation>13</operation>
+			<operation>20</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>9000</result>
+			<result>factorial</result>
 		</quadruplet>
 		<quadruplet>
 			<index>9</index>
-			<operation>13</operation>
-			<element1>-1</element1>
+			<operation>10</operation>
+			<element1>2000</element1>
 			<element2>-1</element2>
-			<result>22000</result>
+			<result>12001</result>
 		</quadruplet>
 		<quadruplet>
 			<index>10</index>
+			<operation>1</operation>
+			<element1>7000</element1>
+			<element2>12001</element2>
+			<result>12002</result>
+		</quadruplet>
+		<quadruplet>
+			<index>11</index>
+			<operation>22</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>12002</result>
+		</quadruplet>
+		<quadruplet>
+			<index>12</index>
+			<operation>18</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>-1</result>
+		</quadruplet>
+		<quadruplet>
+			<index>13</index>
+			<operation>19</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>factorial</result>
+		</quadruplet>
+		<quadruplet>
+			<index>14</index>
+			<operation>21</operation>
+			<element1>17001</element1>
+			<element2>-1</element2>
+			<result>1</result>
+		</quadruplet>
+		<quadruplet>
+			<index>15</index>
+			<operation>20</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>factorial</result>
+		</quadruplet>
+		<quadruplet>
+			<index>16</index>
+			<operation>10</operation>
+			<element1>2000</element1>
+			<element2>-1</element2>
+			<result>7000</result>
+		</quadruplet>
+		<quadruplet>
+			<index>17</index>
+			<operation>13</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>7000</result>
+		</quadruplet>
+		<quadruplet>
+			<index>18</index>
 			<operation>30</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>

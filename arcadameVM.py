@@ -8,22 +8,25 @@
 
 import xml.etree.ElementTree as ET
 
-debug = True
+debug = False
 
 functionDictionary = {}
 constants = {}
 quadruplets = []
 instructionCounter = 1;
+instructionStack = []
+functionScope = ""
+parametersMemoryValues = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
 
 # Memory of execution
 memory = {0: {}, 1: {'offsetStack': [], 'values': [{}]}, 2: {'offsetStack': [], 'values': [{}]}, 3: constants}
 
 def getSection(value):
-    if (value < 8000):
+    if (value < 7000):
         return 0
-    elif (value < 14000):
+    elif (value < 12000):
         return 1
-    elif (value < 20000):
+    elif (value < 17000):
         return 2
     else:
         return 3
@@ -39,8 +42,8 @@ def assignValueInMemory(memoryKey, value):
         if (len(memory[section]['offsetStack']) == 0):
             memory[section]['values'][0][memoryKey] = value
         else:
-            offset = memory[section]['offsetStack'].top()
-            memory[section]['values']['offsetStack'][memoryKey] = value
+            offset = memory[section]['offsetStack'][-1]
+            memory[section]['values'][offset][memoryKey] = value
 
 def accessValueInMemory(memoryKey):
     global memory
@@ -55,8 +58,46 @@ def accessValueInMemory(memoryKey):
         if (len(memory[section]['offsetStack']) == 0):
             return memory[section]['values'][0][memoryKey]
         else:
-            offset = memory[section]['offsetStack'].top()
-            return memory[section]['values']['offsetStack'][memoryKey]
+            offset = memory[section]['offsetStack'][-1]
+            return memory[section]['values'][offset][memoryKey]
+
+def createERAInMemory():
+    global memory
+    memory[1]['values'].append({})
+    memory[2]['values'].append({})
+
+def addOffsetsInMemory():
+    global memory
+    offset = len(memory[1]['values']) - 1
+    memory[1]['offsetStack'].append(offset)
+    memory[2]['offsetStack'].append(offset)
+
+
+def deleteERAInMemory():
+    global memory
+    memory[1]['offsetStack'].pop()
+    memory[1]['values'].pop()
+    memory[2]['offsetStack'].pop()
+    memory[2]['values'].pop()
+
+def assignParamInMemory(memoryKey1, memoryKey2):
+    global memory
+    section = getSection(memoryKey2)
+    value = accessValueInMemory(memoryKey1)
+    if (debug):
+        print "Assigning parameters: ", memoryKey1, memoryKey2, value
+    offset = len(memory[section]['values']) - 1
+    memory[section]['values'][offset][memoryKey2] = value
+
+def getParamMemoryValue(paramType):
+    global parametersMemoryValues
+    value = parametersMemoryValues[paramType]
+    parametersMemoryValues[paramType] += 1
+    return value
+
+def resetParametersMemoryValues():
+    global parametersMemoryValues
+    parametersMemoryValues = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
 
 def readRawCode(fileName):
     global functionDictionary, constants, quadruplets
@@ -65,12 +106,13 @@ def readRawCode(fileName):
     for function in tree.find('functions').findall('function'):
         name = function.find('functionName').text
         for parameter in function.findall('parameter'):
-            parameters.append(parameter.text)
-        memory = function.find('return').text
+            parameters.append(int(parameter.text))
+        returnType = function.find('return').text
+        memory = function.find('memory').text
         quadruplet = function.find('quadruplet').text
         eraRoot = function.find('era')
         era = [int(eraRoot.find('int').text), int(eraRoot.find('float').text), int(eraRoot.find('string').text), int(eraRoot.find('char').text), int(eraRoot.find('boolean').text)]
-        functionDictionary[name] = {'parameters': parameters, 'memory': int(memory), 'quadruplet': int(quadruplet), 'era': era}
+        functionDictionary[name] = {'parameters': parameters, 'return': returnType, 'memory': int(memory), 'quadruplet': int(quadruplet), 'era': era}
 
     for constant in tree.find('constants').findall('constant'):
         value = constant.find('constantValue').text
@@ -99,10 +141,10 @@ def readRawCode(fileName):
         print "quadruplets: ", quadruplets
 
 def doOperation(quadruplet):
-    global instructionCounter
+    global instructionCounter, functionDictionary, instructionStack, functionScope
     if (debug):
         print quadruplet
-    if (quadruplet[0] < 9):
+    if (quadruplet[0] < 10):
         elem1 = accessValueInMemory(quadruplet[1])
         elem2 = accessValueInMemory(quadruplet[2])
         if (quadruplet[0] == 0):
@@ -137,6 +179,13 @@ def doOperation(quadruplet):
         return True
     elif (quadruplet[0] == 11):
         instructionCounter = quadruplet[3] - 1
+        return True
+    elif (quadruplet[0] == 12):
+        result = accessValueInMemory(quadruplet[1])
+        if (debug):
+            print "GOTOF result: ", result
+        if (result == False):
+            instructionCounter = quadruplet[3] - 1
         return True
     elif (quadruplet[0] == 13):
         result = accessValueInMemory(quadruplet[3])
@@ -178,16 +227,55 @@ def doOperation(quadruplet):
             # TODO
             # raise ERROR
             return False
+    elif (quadruplet[0] == 18):
+        deleteERAInMemory()
+        if (debug):
+            print "Memory after deleting ERA: ", memory
+        instructionCounter = instructionStack.pop()
+        functionScope = ""
+        resetParametersMemoryValues()
+        return True
+    elif (quadruplet[0] == 19):
+        createERAInMemory()
+        functionScope = quadruplet[3]
+        if (debug):
+            print "Memory after creating ERA: ", memory
+        return True
+    elif (quadruplet[0] == 20):
+        function = quadruplet[3]
+        instructionStack.append(instructionCounter)
+        addOffsetsInMemory()
+        instructionCounter = functionDictionary[function]['quadruplet'] - 1
+        resetParametersMemoryValues()
+        return True
+    elif (quadruplet[0] == 21):
+        value = quadruplet[1]
+        if (debug):
+            print "Function scope Name for Params: ", functionScope
+        paramType = functionDictionary[functionScope]['parameters'][quadruplet[3] - 1]
+        param = getParamMemoryValue(paramType)
+        assignParamInMemory(value, param)
+        return True
+    elif (quadruplet[0] == 22):
+        result = accessValueInMemory(quadruplet[3])
+        assignValueInMemory(functionDictionary[functionScope]['memory'], result)
+        deleteERAInMemory()
+        if (debug):
+            print "Memory after deleting ERA: ", memory
+        instructionCounter = instructionStack.pop()
+        return True
     elif (quadruplet[0] == 30):
         return False
 
 # Main.
 readRawCode('rawCode.xml')
 memory[3] = constants
-print "memory: ", memory
+if (debug):
+    print "Initial memory: ", memory
 while 1:
     if (doOperation(quadruplets[instructionCounter - 1])):
         instructionCounter += 1;
     else:
         break;
-print "memory: ", memory
+if (debug):
+    print "Final memory: ", memory
