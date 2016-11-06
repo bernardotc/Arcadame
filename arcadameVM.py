@@ -31,8 +31,15 @@ def getSection(value):
     else:
         return 3
 
+def getIndirectDirection(result):
+    result = result.replace('[', '')
+    result = result.replace(']', '')
+    return int(result)
+
 def assignValueInMemory(memoryKey, value):
     global memory
+    if (isinstance(memoryKey, str)):
+        memoryKey = accessValueInMemory(getIndirectDirection(memoryKey))
     section = getSection(memoryKey)
     if (debug):
         print "SET = assigning value in section: ", section
@@ -47,6 +54,8 @@ def assignValueInMemory(memoryKey, value):
 
 def accessValueInMemory(memoryKey):
     global memory
+    if (isinstance(memoryKey, str)):
+        memoryKey = accessValueInMemory(getIndirectDirection(memoryKey))
     section = getSection(memoryKey)
     if (debug):
         print "GET = accessing value in section: ", section
@@ -82,6 +91,8 @@ def deleteERAInMemory():
 
 def assignParamInMemory(memoryKey1, memoryKey2):
     global memory
+    if (isinstance(memoryKey2, str)):
+        memoryKey2 = accessValueInMemory(getIndirectDirection(memoryKey2))
     section = getSection(memoryKey2)
     value = accessValueInMemory(memoryKey1)
     if (debug):
@@ -264,6 +275,13 @@ def doOperation(quadruplet):
             print "Memory after deleting ERA: ", memory
         instructionCounter = instructionStack.pop()
         return True
+    elif (quadruplet[0] == 23):
+        result = accessValueInMemory(quadruplet[1])
+        if (result >= quadruplet[2] and result <= quadruplet[3]):
+            return True
+        else:
+            # TODO: - raise ERROR
+            return False
     elif (quadruplet[0] == 30):
         return False
 

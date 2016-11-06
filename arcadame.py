@@ -57,6 +57,8 @@ parameters = []
 globalVariables = {}
 typeOfVariable = ""
 functionId = ""
+listId = ""
+sureListId = ""
 paramCounter = 0
 goSubFunction = ""
 temporalStamp = {}
@@ -157,6 +159,8 @@ def convertOperatorToCode(type):
         return 21
     elif (type == 'return'):
         return 22
+    elif (type == 'verify'):
+        return 23
     elif (type == 'end'):
         return 30
 
@@ -1043,7 +1047,7 @@ def p_var(p):
         if (functionDirectory.has_key("variables")):
             if (functionDirectory["variables"].has_value(p[7])):
                 raise SemanticError("Var identifier has the same name as a function: " + p[7])
-        variables[p[7]] = {"type": convertAtomicTypeToCode(type)+1000}
+        variables[p[7]] = {"type": convertAtomicTypeToCode(type), "dimension": {"inferior": 0, "superior": int(p[4]), "-K": 0}}
     else:
         if (variables.has_key(p[4])):
             raise SemanticError("Repeated identifier for variable: " + p[4])
@@ -1156,14 +1160,16 @@ def p_code_block(p):
 def p_save_vars_in_local_memory(p):
     '''save_vars_in_local_memory : '''
     global variables, avail
-    # TODO: - Virtual memory for a list
-    
     # Assign virtual memory to variables in local scope
     for key in variables.keys():
-        typeInNumber = variables[key]["type"]
-        if typeInNumber < 1000:
+        typeInNumber = variables[key]['type']
+        if (not variables[key].has_key('dimension')):
             variables[key]["memory"] = avail[1][typeInNumber]
             avail[1][typeInNumber] += 1
+        else:
+        # Virtual memory for a list
+            variables[key]["memory"] = avail[1][typeInNumber]
+            avail[1][typeInNumber] += variables[key]['dimension']['superior']
 
 def p_statute(p):
     '''statute : assignation check_stack_equal
@@ -1178,6 +1184,7 @@ def p_statute(p):
 def p_check_stack_equal(p):
     '''check_stack_equal : '''
     global stackOperators, stackTypes, stackOp, listCode, semanticCube
+    print stackOp
     if (stackOperators):
         if (stackOperators[-1] == '='):
             # Different way to generate cuadruplet arithmetic != assignation
@@ -1186,12 +1193,13 @@ def p_check_stack_equal(p):
             op1 = stackOp.pop()
             op2Type = stackTypes.pop()
             op1Type = stackTypes.pop()
-            print op1Type, op2Type
+            if (debug):
+                print op1Type, op2Type
             newType = semanticCube[op1Type-100][op2Type-100][operator]
             if (newType == -1):
                 raise SemanticError("Type Mismatch: Trying to assign " + str(op2Type) + " to a " + str(op1Type) + " var!")
-            if (op1 >= 14000):
-                raise SemanticError("Trying to assign value to a temporal value or constant" + str(op1));
+            if (op1 >= 14000 and not isinstance(op1, list)):
+                raise SemanticError("Trying to assign value to a temporal or constant " + str(op1));
             listCode.append([operator, op2, -1, op1])
 
 def p_function_use(p):
@@ -1254,8 +1262,39 @@ def p_push_equal(p):
     stackOperators.append(p[1])
 
 def p_value_list(p):
-    '''value_list : D_CA expression D_CC
+    '''value_list : check_dimension D_CA expression D_CC
                   | '''
+    global variables, sureListId, stackOp, stackTypes, listCode, avail, constants
+    try:
+        if (p[2] == '['):
+            if (debug):
+                print "LIST: stack of operands: ", stackOp
+            operand = stackOp.pop()
+            operandType = stackTypes.pop()
+            if (operandType != convertAtomicTypeToCode('int')):
+                raise SemanticError("Expected int value to acess list, recieved: ", operandType)
+            listCode.append([convertOperatorToCode('verify'), operand, variables[sureListId]['dimension']['inferior'], variables[sureListId]['dimension']['superior']])
+            
+            constant = variables[sureListId]['memory']
+            if (not constants.has_key(constant)):
+                constants[constant] = {"type": 101, "memory": avail[3][convertAtomicTypeToCode('int')]}
+                avail[3][convertAtomicTypeToCode('int')] += 1
+  
+            listCode.append([convertOperatorToCode('+'), operand, constants[constant]['memory'], avail[2][convertAtomicTypeToCode('int')]])
+            stackOp.append([avail[2][convertAtomicTypeToCode('int')]])
+            stackTypes.append(variables[sureListId]['type'])
+            avail[2][convertAtomicTypeToCode('int')] += 1
+    except IndexError:
+        return
+
+def p_check_dimension(p):
+    '''check_dimension : '''
+    global listId, sureListId, stackOp, stackTypes
+    if (not variables[listId].has_key('dimension')):
+        raise SemanticError("Trying to access an id that does not have dimension.")
+    stackOp.pop()
+    stackTypes.pop()
+    sureListId = listId
 
 def p_printing(p):
     '''printing : PRINT D_PA printable D_PC'''
@@ -1533,14 +1572,13 @@ def p_var_ct(p):
               | received_string
               | received_char
               | function_use'''
-    # TODO: - What happens when you receive a function
-
 
 # Helper functions of var_ct for semantic analysis (operands)
 # id checks if the id was declared, if not, there is an error.
 def p_received_id(p):
     '''received_id : ID'''
-    global stackTypes, stackOp, variables, globalVariables, stackOpVisible, functionDirectory, functionId
+    global stackTypes, stackOp, variables, globalVariables, stackOpVisible, functionDirectory, functionId, listId
+    listId = p[1]
     if (debug):
         print variables, functionDirectory, p[1], functionId
     if (not variables.has_key(p[1]) and not functionDirectory[functionId]["variables"].has_key(p[1])):
@@ -1661,9 +1699,8 @@ def generateIntermediateCodeFile():
             file.write('\t\t\t<return>' + str(functionDirectory[function]['return']) + '</return>\n')
             file.write('\t\t\t<memory>' + str(functionDirectory[function]['memory']) + '</memory>\n')
             file.write('\t\t\t<quadruplet>' + str(functionDirectory[function]['start_cuadruplet']) + '</quadruplet>\n')
-            for vars in functionDirectory[function]['variables']:
-                for var in vars:
-                    spaceForEra[functionDirectory[function]['variables'][var]['type'] - 101] += 1
+            for var in functionDirectory[function]['variables']:
+                spaceForEra[functionDirectory[function]['variables'][var]['type'] - 101] += 1
             spaceForEra[0] += functionDirectory[function]['temporals'][101]
             spaceForEra[1] += functionDirectory[function]['temporals'][102]
             spaceForEra[2] += functionDirectory[function]['temporals'][103]
