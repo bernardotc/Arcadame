@@ -17,9 +17,10 @@ instructionCounter = 1;
 instructionStack = []
 functionScope = ""
 parametersMemoryValues = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
+offset = 0
 
 # Memory of execution
-memory = {0: {}, 1: {'offsetStack': [], 'values': [{}]}, 2: {'offsetStack': [], 'values': [{}]}, 3: constants}
+memory = memory = [{}, [{}], [{}], constants]
 
 def getSection(value):
     if (value < 7000):
@@ -31,31 +32,22 @@ def getSection(value):
     else:
         return 3
 
-def getIndirectDirection(result):
-    result = result.replace('[', '')
-    result = result.replace(']', '')
-    return int(result)
-
 def assignValueInMemory(memoryKey, value):
-    global memory
-    if (isinstance(memoryKey, str)):
-        memoryKey = accessValueInMemory(getIndirectDirection(memoryKey))
+    global memory, offset
+    if (memoryKey < 0):
+        memoryKey = accessValueInMemory(-1 * memoryKey)
     section = getSection(memoryKey)
     if (debug):
         print "SET = assigning value in section: ", section
     if (section == 0):
         memory[section][memoryKey] = value
     else:
-        if (len(memory[section]['offsetStack']) == 0):
-            memory[section]['values'][0][memoryKey] = value
-        else:
-            offset = memory[section]['offsetStack'][-1]
-            memory[section]['values'][offset][memoryKey] = value
+        memory[section][-1 - offset][memoryKey] = value
 
 def accessValueInMemory(memoryKey):
-    global memory
-    if (isinstance(memoryKey, str)):
-        memoryKey = accessValueInMemory(getIndirectDirection(memoryKey))
+    global memory, offset
+    if (memoryKey < 0):
+        memoryKey = accessValueInMemory(-1 * memoryKey)
     section = getSection(memoryKey)
     if (debug):
         print "GET = accessing value in section: ", section
@@ -64,41 +56,27 @@ def accessValueInMemory(memoryKey):
     elif (section == 3):
         return memory[section][memoryKey]['value']
     else:
-        if (len(memory[section]['offsetStack']) == 0):
-            return memory[section]['values'][0][memoryKey]
-        else:
-            offset = memory[section]['offsetStack'][-1]
-            return memory[section]['values'][offset][memoryKey]
+        return memory[section][-1 - offset][memoryKey]
 
 def createERAInMemory():
     global memory
-    memory[1]['values'].append({})
-    memory[2]['values'].append({})
-
-def addOffsetsInMemory():
-    global memory
-    offset = len(memory[1]['values']) - 1
-    memory[1]['offsetStack'].append(offset)
-    memory[2]['offsetStack'].append(offset)
-
+    memory[1].append({})
+    memory[2].append({})
 
 def deleteERAInMemory():
     global memory
-    memory[1]['offsetStack'].pop()
-    memory[1]['values'].pop()
-    memory[2]['offsetStack'].pop()
-    memory[2]['values'].pop()
+    memory[1].pop()
+    memory[2].pop()
 
 def assignParamInMemory(memoryKey1, memoryKey2):
-    global memory
-    if (isinstance(memoryKey2, str)):
-        memoryKey2 = accessValueInMemory(getIndirectDirection(memoryKey2))
+    global memory, offset
+    if (memoryKey2 < 0):
+        memoryKey2 = accessValueInMemory(-1 * memoryKey2)
     section = getSection(memoryKey2)
     value = accessValueInMemory(memoryKey1)
     if (debug):
         print "Assigning parameters: ", memoryKey1, memoryKey2, value
-    offset = len(memory[section]['values']) - 1
-    memory[section]['values'][offset][memoryKey2] = value
+    memory[section][-1][memoryKey2] = value
 
 def getParamMemoryValue(paramType):
     global parametersMemoryValues
@@ -152,7 +130,7 @@ def readRawCode(fileName):
         print "quadruplets: ", quadruplets
 
 def doOperation(quadruplet):
-    global instructionCounter, functionDictionary, instructionStack, functionScope
+    global instructionCounter, functionDictionary, instructionStack, functionScope, offset
     if (debug):
         print quadruplet
     if (quadruplet[0] < 10):
@@ -249,13 +227,14 @@ def doOperation(quadruplet):
     elif (quadruplet[0] == 19):
         createERAInMemory()
         functionScope = quadruplet[3]
+        offset = 1
         if (debug):
             print "Memory after creating ERA: ", memory
         return True
     elif (quadruplet[0] == 20):
         function = quadruplet[3]
         instructionStack.append(instructionCounter)
-        addOffsetsInMemory()
+        offset = 0
         instructionCounter = functionDictionary[function]['quadruplet'] - 1
         resetParametersMemoryValues()
         return True

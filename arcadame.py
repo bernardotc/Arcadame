@@ -1285,7 +1285,7 @@ def p_value_list(p):
                 avail[3][convertAtomicTypeToCode('int')] += 1
   
             listCode.append([convertOperatorToCode('+'), operand, constants[constant]['memory'], avail[2][convertAtomicTypeToCode('int')]])
-            stackOp.append([avail[2][convertAtomicTypeToCode('int')]])
+            stackOp.append(-avail[2][convertAtomicTypeToCode('int')])
             stackTypes.append(variables[sureListId]['type'])
             avail[2][convertAtomicTypeToCode('int')] += 1
     except IndexError:

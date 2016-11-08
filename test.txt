@@ -1,36 +1,22 @@
-SimpleGame Laberynth:
-    SpriteSet:
-        goal  = Immovable color=green, portal=true;
-        wall = Immovable color=black;
-        floor = Immovable color=white;
-        avatar = MovingAvatar color=blue;
-    end
-
-    InteractionList:
-        goal encounters avatar = killSprite(), scoreChange(1.0);
-        avatar encounters wall = stepBack;
-    end
-
-    TerminationGoals:
-        spriteCounter sprite=goal limit=0 win=true;
-        timeout limit=1000 win=false;
-    end
-
-    Mapping:
-        'g' = goal;
-        'A' = avatar;
-        'w' = wall;
-        ' ' = floor;
-    end
-
-    Map:
-        "wwww";
-        "w gw";
-        "wA w";
-        "wwww";
-    end
-
-    Main:
-        startGame();
-    end
+Program Example2:
+func multiplyTable(int: n) = int:
+var int: count;
+var int[10]: arr;
+count = 0;
+while (count < 10):
+arr[count] = (count + 1) * n;
+count = count + 1;
+end;
+count = 0;
+while (count < 10):
+print(arr[count]);
+count = count + 1;
+end;
+end
+Main:
+print("Times Tables");
+multiplyTable(2);
+print("-------------");
+multiplyTable(3);
+end
 End
