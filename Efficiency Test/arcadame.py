@@ -1037,7 +1037,7 @@ def p_vars(p):
 def p_var(p):
     '''var : VAR type D_2P ID
            | VAR type D_CA INT_CT D_CC D_2P ID'''
-    global variables, type, functionDirectory
+    global variables, type, functionDirectory, avail
     # Get var attributes and save it.
     if (debug):
         print functionDirectory
@@ -1047,7 +1047,8 @@ def p_var(p):
         if (functionDirectory.has_key("variables")):
             if (functionDirectory["variables"].has_value(p[7])):
                 raise SemanticError("Var identifier has the same name as a function: " + p[7])
-        variables[p[7]] = {"type": convertAtomicTypeToCode(type), "dimension": {"inferior": 0, "superior": int(p[4]), "-K": 0}}
+        variables[p[7]] = {"type": convertAtomicTypeToCode(type), "memory": avail[1][typeInNumber], "dimension": {"inferior": 0, "superior": int(p[4]), "-K": 0}}
+        avail[1][typeInNumber] += variables[key]['dimension']['superior']
     else:
         if (variables.has_key(p[4])):
             raise SemanticError("Repeated identifier for variable: " + p[4])
@@ -1055,7 +1056,8 @@ def p_var(p):
             if (functionDirectory["variables"].has_value(p[4])):
                 raise SemanticError("Var identifier has the same name as a function: " + p[4])
         typeInNumber = convertAtomicTypeToCode(type)
-        variables[p[4]] = {"type": typeInNumber}
+        variables[p[4]] = {"type": typeInNumber, "memory": avail[1][typeInNumber]}
+        avail[1][typeInNumber] += 1
 
 def p_type(p):
     '''type : INT
@@ -1154,22 +1156,7 @@ def p_set_function_id_main(p):
     avail[2] = {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105: 16000}
 
 def p_code_block(p):
-    '''code_block : vars save_vars_in_local_memory mini_block'''
-
-# Helper function in sintaxis for semantic and compilation (virtual memory)
-def p_save_vars_in_local_memory(p):
-    '''save_vars_in_local_memory : '''
-    global variables, avail
-    # Assign virtual memory to variables in local scope
-    for key in variables.keys():
-        typeInNumber = variables[key]['type']
-        if (not variables[key].has_key('dimension')):
-            variables[key]["memory"] = avail[1][typeInNumber]
-            avail[1][typeInNumber] += 1
-        else:
-        # Virtual memory for a list
-            variables[key]["memory"] = avail[1][typeInNumber]
-            avail[1][typeInNumber] += variables[key]['dimension']['superior']
+    '''code_block : vars mini_block'''
 
 def p_statute(p):
     '''statute : assignation check_stack_equal

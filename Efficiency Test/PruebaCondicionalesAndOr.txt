@@ -1,0 +1,35 @@
+Program PruebaCondicionalesAndOr:
+	Main:
+        var boolean: verdad;
+		var int: n;
+		var int: n2;
+		var int: n3;
+		var int: n4;
+
+        var int: A;
+        var int: B;
+        var int: C;
+		n = 2;
+		n2 = 4;
+		n3 = 22;
+		n4 = 67;
+        verdad = true;
+
+        if (n > n3 && n4 < 5):
+            A = n * n2 * n3 * n4;
+        else:
+            B = n2 + 33;
+        end;
+
+        if (n > n4 || verdad):
+            A = (5 * n - n2 / 101) + 12 * n4 - 7 + n3 * (n2 - n4 * 22);
+        else:
+            if (n < 0):
+                B = 2 / 3 + (n * n2 / (n4 * 1 - n2 - (29 * 5 - n4) - (34 / 2)));
+                end;
+            A = (5 * n - n2 / 22) + 3 * n4 - 3 + n3 * (n3 - n4 * 11);
+            B = 22 / 34 + (n * n2 / (n4 * 1 - n3 - (3 * 5 - n4) - (92 / 2)));
+            C = 33 + n2 / (n2 - 3 * n3) + (n4 * 1 / n);
+        end;
+	end
+End

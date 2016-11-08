@@ -1,0 +1,16 @@
+Program Example:
+    Main:
+        var float: x;
+        var float: y;
+        var float: z;
+        var int: a;
+        var int: b;
+        var int: c;
+        a = 8;
+        b = 103;
+        c = 11;
+        x = 1023.523 + a / c;
+        y = x - c;
+        z = y + a - c * b;
+    end
+End
