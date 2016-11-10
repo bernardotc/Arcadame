@@ -15,7 +15,7 @@ constants = {}
 quadruplets = []
 instructionCounter = 1;
 instructionStack = []
-functionScope = ""
+functionScope = []
 parametersMemoryValues = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
 offset = 0
 
@@ -132,7 +132,7 @@ def readRawCode(fileName):
 def doOperation(quadruplet):
     global instructionCounter, functionDictionary, instructionStack, functionScope, offset
     if (debug):
-        print quadruplet
+        print instructionCounter, quadruplet
     if (quadruplet[0] < 10):
         elem1 = accessValueInMemory(quadruplet[1])
         elem2 = accessValueInMemory(quadruplet[2])
@@ -221,12 +221,12 @@ def doOperation(quadruplet):
         if (debug):
             print "Memory after deleting ERA: ", memory
         instructionCounter = instructionStack.pop()
-        functionScope = ""
+        functionScope.pop()
         resetParametersMemoryValues()
         return True
     elif (quadruplet[0] == 19):
         createERAInMemory()
-        functionScope = quadruplet[3]
+        functionScope.append(quadruplet[3])
         offset = 1
         if (debug):
             print "Memory after creating ERA: ", memory
@@ -242,17 +242,21 @@ def doOperation(quadruplet):
         value = quadruplet[1]
         if (debug):
             print "Function scope Name for Params: ", functionScope
-        paramType = functionDictionary[functionScope]['parameters'][quadruplet[3] - 1]
+        paramType = functionDictionary[functionScope[-1]]['parameters'][quadruplet[3] - 1]
         param = getParamMemoryValue(paramType)
         assignParamInMemory(value, param)
         return True
     elif (quadruplet[0] == 22):
         result = accessValueInMemory(quadruplet[3])
-        assignValueInMemory(functionDictionary[functionScope]['memory'], result)
+        if (debug):
+            print "Function Scope: ", functionScope
+            print "Memory direction of function = ", functionDictionary[functionScope[-1]]['memory']
+        assignValueInMemory(functionDictionary[functionScope[-1]]['memory'], result)
         deleteERAInMemory()
         if (debug):
             print "Memory after deleting ERA: ", memory
         instructionCounter = instructionStack.pop()
+        functionScope.pop()
         return True
     elif (quadruplet[0] == 23):
         result = accessValueInMemory(quadruplet[1])

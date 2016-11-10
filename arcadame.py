@@ -1220,9 +1220,6 @@ def p_validate_function_id_do_era(p):
         parameters = functionDirectory[p[1]]["parameters"]
         paramCounter = 0
         goSubFunction = p[1]
-        if (functionId == 'main'):
-            stackOp.append(functionDirectory[p[1]]['memory'])
-            stackTypes.append(functionDirectory[p[1]]['return'])
 
 def p_add_parameter(p):
     '''add_parameter : expression'''
@@ -1243,11 +1240,10 @@ def p_validate_params_generate_gosub(p):
     if (paramCounter != len(parameters)):
         raise SemanticError("Use of less parameters than expected in function declaration.")
     listCode.append([convertOperatorToCode('gosub'), -1, -1, goSubFunction])
-    if (functionId != 'main'):
-        listCode.append([convertOperatorToCode('='), functionDirectory[functionId]['memory'], -1, avail[2][functionDirectory[functionId]['return']]])
-        stackOp.append(avail[2][functionDirectory[functionId]['return']])
-        stackTypes.append(functionDirectory[functionId]['return'])
-        avail[2][functionDirectory[functionId]['return']] += 1
+    listCode.append([convertOperatorToCode('='), functionDirectory[goSubFunction]['memory'], -1, avail[2][functionDirectory[goSubFunction]['return']]])
+    stackOp.append(avail[2][functionDirectory[goSubFunction]['return']])
+    stackTypes.append(functionDirectory[goSubFunction]['return'])
+    avail[2][functionDirectory[goSubFunction]['return']] += 1
     goSubFunction = ""
     parameters = []
     paramCounter = 0
@@ -1604,24 +1600,34 @@ def p_received_id(p):
 
 # the rest of the variables check if they exists in virtual memory, if not, add them.
 def p_received_float(p):
-    '''received_float : FLOAT_CT'''
+    '''received_float : FLOAT_CT
+                      | MINUS FLOAT_CT'''
     global constants, avail, stackOp, stackTypes, stackOpVisible
-    if (not constants.has_key(p[1])):
-        constants[p[1]] = {"type": 102, "memory": avail[3][102]}
+    if (p[1] == '-'):
+        value = - float(p[2])
+    else:
+        value = float(p[1])
+    if (not constants.has_key(value)):
+        constants[value] = {"type": 102, "memory": avail[3][102]}
         avail[3][102] += 1
-    stackOp.append(constants[p[1]]["memory"])
-    stackOpVisible.append(p[1])
-    stackTypes.append(constants[p[1]]["type"])
+    stackOp.append(constants[value]["memory"])
+    stackOpVisible.append(value)
+    stackTypes.append(constants[value]["type"])
 
 def p_received_int(p):
-    '''received_int : INT_CT'''
+    '''received_int : INT_CT
+                    | MINUS INT_CT'''
     global constants, avail, stackOp, stackTypes, stackOpVisible
-    if (not constants.has_key(p[1])):
-        constants[p[1]] = {"type": 101, "memory": avail[3][101]}
+    if (p[1] == '-'):
+        value = - int(p[2])
+    else:
+        value = int(p[1])
+    if (not constants.has_key(value)):
+        constants[value] = {"type": 101, "memory": avail[3][101]}
         avail[3][101] += 1
-    stackOp.append(constants[p[1]]["memory"])
-    stackOpVisible.append(p[1])
-    stackTypes.append(constants[p[1]]["type"])
+    stackOp.append(constants[value]["memory"])
+    stackOpVisible.append(value)
+    stackTypes.append(constants[value]["type"])
 
 def p_received_boolean(p):
     '''received_boolean : BOOLEAN_CT'''

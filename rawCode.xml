@@ -1,62 +1,23 @@
 <intermediateCode>
 
 	<functions>
-		<function>
-		<functionName>multiplyTable</functionName>
-			<parameter>101</parameter>
-			<return>101</return>
-			<memory>2000</memory>
-			<quadruplet>2</quadruplet>
-			<era>
-				<int>8</int>
-				<float>0</float>
-				<string>0</string>
-				<char>0</char>
-				<boolean>2</boolean>
-			</era>
-		</function>
 	</functions>
 
 	<constants>
 		<constant>
-			<constantValue>10</constantValue>
+			<constantValue>-5</constantValue>
 			<type>101</type>
-			<memory>17001</memory>
+			<memory>17002</memory>
 		</constant>
 		<constant>
-			<constantValue>"Times Tables"</constantValue>
-			<type>103</type>
-			<memory>19000</memory>
-		</constant>
-		<constant>
-			<constantValue>"-------------"</constantValue>
-			<type>103</type>
-			<memory>19001</memory>
-		</constant>
-		<constant>
-			<constantValue>1</constantValue>
-			<type>101</type>
-			<memory>17003</memory>
-		</constant>
-		<constant>
-			<constantValue>0</constantValue>
+			<constantValue>-3</constantValue>
 			<type>101</type>
 			<memory>17000</memory>
 		</constant>
 		<constant>
-			<constantValue>3</constantValue>
+			<constantValue>5</constantValue>
 			<type>101</type>
-			<memory>17005</memory>
-		</constant>
-		<constant>
-			<constantValue>2</constantValue>
-			<type>101</type>
-			<memory>17004</memory>
-		</constant>
-		<constant>
-			<constantValue>7002</constantValue>
-			<type>101</type>
-			<memory>17002</memory>
+			<memory>17001</memory>
 		</constant>
 	</constants>
 
@@ -66,213 +27,38 @@
 			<operation>11</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>23</result>
+			<result>2</result>
 		</quadruplet>
 		<quadruplet>
 			<index>2</index>
-			<operation>10</operation>
-			<element1>17000</element1>
-			<element2>-1</element2>
-			<result>7001</result>
-		</quadruplet>
-		<quadruplet>
-			<index>3</index>
-			<operation>6</operation>
-			<element1>7001</element1>
-			<element2>17001</element2>
-			<result>16000</result>
-		</quadruplet>
-		<quadruplet>
-			<index>4</index>
-			<operation>12</operation>
-			<element1>16000</element1>
-			<element2>-1</element2>
-			<result>13</result>
-		</quadruplet>
-		<quadruplet>
-			<index>5</index>
-			<operation>23</operation>
-			<element1>7001</element1>
-			<element2>0</element2>
-			<result>10</result>
-		</quadruplet>
-		<quadruplet>
-			<index>6</index>
 			<operation>0</operation>
-			<element1>7001</element1>
-			<element2>17002</element2>
+			<element1>17000</element1>
+			<element2>17001</element2>
 			<result>12000</result>
 		</quadruplet>
 		<quadruplet>
-			<index>7</index>
-			<operation>0</operation>
-			<element1>7001</element1>
-			<element2>17003</element2>
+			<index>3</index>
+			<operation>2</operation>
+			<element1>12000</element1>
+			<element2>17002</element2>
 			<result>12001</result>
 		</quadruplet>
 		<quadruplet>
-			<index>8</index>
-			<operation>1</operation>
+			<index>4</index>
+			<operation>10</operation>
 			<element1>12001</element1>
-			<element2>7000</element2>
-			<result>12002</result>
-		</quadruplet>
-		<quadruplet>
-			<index>9</index>
-			<operation>10</operation>
-			<element1>12002</element1>
 			<element2>-1</element2>
-			<result>-12000</result>
+			<result>7000</result>
 		</quadruplet>
 		<quadruplet>
-			<index>10</index>
-			<operation>0</operation>
-			<element1>7001</element1>
-			<element2>17003</element2>
-			<result>12003</result>
-		</quadruplet>
-		<quadruplet>
-			<index>11</index>
-			<operation>10</operation>
-			<element1>12003</element1>
-			<element2>-1</element2>
-			<result>7001</result>
-		</quadruplet>
-		<quadruplet>
-			<index>12</index>
-			<operation>11</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>3</result>
-		</quadruplet>
-		<quadruplet>
-			<index>13</index>
-			<operation>10</operation>
-			<element1>17000</element1>
-			<element2>-1</element2>
-			<result>7001</result>
-		</quadruplet>
-		<quadruplet>
-			<index>14</index>
-			<operation>6</operation>
-			<element1>7001</element1>
-			<element2>17001</element2>
-			<result>16001</result>
-		</quadruplet>
-		<quadruplet>
-			<index>15</index>
-			<operation>12</operation>
-			<element1>16001</element1>
-			<element2>-1</element2>
-			<result>22</result>
-		</quadruplet>
-		<quadruplet>
-			<index>16</index>
-			<operation>23</operation>
-			<element1>7001</element1>
-			<element2>0</element2>
-			<result>10</result>
-		</quadruplet>
-		<quadruplet>
-			<index>17</index>
-			<operation>0</operation>
-			<element1>7001</element1>
-			<element2>17002</element2>
-			<result>12004</result>
-		</quadruplet>
-		<quadruplet>
-			<index>18</index>
+			<index>5</index>
 			<operation>13</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>-12004</result>
+			<result>7000</result>
 		</quadruplet>
 		<quadruplet>
-			<index>19</index>
-			<operation>0</operation>
-			<element1>7001</element1>
-			<element2>17003</element2>
-			<result>12005</result>
-		</quadruplet>
-		<quadruplet>
-			<index>20</index>
-			<operation>10</operation>
-			<element1>12005</element1>
-			<element2>-1</element2>
-			<result>7001</result>
-		</quadruplet>
-		<quadruplet>
-			<index>21</index>
-			<operation>11</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>14</result>
-		</quadruplet>
-		<quadruplet>
-			<index>22</index>
-			<operation>18</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>-1</result>
-		</quadruplet>
-		<quadruplet>
-			<index>23</index>
-			<operation>13</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>19000</result>
-		</quadruplet>
-		<quadruplet>
-			<index>24</index>
-			<operation>19</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>multiplyTable</result>
-		</quadruplet>
-		<quadruplet>
-			<index>25</index>
-			<operation>21</operation>
-			<element1>17004</element1>
-			<element2>-1</element2>
-			<result>1</result>
-		</quadruplet>
-		<quadruplet>
-			<index>26</index>
-			<operation>20</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>multiplyTable</result>
-		</quadruplet>
-		<quadruplet>
-			<index>27</index>
-			<operation>13</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>19001</result>
-		</quadruplet>
-		<quadruplet>
-			<index>28</index>
-			<operation>19</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>multiplyTable</result>
-		</quadruplet>
-		<quadruplet>
-			<index>29</index>
-			<operation>21</operation>
-			<element1>17005</element1>
-			<element2>-1</element2>
-			<result>1</result>
-		</quadruplet>
-		<quadruplet>
-			<index>30</index>
-			<operation>20</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>multiplyTable</result>
-		</quadruplet>
-		<quadruplet>
-			<index>31</index>
+			<index>6</index>
 			<operation>30</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>

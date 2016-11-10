@@ -1,9 +1,23 @@
 Program Example:
+    func sumatoria3 (int : n) = int:
+        if (n == 0):
+            return n;
+        else:
+            return sumatoria3(n-1) + n;
+        end;
+    end
+    func sumatoria2 (int : n) = int:
+        if (n == 0):
+            return n;
+        else:
+            return sumatoria3(n-1) + n;
+        end;
+    end
     func sumatoria (int : n) = int:
         if (n == 0):
             return n;
         else:
-            return sumatoria(n-1) + n;
+            return sumatoria2(n-1) + n;
         end;
     end
 
