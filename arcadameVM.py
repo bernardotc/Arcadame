@@ -265,7 +265,7 @@ def doOperation(quadruplet):
         else:
             # TODO: - raise ERROR
             return False
-    elif (quadruplet[0] == 30):
+    elif (quadruplet[0] == 99):
         return False
 
 # Main.

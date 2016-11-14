@@ -4,21 +4,6 @@
 	</functions>
 
 	<constants>
-		<constant>
-			<constantValue>-5</constantValue>
-			<type>101</type>
-			<memory>17002</memory>
-		</constant>
-		<constant>
-			<constantValue>-3</constantValue>
-			<type>101</type>
-			<memory>17000</memory>
-		</constant>
-		<constant>
-			<constantValue>5</constantValue>
-			<type>101</type>
-			<memory>17001</memory>
-		</constant>
 	</constants>
 
 	<quadruplets>
@@ -27,39 +12,102 @@
 			<operation>11</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>2</result>
+			<result>15</result>
 		</quadruplet>
 		<quadruplet>
 			<index>2</index>
-			<operation>0</operation>
-			<element1>17000</element1>
-			<element2>17001</element2>
-			<result>12000</result>
+			<operation>30</operation>
+			<element1>301</element1>
+			<element2>2</element2>
+			<result>goal</result>
 		</quadruplet>
 		<quadruplet>
 			<index>3</index>
-			<operation>2</operation>
-			<element1>12000</element1>
-			<element2>17002</element2>
-			<result>12001</result>
+			<operation>30</operation>
+			<element1>302</element1>
+			<element2>None</element2>
+			<result>goal</result>
 		</quadruplet>
 		<quadruplet>
 			<index>4</index>
-			<operation>10</operation>
-			<element1>12001</element1>
-			<element2>-1</element2>
-			<result>7000</result>
+			<operation>30</operation>
+			<element1>301</element1>
+			<element2>5</element2>
+			<result>wall</result>
 		</quadruplet>
 		<quadruplet>
 			<index>5</index>
-			<operation>13</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>7000</result>
+			<operation>30</operation>
+			<element1>301</element1>
+			<element2>9</element2>
+			<result>floor</result>
 		</quadruplet>
 		<quadruplet>
 			<index>6</index>
 			<operation>30</operation>
+			<element1>301</element1>
+			<element2>3</element2>
+			<result>avatar</result>
+		</quadruplet>
+		<quadruplet>
+			<index>7</index>
+			<operation>30</operation>
+			<element1>303</element1>
+			<element2>g</element2>
+			<result>goal</result>
+		</quadruplet>
+		<quadruplet>
+			<index>8</index>
+			<operation>30</operation>
+			<element1>303</element1>
+			<element2>A</element2>
+			<result>avatar</result>
+		</quadruplet>
+		<quadruplet>
+			<index>9</index>
+			<operation>30</operation>
+			<element1>303</element1>
+			<element2>w</element2>
+			<result>wall</result>
+		</quadruplet>
+		<quadruplet>
+			<index>10</index>
+			<operation>30</operation>
+			<element1>303</element1>
+			<element2> </element2>
+			<result>floor</result>
+		</quadruplet>
+		<quadruplet>
+			<index>11</index>
+			<operation>31</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>wwww</result>
+		</quadruplet>
+		<quadruplet>
+			<index>12</index>
+			<operation>31</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>w gw</result>
+		</quadruplet>
+		<quadruplet>
+			<index>13</index>
+			<operation>31</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>wA w</result>
+		</quadruplet>
+		<quadruplet>
+			<index>14</index>
+			<operation>31</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>wwww</result>
+		</quadruplet>
+		<quadruplet>
+			<index>15</index>
+			<operation>99</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>-1</result>

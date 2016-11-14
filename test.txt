@@ -1,7 +1,9 @@
 Program Example2:
     Main:
         var int: x;
-        x = - 3 + 5 --5;
+        var int: j;
+        j = 10;
+        x = j;
         print(x);
     end
 End

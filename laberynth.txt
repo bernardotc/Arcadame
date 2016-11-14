@@ -31,6 +31,5 @@ SimpleGame Laberynth:
     end
 
     Main:
-        startGame();
     end
 End

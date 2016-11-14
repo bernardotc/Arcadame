@@ -61,6 +61,7 @@ listId = ""
 sureListId = ""
 paramCounter = 0
 goSubFunction = ""
+spriteId = ""
 temporalStamp = {}
 
 class LexerError(Exception):
@@ -111,6 +112,12 @@ def convertAtomicTypeToCode(type):
         return 205
     elif (type == "Passive"):
         return 206
+    elif (type == "color"):
+        return 301
+    elif (type == "portal"):
+        return 302
+    elif (type == "mapping"):
+        return 303
 
 def convertOperatorToCode(type):
     if (type == '+'):
@@ -161,8 +168,34 @@ def convertOperatorToCode(type):
         return 22
     elif (type == 'verify'):
         return 23
-    elif (type == 'end'):
+    elif (type == '.='):
         return 30
+    elif (type == 'addRowMap'):
+        return 31
+    elif (type == 'end'):
+        return 99
+
+def convertColorToCode(color):
+    if (color == 'red'):
+        return 1
+    elif (color == 'green'):
+        return 2
+    elif (color == 'blue'):
+        return 3
+    elif (color == 'yellow'):
+        return 4
+    elif (color == 'black'):
+        return 5
+    elif (color == 'orange'):
+        return 6
+    elif (color == 'purple'):
+        return 7
+    elif (color == 'cyan'):
+        return 8
+    elif (color == 'white'):
+        return 9
+    elif (color == 'brown'):
+        return 10
 
 # Define token names
 tokens = (
@@ -759,13 +792,18 @@ def p_more_sprites(p):
                     | '''
 
 def p_sprite(p):
-    '''sprite : ID EQUAL sprite_type sprite_attrs'''
-    global variables, gameAttrs, type
-    # Check if the sprite id was not declared twice
-    if (variables.has_key(p[1])):
-        raise SemanticError("Repeated identifier for sprite: " + p[1])
-    variables[p[1]] = {"type": convertAtomicTypeToCode(type), "attrs": gameAttrs}
+    '''sprite : sprite_id EQUAL sprite_type sprite_attrs'''
+    global variables, gameAttrs, type, spriteId
+    variables[spriteId] = {"type": convertAtomicTypeToCode(type), "attrs": gameAttrs}
     gameAttrs = {}
+
+def p_sprite_id(p):
+    '''sprite_id : ID'''
+    global spriteId
+    spriteId = p[1]
+    # Check if the sprite id was not declared twice
+    if (variables.has_key(spriteId)):
+        raise SemanticError("Repeated identifier for sprite: " + spriteId)
 
 def p_sprite_type(p):
     '''sprite_type : IMMOVABLE
@@ -799,7 +837,7 @@ def p_sprite_attr(p):
                    | LIMITHEALTHPOINTS EQUAL INT_CT
                    | WEAPONSPRITE EQUAL ID
                    | ORIENTATION EQUAL MOVEMENT_CT'''
-    global variables, gameAttrs
+    global variables, gameAttrs, listCode, spriteId
     # Save sprite attrs
     if (p[1] == "generatedSprite" or p[1] == "weaponSprite"):
         # Check if the sprite id was declared before
@@ -809,6 +847,7 @@ def p_sprite_attr(p):
         gameAttrs[p[1]] = p[3].replace('"', '')
     else:
         gameAttrs[p[1]] = p[3]
+    listCode.append([convertOperatorToCode('.='), convertAtomicTypeToCode(p[1]), convertColorToCode(p[3]), spriteId])
 
 def p_interactions(p):
     '''interactions : INTERACTIONLIST D_2P interaction D_PYC more_interactions SMALL_END'''
@@ -968,7 +1007,7 @@ def p_more_mapping_rules(p):
 
 def p_mapping_rule(p):
     '''mapping_rule : CHAR_CT EQUAL ID more_spritesid'''
-    global gameSections, listSprites, variables
+    global gameSections, listSprites, variables, listCode
     sprites = gameSections["SpriteSet"]
     # Check all possible cases to conclude there is not semantic error
     if (not sprites.has_key(p[3])):
@@ -981,6 +1020,7 @@ def p_mapping_rule(p):
     listSprites = [p[3]] + listSprites
     variables[p[1].replace("'", "")] = listSprites
     listSprites = []
+    listCode.append([convertOperatorToCode('.='), convertAtomicTypeToCode('mapping'), p[1].replace("'", ""), p[3]])
 
 def p_map(p):
     '''map : MAP D_2P STRING_CT D_PYC more_tiles SMALL_END'''
@@ -993,12 +1033,13 @@ def p_map(p):
     listSprites = [p[3].replace('"', '')] + listSprites
     # Add the map to the game dictionary
     gameSections[p[1]] = listSprites
-    listSprites = []
+    while len(listSprites) > 0:
+        listCode.append([convertOperatorToCode('addRowMap'), -1, -1, listSprites.pop(0)])
 
 def p_more_tiles(p):
     '''more_tiles : STRING_CT D_PYC more_tiles
                   | '''
-    global listSprites, gameSections
+    global listSprites, gameSections, listCode
     mapping = gameSections["Mapping"]
     try:
         # For every char in the string, check if there is a declared char mapping
