@@ -116,8 +116,6 @@ def convertAtomicTypeToCode(type):
         return 301
     elif (type == "portal"):
         return 302
-    elif (type == "mapping"):
-        return 303
 
 def convertOperatorToCode(type):
     if (type == '+'):
@@ -194,8 +192,14 @@ def convertOperatorToCode(type):
         return 41
     elif (type == 'drawMap'):
         return 42
-    elif (type == 'printEndGame'):
+    elif (type == 'mapSprite'):
         return 43
+    elif (type == 'startGame'):
+        return 44
+    elif (type == 'printEndGame'):
+        return 45
+    elif (type == 'endGame'):
+        return 50
     elif (type == 'end'):
         return 99
 
@@ -571,11 +575,11 @@ def t_BIG_END(t):
         print(t)
     return t
 
-"""def t_STARTGAME(t):
+def t_STARTGAME(t):
     'StartGame'
     if (debug):
         print(t)
-    return t"""
+    return t
 
 def t_RETURN(t):
     'return'
@@ -762,7 +766,7 @@ lex.lex()
 start = 'programa'
 
 def p_programa(p):
-    '''programa : SIMPLEGAME generate_initial_goto ID D_2P sprites interactions goals mapping map block generate_game generate_end
+    '''programa : SIMPLEGAME generate_initial_goto ID D_2P sprites interactions goals mapping map generate_game block generate_end
                 | PROGRAM generate_initial_goto ID D_2P block generate_end'''
 
 def p_generate_initial_goto(p):
@@ -1023,9 +1027,10 @@ def p_mapping_rule(p):
         raise SemanticError("Forbidden char for mapping: " + '"')
     # Append the sprite id to the beginning
     listSprites = [p[3]] + listSprites
-    variables[p[1].replace("'", "")] = listSprites
+    variables[p[1].replace("'", "")] = list(listSprites)
+    for sprite in listSprites:
+        listCode.append([convertOperatorToCode('mapSprite'), p[1].replace("'", ""), -1, sprite])
     listSprites = []
-    listCode.append([convertOperatorToCode('.='), convertAtomicTypeToCode('mapping'), p[1].replace("'", ""), p[3]])
 
 def p_map(p):
     '''map : MAP D_2P STRING_CT D_PYC more_tiles SMALL_END'''
@@ -1250,7 +1255,11 @@ def p_check_stack_equal(p):
 
 def p_function_use(p):
     '''function_use : validate_function_id_do_era push_pa add_parameter more_ids pop_pc validate_params_generate_gosub
+                    | STARTGAME D_PA D_PC
                     | validate_function_id_do_era D_PA D_PC validate_params_generate_gosub'''
+    global listCode
+    if (p[1] == 'StartGame'):
+        listCode.append([convertOperatorToCode('startGame'), -1, -1, -1])
 
 def p_validate_function_id_do_era(p):
     '''validate_function_id_do_era : ID'''
@@ -1760,7 +1769,7 @@ def doEndGoto():
 
 def generateIntermediateCodeGame():
     global listCode, stackJumps
-    listCode.append([convertOperatorToCode('initialize'), -1, -1, 'score'])
+    listCode.append([convertOperatorToCode('initialize'), -1, -1, -1])
     stackJumps.append(len(listCode) + 1)
     generateGoalsCode()
     doGotoF()
@@ -1805,7 +1814,14 @@ def generateNotCode():
 
 def generateInteractionsCode():
     global functionDirectory, listCode, stackJumps, stackOp, stackOpVisible, stackTypes, stackOperators
-    listCode.append([convertOperatorToCode('getNextTile'), -1, -1, 'tile'])
+    stackJumps.append(len(listCode) + 1)
+    listCode.append([convertOperatorToCode('getNextTile'), -1, -1, avail[2][convertAtomicTypeToCode('boolean')]])
+    stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
+    stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
+    stackTypes.append(convertAtomicTypeToCode('boolean'))
+    avail[2][convertAtomicTypeToCode('boolean')] += 1
+    # While starts for the first tile
+    doGotoF()
     interactions = functionDirectory['SimpleGame']['sections']['InteractionList']
     for keys, actions in interactions.iteritems():
         count = 0
@@ -1830,6 +1846,8 @@ def generateInteractionsCode():
                 listCode.append([convertOperatorToCode('stepBack'), -1, -1, keys[0]])
         endJump = stackJumps.pop()
         listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
+    # While ends
+    doEndGoto()
 
 def generateWinCode():
     global functionDirectory, listCode, stackJumps, stackOp, stackOpVisible, stackTypes, stackOperators
@@ -1847,6 +1865,7 @@ def generateWinCode():
         listCode.append([convertOperatorToCode('printEndGame'), -1, -1, goal['attrs']['win']])
         endJump = stackJumps.pop()
         listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
+        listCode.append([convertOperatorToCode('endGame'), -1, -1, -1])
 
 def generateIntermediateCodeFile():
     global functionDirectory, listCode

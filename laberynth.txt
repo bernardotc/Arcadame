@@ -1,7 +1,7 @@
 SimpleGame Laberynth:
     SpriteSet:
         goal  = Immovable color=green, portal=true;
-        wall = Immovable color=black;
+        wall = Immovable color=red;
         floor = Immovable color=white;
         avatar = MovingAvatar color=blue;
     end
@@ -13,7 +13,7 @@ SimpleGame Laberynth:
 
     TerminationGoals:
         spriteCounter sprite=goal limit=0 win=true;
-        timeout limit=1000 win=false;
+        timeout limit=60 win=false;
     end
 
     Mapping:
@@ -24,12 +24,15 @@ SimpleGame Laberynth:
     end
 
     Map:
-        "wwww";
-        "w gw";
-        "wA w";
-        "wwww";
+        "     ww ";
+        " wAww w ";
+        " wwg    ";
+        " wwwwww ";
+        " w   w  ";
+        "       w";
     end
 
     Main:
+        StartGame();
     end
 End
