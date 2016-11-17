@@ -1,5 +1,26 @@
 <intermediateCode>
 
+	<game>
+		<sprites>
+			<sprite>
+				<spriteName>wall</spriteName>
+				<type>201</type>
+			</sprite>
+			<sprite>
+				<spriteName>goal</spriteName>
+				<type>201</type>
+			</sprite>
+			<sprite>
+				<spriteName>avatar</spriteName>
+				<type>202</type>
+			</sprite>
+			<sprite>
+				<spriteName>floor</spriteName>
+				<type>201</type>
+			</sprite>
+		</sprites>
+	</game>
+
 	<functions>
 	</functions>
 
@@ -18,35 +39,35 @@
 			<index>2</index>
 			<operation>30</operation>
 			<element1>301</element1>
-			<element2>2</element2>
+			<element2>green</element2>
 			<result>goal</result>
 		</quadruplet>
 		<quadruplet>
 			<index>3</index>
 			<operation>30</operation>
 			<element1>302</element1>
-			<element2>None</element2>
+			<element2>true</element2>
 			<result>goal</result>
 		</quadruplet>
 		<quadruplet>
 			<index>4</index>
 			<operation>30</operation>
 			<element1>301</element1>
-			<element2>5</element2>
+			<element2>black</element2>
 			<result>wall</result>
 		</quadruplet>
 		<quadruplet>
 			<index>5</index>
 			<operation>30</operation>
 			<element1>301</element1>
-			<element2>9</element2>
+			<element2>white</element2>
 			<result>floor</result>
 		</quadruplet>
 		<quadruplet>
 			<index>6</index>
 			<operation>30</operation>
 			<element1>301</element1>
-			<element2>3</element2>
+			<element2>blue</element2>
 			<result>avatar</result>
 		</quadruplet>
 		<quadruplet>
@@ -107,6 +128,195 @@
 		</quadruplet>
 		<quadruplet>
 			<index>15</index>
+			<operation>32</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>score</result>
+		</quadruplet>
+		<quadruplet>
+			<index>16</index>
+			<operation>33</operation>
+			<element1>goal</element1>
+			<element2>0</element2>
+			<result>16000</result>
+		</quadruplet>
+		<quadruplet>
+			<index>17</index>
+			<operation>34</operation>
+			<element1>-1</element1>
+			<element2>1000</element2>
+			<result>16001</result>
+		</quadruplet>
+		<quadruplet>
+			<index>18</index>
+			<operation>5</operation>
+			<element1>16000</element1>
+			<element2>16001</element2>
+			<result>16002</result>
+		</quadruplet>
+		<quadruplet>
+			<index>19</index>
+			<operation>35</operation>
+			<element1>16002</element1>
+			<element2>-1</element2>
+			<result>16003</result>
+		</quadruplet>
+		<quadruplet>
+			<index>20</index>
+			<operation>12</operation>
+			<element1>16003</element1>
+			<element2>-1</element2>
+			<result>36</result>
+		</quadruplet>
+		<quadruplet>
+			<index>21</index>
+			<operation>42</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>-1</result>
+		</quadruplet>
+		<quadruplet>
+			<index>22</index>
+			<operation>36</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>avatar</result>
+		</quadruplet>
+		<quadruplet>
+			<index>23</index>
+			<operation>37</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>tile</result>
+		</quadruplet>
+		<quadruplet>
+			<index>24</index>
+			<operation>38</operation>
+			<element1>goal</element1>
+			<element2>tile</element2>
+			<result>16004</result>
+		</quadruplet>
+		<quadruplet>
+			<index>25</index>
+			<operation>38</operation>
+			<element1>avatar</element1>
+			<element2>tile</element2>
+			<result>16005</result>
+		</quadruplet>
+		<quadruplet>
+			<index>26</index>
+			<operation>4</operation>
+			<element1>16004</element1>
+			<element2>16005</element2>
+			<result>16006</result>
+		</quadruplet>
+		<quadruplet>
+			<index>27</index>
+			<operation>12</operation>
+			<element1>16006</element1>
+			<element2>-1</element2>
+			<result>30</result>
+		</quadruplet>
+		<quadruplet>
+			<index>28</index>
+			<operation>39</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>goal</result>
+		</quadruplet>
+		<quadruplet>
+			<index>29</index>
+			<operation>40</operation>
+			<element1>1.0</element1>
+			<element2>-1</element2>
+			<result>score</result>
+		</quadruplet>
+		<quadruplet>
+			<index>30</index>
+			<operation>38</operation>
+			<element1>avatar</element1>
+			<element2>tile</element2>
+			<result>16007</result>
+		</quadruplet>
+		<quadruplet>
+			<index>31</index>
+			<operation>38</operation>
+			<element1>wall</element1>
+			<element2>tile</element2>
+			<result>16008</result>
+		</quadruplet>
+		<quadruplet>
+			<index>32</index>
+			<operation>4</operation>
+			<element1>16007</element1>
+			<element2>16008</element2>
+			<result>16009</result>
+		</quadruplet>
+		<quadruplet>
+			<index>33</index>
+			<operation>12</operation>
+			<element1>16009</element1>
+			<element2>-1</element2>
+			<result>35</result>
+		</quadruplet>
+		<quadruplet>
+			<index>34</index>
+			<operation>41</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>avatar</result>
+		</quadruplet>
+		<quadruplet>
+			<index>35</index>
+			<operation>11</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>16</result>
+		</quadruplet>
+		<quadruplet>
+			<index>36</index>
+			<operation>33</operation>
+			<element1>goal</element1>
+			<element2>0</element2>
+			<result>16010</result>
+		</quadruplet>
+		<quadruplet>
+			<index>37</index>
+			<operation>12</operation>
+			<element1>16010</element1>
+			<element2>-1</element2>
+			<result>39</result>
+		</quadruplet>
+		<quadruplet>
+			<index>38</index>
+			<operation>43</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>true</result>
+		</quadruplet>
+		<quadruplet>
+			<index>39</index>
+			<operation>34</operation>
+			<element1>-1</element1>
+			<element2>1000</element2>
+			<result>16011</result>
+		</quadruplet>
+		<quadruplet>
+			<index>40</index>
+			<operation>12</operation>
+			<element1>16011</element1>
+			<element2>-1</element2>
+			<result>42</result>
+		</quadruplet>
+		<quadruplet>
+			<index>41</index>
+			<operation>43</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>false</result>
+		</quadruplet>
+		<quadruplet>
+			<index>42</index>
 			<operation>99</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>

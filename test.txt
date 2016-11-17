@@ -1,9 +1,9 @@
 Program Example2:
     Main:
-        var int: x;
+        var int[1]: x;
         var int: j;
         j = 10;
-        x = j;
-        print(x);
+        x[0] = j;
+        print(x[0]);
     end
 End

@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 debug = False
 
 functionDictionary = {}
+spriteSet = {}
 constants = {}
 quadruplets = []
 instructionCounter = 1;
@@ -89,9 +90,14 @@ def resetParametersMemoryValues():
     parametersMemoryValues = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
 
 def readRawCode(fileName):
-    global functionDictionary, constants, quadruplets
+    global functionDictionary, constants, quadruplets, spriteSet
     parameters = []
     tree = ET.parse(fileName)
+    for sprite in tree.find('game').find('sprites').findall('sprite'):
+        name = sprite.find('spriteName').text
+        type = int(sprite.find('type').text)
+        spriteSet[name] = type
+    
     for function in tree.find('functions').findall('function'):
         name = function.find('functionName').text
         for parameter in function.findall('parameter'):
@@ -116,8 +122,14 @@ def readRawCode(fileName):
 
     for quadruplet in tree.find('quadruplets').findall('quadruplet'):
         operator = int(quadruplet.find('operation').text)
-        elem1 = int(quadruplet.find('element1').text)
-        elem2 = int(quadruplet.find('element2').text)
+        try:
+            elem1 = int(quadruplet.find('element2').text)
+        except ValueError:
+            elem1 = quadruplet.find('element2').text
+        try:
+            elem2 = int(quadruplet.find('element2').text)
+        except ValueError:
+            elem2 = quadruplet.find('element2').text
         try:
             result = int(quadruplet.find('result').text)
         except ValueError:
@@ -127,6 +139,7 @@ def readRawCode(fileName):
     if (debug):
         print "functions: ", functionDictionary
         print "constants: ", constants
+        print "sprites: ", spriteSet
         print "quadruplets: ", quadruplets
 
 def doOperation(quadruplet):

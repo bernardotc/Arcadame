@@ -172,30 +172,32 @@ def convertOperatorToCode(type):
         return 30
     elif (type == 'addRowMap'):
         return 31
+    elif (type == 'initialize'):
+        return 32
+    elif (type == 'spriteCounter'):
+        return 33
+    elif (type == 'timeout'):
+        return 34
+    elif (type == 'not'):
+        return 35
+    elif (type == 'checkMove'):
+        return 36
+    elif (type == 'getNextTile'):
+        return 37
+    elif (type == 'inTile'):
+        return 38
+    elif (type == 'killSprite'):
+        return 39
+    elif (type == 'scoreChange'):
+        return 40
+    elif (type == 'stepBack'):
+        return 41
+    elif (type == 'drawMap'):
+        return 42
+    elif (type == 'printEndGame'):
+        return 43
     elif (type == 'end'):
         return 99
-
-def convertColorToCode(color):
-    if (color == 'red'):
-        return 1
-    elif (color == 'green'):
-        return 2
-    elif (color == 'blue'):
-        return 3
-    elif (color == 'yellow'):
-        return 4
-    elif (color == 'black'):
-        return 5
-    elif (color == 'orange'):
-        return 6
-    elif (color == 'purple'):
-        return 7
-    elif (color == 'cyan'):
-        return 8
-    elif (color == 'white'):
-        return 9
-    elif (color == 'brown'):
-        return 10
 
 # Define token names
 tokens = (
@@ -760,20 +762,23 @@ lex.lex()
 start = 'programa'
 
 def p_programa(p):
-    '''programa : SIMPLEGAME generate_initial_goto ID D_2P sprites interactions goals mapping map block generate_end
+    '''programa : SIMPLEGAME generate_initial_goto ID D_2P sprites interactions goals mapping map block generate_game generate_end
                 | PROGRAM generate_initial_goto ID D_2P block generate_end'''
-    global functionDirectory, gameSections, constants
-    # Save SimpleGame in function directory
-    if (p[1] == "SimpleGame"):
-        functionDirectory["SimpleGame"] = {"sections" : gameSections}
-        gameSections = {}
-    functionDirectory["constants"] = constants
 
 def p_generate_initial_goto(p):
     '''generate_initial_goto : '''
     global listCode, stackJumps
     listCode.append([convertOperatorToCode('goto'),-1,-1,'pending'])
     stackJumps.append(len(listCode))
+
+def p_generate_game(p):
+    '''generate_game : '''
+    global functionDirectory, gameSections, constants
+    # Save SimpleGame in function directory
+    functionDirectory["SimpleGame"] = {"sections" : gameSections}
+    gameSections = {}
+    generateIntermediateCodeGame()
+    functionDirectory["constants"] = constants
 
 def p_generate_end(p):
     '''generate_end : BIG_END'''
@@ -847,7 +852,7 @@ def p_sprite_attr(p):
         gameAttrs[p[1]] = p[3].replace('"', '')
     else:
         gameAttrs[p[1]] = p[3]
-    listCode.append([convertOperatorToCode('.='), convertAtomicTypeToCode(p[1]), convertColorToCode(p[3]), spriteId])
+    listCode.append([convertOperatorToCode('.='), convertAtomicTypeToCode(p[1]), p[3], spriteId])
 
 def p_interactions(p):
     '''interactions : INTERACTIONLIST D_2P interaction D_PYC more_interactions SMALL_END'''
@@ -873,7 +878,7 @@ def p_interaction(p):
     listSprites.append(p[4])
     # gameAttrs contain the special actions of some functions
     # listSprites is used as a key in the dictionary (the last is the one that encounters)
-    variables[tuple(listSprites)] = {"actions": gameAttrs}
+    variables[tuple(listSprites)] = gameAttrs
     listSprites = []
     gameAttrs = {}
 
@@ -1032,7 +1037,7 @@ def p_map(p):
             raise SemanticError("Use of undeclared char for mapping: " + mapping_id)
     listSprites = [p[3].replace('"', '')] + listSprites
     # Add the map to the game dictionary
-    gameSections[p[1]] = listSprites
+    gameSections[p[1]] = list(listSprites)
     while len(listSprites) > 0:
         listCode.append([convertOperatorToCode('addRowMap'), -1, -1, listSprites.pop(0)])
 
@@ -1723,6 +1728,7 @@ def generateArithmeticCode():
     stackOpVisible.pop()
     op2Type = stackTypes.pop()
     op1Type = stackTypes.pop()
+    print op1Type, op2Type
     newType = semanticCube[op1Type-100][op2Type-100][operator]
     # If the semantic cube tell us that the operation is not possible
     if (newType == -1):
@@ -1735,11 +1741,128 @@ def generateArithmeticCode():
     stackOpVisible.append(result)
     stackTypes.append(newType)
 
+def doGotoF():
+    global listCode, stackTypes, stackOp, stackOpVisible
+    condtionType = stackTypes.pop()
+    if (condtionType != convertAtomicTypeToCode("boolean")):
+        raise SemanticError("Expected boolean in if condition. Received: " + str(condtionType))
+    condition = stackOp.pop()
+    stackOpVisible.pop()
+    listCode.append([convertOperatorToCode("gotoF"), condition, -1, 'pending'])
+    stackJumps.append(len(listCode) - 1) # Make it as a list that starts in 0.
+
+def doEndGoto():
+    global stackJumps, listCode
+    falseJump = stackJumps.pop()
+    returnJump = stackJumps.pop()
+    listCode.append([convertOperatorToCode("goto"), -1, -1, returnJump])
+    listCode[falseJump][3] = len(listCode) + 1
+
+def generateIntermediateCodeGame():
+    global listCode, stackJumps
+    listCode.append([convertOperatorToCode('initialize'), -1, -1, 'score'])
+    stackJumps.append(len(listCode) + 1)
+    generateGoalsCode()
+    doGotoF()
+    listCode.append([convertOperatorToCode('drawMap'), -1, -1, -1])
+    listCode.append([convertOperatorToCode('checkMove'), -1, -1, 'avatar'])
+    generateInteractionsCode()
+    doEndGoto()
+    generateWinCode()
+
+def generateGoalsCode():
+    global functionDirectory, listCode, stackJumps, stackOp, stackOpVisible, stackTypes, stackOperators
+    goals = functionDirectory['SimpleGame']['sections']['TerminationGoals']
+    count = 0
+    for key, goal in goals.iteritems():
+        if (goal['type'] == 'spriteCounter'):
+            listCode.append([convertOperatorToCode('spriteCounter'), key[0], goal['attrs']['limit'], avail[2][convertAtomicTypeToCode('boolean')]])
+        elif (goal['type'] == 'timeout'):
+            listCode.append([convertOperatorToCode('timeout'), -1, goal['attrs']['limit'], avail[2][convertAtomicTypeToCode('boolean')]])
+        stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
+        stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
+        stackTypes.append(convertAtomicTypeToCode('boolean'))
+        avail[2][convertAtomicTypeToCode('boolean')] += 1
+        count += 1
+        if (count > 1):
+            stackOperators.append('||')
+            generateArithmeticCode()
+    generateNotCode()
+
+def generateNotCode():
+    global listCode, stackOp, stackTypes, stackOperators
+    if (len(stackOperators) == 0):
+        op1 = stackOp.pop()
+        op1Type = stackTypes.pop()
+        if (op1Type != convertAtomicTypeToCode('boolean')):
+            # TODO: - Complete error
+            raise SemanticError('');
+        listCode.append([convertOperatorToCode('not'), op1, -1, avail[2][convertAtomicTypeToCode('boolean')]])
+        stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
+        stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
+        stackTypes.append(convertAtomicTypeToCode('boolean'))
+        avail[2][convertAtomicTypeToCode('boolean')] += 1
+
+def generateInteractionsCode():
+    global functionDirectory, listCode, stackJumps, stackOp, stackOpVisible, stackTypes, stackOperators
+    listCode.append([convertOperatorToCode('getNextTile'), -1, -1, 'tile'])
+    interactions = functionDirectory['SimpleGame']['sections']['InteractionList']
+    for keys, actions in interactions.iteritems():
+        count = 0
+        for key in keys:
+            listCode.append([convertOperatorToCode('inTile'), key, 'tile', avail[2][convertAtomicTypeToCode('boolean')]])
+            stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
+            stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
+            stackTypes.append(convertAtomicTypeToCode('boolean'))
+            avail[2][convertAtomicTypeToCode('boolean')] += 1
+            count += 1
+            if (count > 1):
+                stackOperators.append('&&')
+                generateArithmeticCode()
+        doGotoF()
+        for action, value in actions.iteritems():
+            if (action == 'killSprite'):
+                if (len(value) == 0):
+                    listCode.append([convertOperatorToCode('killSprite'), -1, -1, keys[0]])
+            if (action == 'scoreChange'):
+                listCode.append([convertOperatorToCode('scoreChange'), float(value), -1, 'score'])
+            if (action == 'stepBack'):
+                listCode.append([convertOperatorToCode('stepBack'), -1, -1, keys[0]])
+        endJump = stackJumps.pop()
+        listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
+
+def generateWinCode():
+    global functionDirectory, listCode, stackJumps, stackOp, stackOpVisible, stackTypes, stackOperators
+    goals = functionDirectory['SimpleGame']['sections']['TerminationGoals']
+    for key, goal in goals.iteritems():
+        if (goal['type'] == 'spriteCounter'):
+            listCode.append([convertOperatorToCode('spriteCounter'), key[0], goal['attrs']['limit'], avail[2][convertAtomicTypeToCode('boolean')]])
+        elif (goal['type'] == 'timeout'):
+            listCode.append([convertOperatorToCode('timeout'), -1, goal['attrs']['limit'], avail[2][convertAtomicTypeToCode('boolean')]])
+        stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
+        stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
+        stackTypes.append(convertAtomicTypeToCode('boolean'))
+        avail[2][convertAtomicTypeToCode('boolean')] += 1
+        doGotoF()
+        listCode.append([convertOperatorToCode('printEndGame'), -1, -1, goal['attrs']['win']])
+        endJump = stackJumps.pop()
+        listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
+
 def generateIntermediateCodeFile():
     global functionDirectory, listCode
     file = open('rawCode.xml', 'w')
-    # Functions
     file.write('<intermediateCode>\n\n')
+    # Game
+    if (functionDirectory.has_key('SimpleGame')):
+        sprites = functionDirectory['SimpleGame']['sections']['SpriteSet']
+        file.write('\t<game>\n\t\t<sprites>\n')
+        for spriteKey, spriteValue in sprites.iteritems():
+            file.write('\t\t\t<sprite>\n\t\t\t\t<spriteName>' + spriteKey + '</spriteName>\n')
+            file.write('\t\t\t\t<type>' + str(spriteValue['type']) + '</type>\n')
+            file.write('\t\t\t</sprite>\n')
+        file.write('\t\t</sprites>\n\t</game>\n\n')
+    
+    # Functions
     file.write('\t<functions>\n')
     for function in functionDirectory:
         if (not (function == 'global' or function == 'main' or function == 'constants' or function == 'SimpleGame')):
