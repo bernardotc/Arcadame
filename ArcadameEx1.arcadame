@@ -28,3 +28,4 @@ Program Example:
         print(sumatoria(lista[0]) + sumatoria(lista[1]));
     end
 End
+

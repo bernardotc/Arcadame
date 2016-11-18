@@ -18,7 +18,7 @@ SimpleGame Laberynth:
 
     Mapping:
         'g' = goal;
-        'A' = avatar;
+        'A' = floor, avatar;
         'w' = wall;
         ' ' = floor;
     end
@@ -36,3 +36,4 @@ SimpleGame Laberynth:
         StartGame();
     end
 End
+

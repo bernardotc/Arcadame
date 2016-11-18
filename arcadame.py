@@ -30,13 +30,13 @@
 # Spawner = 205
 # Passive = 206
 
-import sys
+import sys, getopt
 sys.path.insert(0, "../..")
 
 if sys.version_info[0] >= 3:
     raw_input = input
 
-debug = True
+debug = False
 
 # Global variables, dictionaries and lists
 avail = {}
@@ -768,6 +768,8 @@ start = 'programa'
 def p_programa(p):
     '''programa : SIMPLEGAME generate_initial_goto ID D_2P sprites interactions goals mapping map generate_game block generate_end
                 | PROGRAM generate_initial_goto ID D_2P block generate_end'''
+    global functionDirectory, constants
+    functionDirectory["constants"] = constants
 
 def p_generate_initial_goto(p):
     '''generate_initial_goto : '''
@@ -777,12 +779,12 @@ def p_generate_initial_goto(p):
 
 def p_generate_game(p):
     '''generate_game : '''
-    global functionDirectory, gameSections, constants
+    global functionDirectory, gameSections
     # Save SimpleGame in function directory
     functionDirectory["SimpleGame"] = {"sections" : gameSections}
     gameSections = {}
     generateIntermediateCodeGame()
-    functionDirectory["constants"] = constants
+
 
 def p_generate_end(p):
     '''generate_end : BIG_END'''
@@ -1126,7 +1128,8 @@ def p_save_function(p):
     '''save_function : '''
     global functionDirectory, variables, parameters, functionId, type, avail, listCode
     # Save the function with its variables
-    print "#############", variables
+    if (debug):
+        print "#############", variables
     if (functionDirectory.has_key(functionId)):
         raise SemanticError("Repeated identifier for function: " + p[2])
     functionDirectory[functionId] = {"variables": variables, "parameters": parameters, "return": convertAtomicTypeToCode(type), "memory": avail[0][convertAtomicTypeToCode(type)], "start_cuadruplet": len(listCode) + 1}
@@ -1144,7 +1147,8 @@ def p_generate_end_func(p):
     variables = {}
     listCode.append([convertOperatorToCode('endFunc'),-1,-1,-1])
     temporalAuxDictionary = {}
-    print temporalStamp
+    if (debug):
+        print temporalStamp
     for key in avail[2]:
         temporalAuxDictionary[key] = avail[2][key] - temporalStamp[key]
     functionDirectory[functionId]["temporals"] = temporalAuxDictionary
@@ -1169,7 +1173,8 @@ def p_type_parameter(p):
                       | ID'''
     global variables, type, parameters, avail, functionDirectory
     # Get parameter attributes and save it.
-    print "####################", functionDirectory
+    if (debug):
+        print "####################", functionDirectory
     if (p[1] == '&'):
         if (variables.has_key(p[2])):
             raise SemanticError("Repeated identifier for variable: " + p[2])
@@ -1235,7 +1240,8 @@ def p_statute(p):
 def p_check_stack_equal(p):
     '''check_stack_equal : '''
     global stackOperators, stackTypes, stackOp, listCode, semanticCube
-    print stackOp
+    if (debug):
+        print stackOp
     if (stackOperators):
         if (stackOperators[-1] == '='):
             # Different way to generate cuadruplet arithmetic != assignation
@@ -1737,7 +1743,8 @@ def generateArithmeticCode():
     stackOpVisible.pop()
     op2Type = stackTypes.pop()
     op1Type = stackTypes.pop()
-    print op1Type, op2Type
+    if (debug):
+        print op1Type, op2Type
     newType = semanticCube[op1Type-100][op2Type-100][operator]
     # If the semantic cube tell us that the operation is not possible
     if (newType == -1):
@@ -1869,17 +1876,17 @@ def generateWinCode():
 
 def generateIntermediateCodeFile():
     global functionDirectory, listCode
-    file = open('rawCode.xml', 'w')
+    file = open('rawCode.dame', 'w')
     file.write('<intermediateCode>\n\n')
     # Game
+    file.write('\t<game>\n\t\t<sprites>\n')
     if (functionDirectory.has_key('SimpleGame')):
         sprites = functionDirectory['SimpleGame']['sections']['SpriteSet']
-        file.write('\t<game>\n\t\t<sprites>\n')
         for spriteKey, spriteValue in sprites.iteritems():
             file.write('\t\t\t<sprite>\n\t\t\t\t<spriteName>' + spriteKey + '</spriteName>\n')
             file.write('\t\t\t\t<type>' + str(spriteValue['type']) + '</type>\n')
             file.write('\t\t\t</sprite>\n')
-        file.write('\t\t</sprites>\n\t</game>\n\n')
+    file.write('\t\t</sprites>\n\t</game>\n\n')
     
     # Functions
     file.write('\t<functions>\n')
@@ -1936,12 +1943,62 @@ import ply.yacc as yacc
 parser = yacc.yacc()
 
 # Main.
-while 1:
+argv = sys.argv[1:]
+if (len(argv) == 0):
+    while 1:
+        try:
+            s = raw_input('arcadame > ')
+        except EOFError:
+            break
+        # Initialize the global variables in each run
+        functionDirectory = {"global": {}}
+        avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000}, 1: {101: 7000, 102: 8000, 103:9000, 104: 10000, 105: 11000}, 2: {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105:16000}, 3: {101: 17000, 102: 18000, 103: 19000, 104: 20000, 105: 21000}}
+        variables = {}
+        constants = {}
+        parameters = []
+        globalVariables = {}
+        gameSections = {}
+        gameAttrs = {}
+        killSprites = []
+        listSprites = []
+        listCode = []
+        stackTypes = []
+        stackOperators = []
+        stackOp = []
+        stackOpVisible = []
+        stackJumps = []
+
+        # Start the scanning and parsing
+        with open(s) as fp:
+            completeString = ""
+            for line in fp:
+                completeString += line
+            try:
+                parser.parse(completeString)
+                if (debug):
+                    print "dictionary of functions: ", functionDirectory
+                    print "list of cuadruplets: ", listCode
+                generateIntermediateCodeFile()
+                print("Correct program")
+            except EOFError:
+                break
+else:
+    inputFile = ""
     try:
-        s = raw_input('arcadame > ')
-    except EOFError:
-        break
-    # Initialize the global variables in each run
+        opts, args = getopt.getopt(argv,"hi:d:",["ifile=","debug="])
+    except getopt.GetoptError:
+        print 'python arcadame.py [-i <inputfile>, -d <True|False>, default = False]'
+        sys.exit(99)
+    for opt, arg in opts:
+        if opt == '-h':
+            print 'python arcadame.py [-i <inputfile>,-d <True|False>, default = False]'
+            sys.exit(1)
+        elif opt in ("-i", "--ifile"):
+            inputFile = arg
+        elif opt in ("-d", "--debug"):
+            debug = arg == 'True'
+
+    # Initialize the global variables
     functionDirectory = {"global": {}}
     avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000}, 1: {101: 7000, 102: 8000, 103:9000, 104: 10000, 105: 11000}, 2: {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105:16000}, 3: {101: 17000, 102: 18000, 103: 19000, 104: 20000, 105: 21000}}
     variables = {}
@@ -1958,9 +2015,9 @@ while 1:
     stackOp = []
     stackOpVisible = []
     stackJumps = []
-
+    
     # Start the scanning and parsing
-    with open(s) as fp:
+    with open(inputFile) as fp:
         completeString = ""
         for line in fp:
             completeString += line
@@ -1972,4 +2029,4 @@ while 1:
             generateIntermediateCodeFile()
             print("Correct program")
         except EOFError:
-            break
+            sys.exit(2)

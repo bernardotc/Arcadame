@@ -6,16 +6,13 @@
 # Virtual Machine for the languange Arcadame
 # -----------------------------------------------------------------------------
 
-import sys
+import sys, getopt
 import pygame
 import time as tm
 import xml.etree.ElementTree as ET
 
-pygame.init()
-
-collisionDebug = True
 timeDebug = False
-debug = True
+debug = False
 
 functionDictionary = {}
 spriteSet = {}
@@ -171,7 +168,7 @@ def readRawCode(fileName):
         print "quadruplets: ", quadruplets
 
 def doOperation(quadruplet):
-    global instructionCounter, functionDictionary, instructionStack, functionScope, offset, spriteSet, map, score, mapRow, mapCol, mapping, objectsCount, time, maxMapRow, maxMapCol, tileWidth, tileHeight, win, clock, avatarPos, tile
+    global instructionCounter, functionDictionary, instructionStack, functionScope, offset, spriteSet, map, score, mapRow, mapCol, mapping, objectsCount, time, maxMapRow, maxMapCol, tileWidth, tileHeight, win, clock, avatarPos, tile, file
     if (debug):
         print instructionCounter, quadruplet
     if (quadruplet[0] < 10):
@@ -220,6 +217,8 @@ def doOperation(quadruplet):
     elif (quadruplet[0] == 13):
         result = accessValueInMemory(quadruplet[3])
         print "-----> AVM PRINT: ", result
+        if (file):
+            file.write("-> AVM PRINT: " + str(result) + '\n')
         return True
     elif (quadruplet[0] == 14):
         scan = raw_input('-----> AVM GET_VALUE: ')
@@ -228,6 +227,7 @@ def doOperation(quadruplet):
                 result = int(scan.strip())
             else:
                 result = float(scan.strip())
+            file.write("-> AVM GET_VALUE: " + str(result) + '\n')
             assignValueInMemory(quadruplet[3], result)
             return True
         except:
@@ -236,12 +236,14 @@ def doOperation(quadruplet):
             return False
     elif (quadruplet[0] == 15):
         scan = raw_input('-----> AVM GET_LINE: ')
+        file.write("-> AVM GET_LINE: " + str(result) + '\n')
         assignValueInMemory(quadruplet[3], scan)
         return True
     elif (quadruplet[0] == 16):
         scan = raw_input('-----> AVM GET_BOOLEAN: ')
         result = scan.strip()
         if (result == 'True' or result == 'False'):
+            file.write("-> AVM GET_BOOLEAN: " + str(result) + '\n')
             assignValueInMemory(quadruplet[3], result)
             return True
         else:
@@ -252,6 +254,7 @@ def doOperation(quadruplet):
         scan = raw_input('-----> AVM GET_CHAR: ')
         if (len(scan) > 0):
             result = scan[0]
+            file.write("-> AVM GET_CHAR: " + str(result) + '\n')
             return True
         else:
             # TODO
@@ -412,7 +415,8 @@ def doOperation(quadruplet):
         else:
             assignValueInMemory(quadruplet[3], False)
             tile = (0,-1)
-        ####### print tile
+        if (debug):
+            print tile
         return True
     elif (quadruplet[0] == 38):
         sprites = map[tile]
@@ -425,16 +429,18 @@ def doOperation(quadruplet):
         return True
     elif (quadruplet[0] == 39):
         spriteList = map[tile]
-        print spriteList
+        if (debug):
+            print spriteList
         for index in range(0, len(spriteList)):
-            print index, quadruplet[3]
+            if (debug):
+                print index, quadruplet[3]
             if (spriteList[index].has_key(quadruplet[3])):
                 spriteList.pop(index)
                 objectsCount[quadruplet[3]] -= 1
                 break
         return True
     elif (quadruplet[0] == 40):
-        score += float(quadruplet[3])
+        score += float(quadruplet[1])
         return True
     elif (quadruplet[0] == 41):
         if (quadruplet[3] == 'avatar'):
@@ -469,7 +475,7 @@ def doOperation(quadruplet):
         return True
     elif (quadruplet[0] == 43):
         if (mapping.has_key(quadruplet[1])):
-            mapping[quadruplet[1]].append({spriteSet[quadruplet[3]]})
+            mapping[quadruplet[1]].append({quadruplet[3]: spriteSet[quadruplet[3]]})
         else:
             mapping[quadruplet[1]] = [{quadruplet[3]: spriteSet[quadruplet[3]]}]
         return True
@@ -490,8 +496,26 @@ def doOperation(quadruplet):
         return False
 
 # Main.
-readRawCode('rawCode.xml')
+argv = sys.argv[1:]
+try:
+    opts, args = getopt.getopt(argv,"ho:d:t:",["outputFile=", "debug=","timeDebug="])
+except getopt.GetoptError:
+    print 'python2.7-32 arcadameVM.py [-o <outputfile>, -d <True|False>, default = False, -t <True|False>, default = False]'
+    sys.exit(99)
+for opt, arg in opts:
+    if opt == '-h':
+        print 'python2.7-32 arcadameVM.py [-o <outputfile>, -d <True|False>, default = False, -t <True|False>, default = False]'
+        sys.exit(1)
+    elif opt in ("-o", "--outputFile"):
+        file = file(arg, 'w')
+    elif opt in ("-d", "--debug"):
+        debug = arg == 'True'
+    elif opt in ("-t", "--timeDebug"):
+        timeDebug = arg == 'True'
+
+readRawCode('rawCode.dame')
 memory[3] = constants
+pygame.init()
 if (debug):
     print "Initial memory: ", memory
 while 1:
