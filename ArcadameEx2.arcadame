@@ -8,7 +8,7 @@ Program Example2:
         b = true;
         print("Teclea el lado A del triangulo");
         getValue(ladoA);
-        print("Teclea el lado B del triangulo");
+        print("Teclea el lado D del triangulo");
         getValue(ladoB);
         print("Teclea el lado C del triangulo");
         getValue(ladoC);

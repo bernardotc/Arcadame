@@ -1,17 +1,17 @@
 SimpleGame Frogger:
     SpriteSet:
-        log = Missile orientation=left, speed=0.1, color=brown, img="log.png";
-        forestDense = Spawner generatedSprite=log, prob=0.4, cooldown=10, img="forest.png";
-        forestSparse = Spawner generatedSprite=log, prob=0.1,  cooldown=5, img="forest.png";
-        water = Immovable color=blue, img="water.png";
-        goal  = Immovable color=green, img="goal.png", portal=true;
-        fasttruck = Missile orientation=right, speed=0.2,  color=orange, img="truck.png";
-        slowtruck = Missile orientation=right, speed=0.1,  color=red, img="truck.png";
+        log = Missile orientation=left, speed=0.1, color=brown;
+        forestDense = Spawner generatedSprite=log, prob=0.4, cooldown=10;
+        forestSparse = Spawner generatedSprite=log, prob=0.1,  cooldown=5;
+        water = Immovable color=blue;
+        goal  = Immovable color=purple, portal=true;
+        fasttruck = Missile orientation=right, speed=0.2,  color=orange;
+        slowtruck = Missile orientation=right, speed=0.1,  color=red;
         city = Spawner generatedSprite=fasttruck, prob=0.5, cooldown=4;
         city2 = Spawner generatedSprite=slowtruck, prob=0.6, cooldown=8;
-        wall = Immovable img="wall.txt";
-        floor = Immovable color=black;
-        avatar = MovingAvatar img="frog.png";
+        wall = Immovable color=black;
+        floor = Immovable color=white;
+        avatar = MovingAvatar color=green;
     end
         
     InteractionList:
