@@ -36,7 +36,7 @@ sys.path.insert(0, "../..")
 if sys.version_info[0] >= 3:
     raw_input = input
 
-debug = True
+debug = False
 
 # Global variables, dictionaries and lists
 avail = {}
@@ -65,6 +65,7 @@ goSubFunction = ""
 spriteId = ""
 temporalStamp = {}
 
+# Error handling by using classes
 class LexerError(Exception):
     def __init__(self, value):
         self.value = value
@@ -83,6 +84,7 @@ class SemanticError(Exception):
     def __str__(self):
         return repr(self.value)
 
+# Semantic cube used for operations.
 semanticCube = [[[-1,-1,-1,-1,-1,-1,-1,-1,-1,105,1000], [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
                 [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [101,101,101,101,-1,-1,105,105,105,105,101],   [102,102,102,102,-1,-1,105,105,105,105,102],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
                 [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [102,102,102,102,-1,-1,105,105,105,105,102],   [102,102,102,102,-1,-1,105,105,105,105,102],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
@@ -90,6 +92,7 @@ semanticCube = [[[-1,-1,-1,-1,-1,-1,-1,-1,-1,105,1000], [-1,-1,-1,-1,-1,-1,-1,-1
                 [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,105,105,103],  [-1,-1,-1,-1,-1,-1,-1,-1,105,105,104],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]],
                 [[-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],  [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],       [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1],   [-1,-1,-1,-1,105,105,-1,-1,105,105,105]]]
 
+# Helper function that converts the different types to int values.
 def convertAtomicTypeToCode(type):
     if (type == "int"):
         return 101
@@ -128,6 +131,7 @@ def convertAtomicTypeToCode(type):
     elif (type == "cooldown"):
         return 307
 
+# Helper function that converts the different operations into int values.
 def convertOperatorToCode(type):
     if (type == '+'):
         return 0
@@ -218,6 +222,7 @@ def convertOperatorToCode(type):
     elif (type == 'end'):
         return 99
 
+# ==================================== LEXER ======================================
 # Define token names
 tokens = (
     'SIMPLEGAME', 'PROGRAM', 'SPRITESET', 'IMMOVABLE', 'MOVINGAVATAR', 'SHOOTINGAVATAR', 'MISSILE', 'SPAWNER', 'PASSIVE', 'IMG', 'GENERATEDSPRITE', 'SPEED', 'PORTAL', 'SHRINKFACTOR', 'LIMIT', 'PROB', 'COOLDOWN', 'COLOR', 'ORIENTATION', 'HEALTHPOINTS', 'LIMITHEALTHPOINTS', 'WEAPONSPRITE', 'ENCOUNTERS', 'INTERACTIONLIST', 'KILLSPRITE', 'STEPBACK', 'SCORECHANGE', 'TRANSFORMTO', 'BOUNCEFORWARD', 'CHANGEHEALTHPOINTS', 'ADDTIMER', 'TIME', 'TRANSFORMALL', 'TERMINATIONGOALS', 'SPRITECOUNTER', 'SPRITE', 'MULTISPRITECOUNTER', 'TIMEOUT', 'WIN', 'MAPPING', 'MAP', 'FUNC', 'INT', 'FLOAT', 'STRING', 'CHAR', 'BOOLEAN', 'MAIN', 'VAR', 'PRINT', 'IF', 'ELSE', 'GETVALUE', 'GETLINE', 'GETBOOLEAN', 'GETCHAR', 'WHILE', 'SMALL_END', 'BIG_END', 'STARTGAME', 'RETURN', 'D_2P', 'D_PYC', 'D_C', 'D_PA', 'D_PC', 'D_AMP', 'EQUAL', 'PLUS', 'MINUS', 'TIMES', 'DIVISION', 'MENOR_QUE', 'MAYOR_QUE', 'DIFERENTE_DE', 'IGUAL_QUE', 'AND', 'OR', 'D_CA', 'D_CC', 'ID', 'INT_CT', 'FLOAT_CT', 'STRING_CT', 'BOOLEAN_CT', 'CHAR_CT', 'COLOR_CT', 'MOVEMENT_CT', 'PULLWITHIT', 'SHIELDFROM'
@@ -777,6 +782,7 @@ def t_error(t):
 import ply.lex as lex
 lex.lex()
 
+# ====================================== PARSER ======================================
 # Parsing rules
 start = 'programa'
 
@@ -784,11 +790,13 @@ def p_programa(p):
     '''programa : SIMPLEGAME generate_initial_goto ID D_2P sprites interactions goals mapping map generate_game block generate_end
                 | PROGRAM generate_initial_goto ID D_2P block generate_end'''
     global functionDirectory, constants
+    # Save constants to functionDirectory
     functionDirectory["constants"] = constants
 
 def p_generate_initial_goto(p):
     '''generate_initial_goto : '''
     global listCode, stackJumps
+    # Initial goto that goes to Main.
     listCode.append([convertOperatorToCode('goto'),-1,-1,'pending'])
     stackJumps.append(len(listCode))
 
@@ -798,12 +806,14 @@ def p_generate_game(p):
     # Save SimpleGame in function directory
     functionDirectory["SimpleGame"] = {"sections" : gameSections}
     gameSections = {}
+    # Generate the quadruplets of the game loop.
     generateIntermediateCodeGame()
 
 
 def p_generate_end(p):
     '''generate_end : BIG_END'''
     global listCode
+    # END of program
     listCode.append([convertOperatorToCode('end'), -1, -1, -1])
 
 def p_sprites(p):
@@ -820,6 +830,7 @@ def p_more_sprites(p):
 def p_sprite(p):
     '''sprite : sprite_id EQUAL sprite_type sprite_attrs'''
     global variables, gameAttrs, type, spriteId
+    # Save sprite in variables
     variables[spriteId] = {"type": convertAtomicTypeToCode(type), "attrs": gameAttrs}
     gameAttrs = {}
 
@@ -839,6 +850,7 @@ def p_sprite_type(p):
                    | SPAWNER
                    | PASSIVE'''
     global type
+    # Set sprite type
     type = p[1]
 
 def p_sprite_attrs(p):
@@ -873,6 +885,7 @@ def p_sprite_attr(p):
         gameAttrs[p[1]] = p[3].replace('"', '')
     else:
         gameAttrs[p[1]] = p[3]
+    # Generate quadruplet that assigns attributes to sprites
     listCode.append([convertOperatorToCode('.='), convertAtomicTypeToCode(p[1]), p[3], spriteId])
 
 def p_interactions(p):
@@ -1045,6 +1058,7 @@ def p_mapping_rule(p):
     # Append the sprite id to the beginning
     listSprites = [p[3]] + listSprites
     variables[p[1].replace("'", "")] = list(listSprites)
+    # For each sprite, generate the quadruplet to map the char to the sprite
     for sprite in listSprites:
         listCode.append([convertOperatorToCode('mapSprite'), p[1].replace("'", ""), -1, sprite])
     listSprites = []
@@ -1109,13 +1123,16 @@ def p_var(p):
     # Get var attributes and save it.
     if (debug):
         print functionDirectory
+    # var is a list
     if (p[3] != ':'):
         if (variables.has_key(p[7])):
             raise SemanticError("Repeated identifier for variable: " + p[7])
         if (functionDirectory.has_key("variables")):
             if (functionDirectory["variables"].has_value(p[7])):
                 raise SemanticError("Var identifier has the same name as a function: " + p[7])
+        # Save dimensional var
         variables[p[7]] = {"type": convertAtomicTypeToCode(type), "dimension": {"inferior": 0, "superior": int(p[4]), "-K": 0}}
+    # var is not a list
     else:
         if (variables.has_key(p[4])):
             raise SemanticError("Repeated identifier for variable: " + p[4])
@@ -1123,6 +1140,7 @@ def p_var(p):
             if (functionDirectory["variables"].has_value(p[4])):
                 raise SemanticError("Var identifier has the same name as a function: " + p[4])
         typeInNumber = convertAtomicTypeToCode(type)
+        # Save var
         variables[p[4]] = {"type": typeInNumber}
 
 def p_type(p):
@@ -1142,12 +1160,12 @@ def p_functions(p):
 def p_save_function(p):
     '''save_function : '''
     global functionDirectory, variables, parameters, functionId, type, avail, listCode
-    # Save the function with its variables
+    # Save the function with its attributes and variables
     if (debug):
         print "#############", variables
     if (functionDirectory.has_key(functionId)):
         raise SemanticError("Repeated identifier for function: " + p[2])
-    functionDirectory[functionId] = {"variables": variables, "parameters": parameters, "return": convertAtomicTypeToCode(type), "memory": avail[0][convertAtomicTypeToCode(type)], "start_cuadruplet": len(listCode) + 1}
+    functionDirectory[functionId] = {"variables": variables, "parameters": parameters, "return": convertAtomicTypeToCode(type), "memory": avail[0][convertAtomicTypeToCode(type)], "start_quadruplet": len(listCode) + 1}
     avail[0][convertAtomicTypeToCode(type)] += 1
     variables = {}
     parameters = []
@@ -1158,20 +1176,25 @@ def p_function(p):
 def p_generate_end_func(p):
     '''generate_end_func : '''
     global listCode, temporalStamp, functionDirectory, functionId, avail, variables
+    # Save variables used in function (for debugging)
     functionDirectory[functionId]['variables'] = variables
     variables = {}
+    # Generate endFunc quadruplet
     listCode.append([convertOperatorToCode('endFunc'),-1,-1,-1])
     temporalAuxDictionary = {}
     if (debug):
         print temporalStamp
+    # Check how many temporals were used.
     for key in avail[2]:
         temporalAuxDictionary[key] = avail[2][key] - temporalStamp[key]
+    # Save the number of temporals used inside the function
     functionDirectory[functionId]["temporals"] = temporalAuxDictionary
 
 def p_save_function_id(p):
     '''save_function_id : ID'''
     global functionId, temporalStamp, avail
     functionId = p[1]
+    # Reset the virtual memory counters because it is the start of a new module.
     avail[1] = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
     avail[2] = {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105: 16000}
     temporalStamp = avail[2].copy()
@@ -1190,11 +1213,13 @@ def p_type_parameter(p):
     # Get parameter attributes and save it.
     if (debug):
         print "####################", functionDirectory
+    # Parameter by reference
     if (p[1] == '&'):
         if (variables.has_key(p[2])):
             raise SemanticError("Repeated identifier for variable: " + p[2])
         variables[p[2]] = {"type": convertAtomicTypeToCode(type), "reference_parameter": True, "memory": avail[1][convertAtomicTypeToCode(type)]}
         parameters.append(convertAtomicTypeToCode(type))
+    # Normal parameter
     else:
         if (variables.has_key(p[1])):
             raise SemanticError("Repeated identifier for variable: " + p[1])
@@ -1211,16 +1236,20 @@ def p_main_block(p):
     global functionDirectory, variables, avail
     if (functionDirectory.has_key(p[1])):
         raise SemanticError("Repeated identifier for function: " + p[1])
+    # Save the variables used in main
     functionDirectory["main"]["variables"] = variables
     variables = {}
 
 def p_set_function_id_main(p):
     '''set_function_id_main : '''
     global functionDirectory, functionId, listCode, stackJumps, avail
+    # Set the functionId scope
     functionId = "main"
     functionDirectory[functionId] = {"variables" : {}}
+    # Set that the initial goto need to jump here.
     firstJump = stackJumps.pop()
     listCode[firstJump - 1][3] = len(listCode) + 1
+    # Reset avail because it is a new module.
     avail[1] = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
     avail[2] = {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105: 16000}
 
@@ -1259,7 +1288,7 @@ def p_check_stack_equal(p):
         print stackOp
     if (stackOperators):
         if (stackOperators[-1] == '='):
-            # Different way to generate cuadruplet arithmetic != assignation
+            # Different way to generate quadruplet arithmetic != assignation
             operator = convertOperatorToCode(stackOperators.pop())
             op2 = stackOp.pop()
             op1 = stackOp.pop()
@@ -1279,23 +1308,21 @@ def p_function_use(p):
                     | STARTGAME D_PA D_PC
                     | validate_function_id_do_era D_PA D_PC validate_params_generate_gosub'''
     global listCode
+    # Special quadruplet operation when it is a game.
     if (p[1] == 'StartGame'):
         listCode.append([convertOperatorToCode('startGame'), -1, -1, -1])
 
 def p_validate_function_id_do_era(p):
     '''validate_function_id_do_era : ID'''
     global listCode, functionDirectory, parameters, paramCounter, goSubFunction, stackOp, stackTypes, functionId
-    if (p[1] == 'startGame'):
-        listCode.append([convertOperatorToCode('era'), -1, -1, p[1]])
-        parameters = []
-        goSubFunction = p[1]
-    else:
-        if (not functionDirectory.has_key(p[1])):
-            raise SemanticError("Use of undeclared function identifier: " + p[1])
-        listCode.append([convertOperatorToCode('era'), -1, -1, p[1]])
-        parameters = functionDirectory[p[1]]["parameters"]
-        paramCounter = 0
-        goSubFunction = p[1]
+    if (not functionDirectory.has_key(p[1])):
+        raise SemanticError("Use of undeclared function identifier: " + p[1])
+    # Do ERA
+    listCode.append([convertOperatorToCode('era'), -1, -1, p[1]])
+    # Check parameters of this function and set helper variables for param and gosub operations
+    parameters = functionDirectory[p[1]]["parameters"]
+    paramCounter = 0
+    goSubFunction = p[1]
 
 def p_add_parameter(p):
     '''add_parameter : expression'''
@@ -1307,19 +1334,24 @@ def p_add_parameter(p):
             raise SemanticError("Diferent type of parameter in function. Expected: " + parameters[paramCounter] + " received: " + paramType)
     except IndexError:
         raise SemanticError("Use of more parameters than function declaration.")
+    # If it was a valid param, generate quadruplet
     paramCounter += 1
     listCode.append([convertOperatorToCode('param'), operand, -1, paramCounter])
 
 def p_validate_params_generate_gosub(p):
     '''validate_params_generate_gosub : '''
     global functionDirectory, listCode, goSubFunction, parameters, paramCounter, functionId, avail, stackOp, stackTypes
+    # Check that there was the exact number of params tha function requires
     if (paramCounter != len(parameters)):
         raise SemanticError("Use of less parameters than expected in function declaration.")
+    # Generate gosub quadruplet
     listCode.append([convertOperatorToCode('gosub'), -1, -1, goSubFunction])
+    # Guadalupana patch
     listCode.append([convertOperatorToCode('='), functionDirectory[goSubFunction]['memory'], -1, avail[2][functionDirectory[goSubFunction]['return']]])
     stackOp.append(avail[2][functionDirectory[goSubFunction]['return']])
     stackTypes.append(functionDirectory[goSubFunction]['return'])
     avail[2][functionDirectory[goSubFunction]['return']] += 1
+    # Reset variables
     goSubFunction = ""
     parameters = []
     paramCounter = 0
@@ -1342,20 +1374,27 @@ def p_value_list(p):
                   | '''
     global variables, sureListId, stackOp, stackTypes, listCode, avail, constants
     try:
+        # Check if the id has dimension
         if (p[2] == '['):
             if (debug):
                 print "LIST: stack of operands: ", stackOp
+            # The id has dimension
             operand = stackOp.pop()
             operandType = stackTypes.pop()
+            # Check it was an int value the one at the top of the stack
             if (operandType != convertAtomicTypeToCode('int')):
                 raise SemanticError("Expected int value to acess list, recieved: ", operandType)
+            # Generate verify quadruplet
             listCode.append([convertOperatorToCode('verify'), operand, variables[sureListId]['dimension']['inferior'], variables[sureListId]['dimension']['superior']])
             
+            # Patch for constants, save the value before useing it so it can be a virtual
+            # memory direction
             constant = variables[sureListId]['memory']
             if (not constants.has_key(constant)):
                 constants[constant] = {"type": 101, "memory": avail[3][convertAtomicTypeToCode('int')]}
                 avail[3][convertAtomicTypeToCode('int')] += 1
   
+          # Add virtual memory value to the direction used for list
             listCode.append([convertOperatorToCode('+'), operand, constants[constant]['memory'], avail[2][convertAtomicTypeToCode('int')]])
             stackOp.append(-avail[2][convertAtomicTypeToCode('int')])
             stackTypes.append(variables[sureListId]['type'])
@@ -1368,6 +1407,7 @@ def p_check_dimension(p):
     global listId, sureListId, stackOp, stackTypes
     if (not variables[listId].has_key('dimension')):
         raise SemanticError("Trying to access an id that does not have dimension.")
+    # You are now sure the id is a list
     stackOp.pop()
     stackTypes.pop()
     sureListId = listId
@@ -1503,6 +1543,7 @@ def p_return(p):
         raise SemanticError("Trying to return something inside Main.")
     op = stackOp.pop()
     opType = stackTypes.pop()
+    # Check if the return type of the function matches the one in the stack
     if (opType != functionDirectory[functionId]['return']):
         raise SemanticError("Returning a value of type: " + opType + ", expected: " + functionDirectory[functionId]['return'])
     listCode.append([convertOperatorToCode('return'), -1, -1, op])
@@ -1657,6 +1698,7 @@ def p_received_id(p):
     listId = p[1]
     if (debug):
         print variables, functionDirectory, p[1], functionId
+    # Check if it was a global id
     if (not variables.has_key(p[1]) and not functionDirectory[functionId]["variables"].has_key(p[1])):
         if (not globalVariables.has_key(p[1])):
             raise SemanticError("Use of undeclared identifier for variable: " + p[1])
@@ -1664,11 +1706,14 @@ def p_received_id(p):
             stackOp.append(globalVariables[p[1]]["memory"])
             stackOpVisible.append(p[1])
             stackTypes.append(globalVariables[p[1]]["type"])
+    # It is a local id
     else:
+        # In main
         if (variables.has_key(p[1])):
             stackOp.append(variables[p[1]]["memory"])
             stackOpVisible.append(p[1])
             stackTypes.append(variables[p[1]]["type"])
+        # Inside a function module
         else:
             stackOp.append(functionDirectory[functionId]["variables"][p[1]]["memory"])
             stackOpVisible.append(p[1])
@@ -1679,6 +1724,7 @@ def p_received_float(p):
     '''received_float : FLOAT_CT
                       | MINUS FLOAT_CT'''
     global constants, avail, stackOp, stackTypes, stackOpVisible
+    # Check if it is a negative value
     if (p[1] == '-'):
         value = - float(p[2])
     else:
@@ -1694,6 +1740,7 @@ def p_received_int(p):
     '''received_int : INT_CT
                     | MINUS INT_CT'''
     global constants, avail, stackOp, stackTypes, stackOpVisible
+    # Check if it is a negative value
     if (p[1] == '-'):
         value = - int(p[2])
     else:
@@ -1750,7 +1797,7 @@ def generateArithmeticCode():
         print "stack of operands: ", stackOp
         print "stack of types: ", stackTypes
     
-    # Get all the variables to test and generate a cuadruplet
+    # Get all the variables to test and generate a quadruplet
     operator = convertOperatorToCode(stackOperators.pop())
     op2 = stackOp.pop()
     op1 = stackOp.pop()
@@ -1766,22 +1813,24 @@ def generateArithmeticCode():
         raise SemanticError("Type Mismatch: Trying to " + str(operator) + " = " + str(op1Type) + " :: " + str(op2Type))
     result = avail[2][newType]
     avail[2][newType] += 1
-    # Generate the cuadruplet, append result to the stacks
+    # Generate the quadruplet, append result to the stacks
     listCode.append([operator, op1, op2, result])
     stackOp.append(result)
     stackOpVisible.append(result)
     stackTypes.append(newType)
 
+# Helper function in game intermediate code, to simulate condition statutes like if and while.
 def doGotoF():
     global listCode, stackTypes, stackOp, stackOpVisible
     condtionType = stackTypes.pop()
     if (condtionType != convertAtomicTypeToCode("boolean")):
-        raise SemanticError("Expected boolean in if condition. Received: " + str(condtionType))
+        raise SemanticError("Expected boolean in game condition. Received: " + str(condtionType))
     condition = stackOp.pop()
     stackOpVisible.pop()
     listCode.append([convertOperatorToCode("gotoF"), condition, -1, 'pending'])
     stackJumps.append(len(listCode) - 1) # Make it as a list that starts in 0.
 
+# Helper function in game intermediate code, to simulate whiles.
 def doEndGoto():
     global stackJumps, listCode
     falseJump = stackJumps.pop()
@@ -1789,22 +1838,31 @@ def doEndGoto():
     listCode.append([convertOperatorToCode("goto"), -1, -1, returnJump])
     listCode[falseJump][3] = len(listCode) + 1
 
+# The main function that calls other specific functions with a particular objective
 def generateIntermediateCodeGame():
     global listCode, stackJumps
+    # Before game loop initialize variables
     listCode.append([convertOperatorToCode('initialize'), -1, -1, -1])
+    # Start of game loop
     stackJumps.append(len(listCode) + 1)
     generateGoalsCode()
+    # Check condition so it can continue to game loop
     doGotoF()
+    # Game loop important methods
     listCode.append([convertOperatorToCode('drawMap'), -1, -1, -1])
     listCode.append([convertOperatorToCode('checkMove'), -1, -1, 'avatar'])
+    # Game interactions
     generateInteractionsCode()
+    # End of game loop
     doEndGoto()
+    # If it jumps the game loop then the game finished
     generateWinCode()
 
 def generateGoalsCode():
     global functionDirectory, listCode, stackJumps, stackOp, stackOpVisible, stackTypes, stackOperators
     goals = functionDirectory['SimpleGame']['sections']['TerminationGoals']
     count = 0
+    # Check every goal stated in the game program
     for key, goal in goals.iteritems():
         if (goal['type'] == 'spriteCounter'):
             listCode.append([convertOperatorToCode('spriteCounter'), key[0], goal['attrs']['limit'], avail[2][convertAtomicTypeToCode('boolean')]])
@@ -1815,9 +1873,11 @@ def generateGoalsCode():
         stackTypes.append(convertAtomicTypeToCode('boolean'))
         avail[2][convertAtomicTypeToCode('boolean')] += 1
         count += 1
+        # If there is more than one goal, then there needs to be an or operation.
         if (count > 1):
             stackOperators.append('||')
             generateArithmeticCode()
+    # Negate the termination goals to use gotoF
     generateNotCode()
 
 def generateNotCode():
@@ -1826,8 +1886,8 @@ def generateNotCode():
         op1 = stackOp.pop()
         op1Type = stackTypes.pop()
         if (op1Type != convertAtomicTypeToCode('boolean')):
-            # TODO: - Complete error
-            raise SemanticError('');
+            raise SemanticError("Expected boolean in game not condition. Received: " + str(condtionType))
+        # Add negation quadruplet
         listCode.append([convertOperatorToCode('not'), op1, -1, avail[2][convertAtomicTypeToCode('boolean')]])
         stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
         stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
@@ -1836,19 +1896,23 @@ def generateNotCode():
 
 def generateInteractionsCode():
     global functionDirectory, listCode, stackJumps, stackOp, stackOpVisible, stackTypes, stackOperators
+    # Inner loop in game loop starts here
     stackJumps.append(len(listCode) + 1)
+    # Check if there is a nextTile in map
     listCode.append([convertOperatorToCode('getNextTile'), -1, -1, avail[2][convertAtomicTypeToCode('boolean')]])
     stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
     stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
     stackTypes.append(convertAtomicTypeToCode('boolean'))
     avail[2][convertAtomicTypeToCode('boolean')] += 1
-    # While starts for the first tile
+    # Inner while starts for the first tile
     doGotoF()
     interactions = functionDirectory['SimpleGame']['sections']['InteractionList']
+    # Check each interaction
     for interaction in interactions:
         for keys, actions in interaction.iteritems():
             count = 0
             for key in keys:
+                # First check the sprites that it should be in the tile and add them
                 listCode.append([convertOperatorToCode('inTile'), key, 'tile', avail[2][convertAtomicTypeToCode('boolean')]])
                 stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
                 stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
@@ -1858,7 +1922,9 @@ def generateInteractionsCode():
                 if (count > 1):
                     stackOperators.append('&&')
                     generateArithmeticCode()
+            # Condition to see if the sprites where in tile, if not skip game functions
             doGotoF()
+            # After checking the sprites, set game functions.
             for action, value in actions.iteritems():
                 if (action == 'killSprite'):
                     if (len(value) == 0):
@@ -1874,14 +1940,16 @@ def generateInteractionsCode():
                     listCode.append([convertOperatorToCode('shieldFrom'), value, -1, keys[0]])
                 elif (action == 'pullWithIt'):
                     listCode.append([convertOperatorToCode('pullWithIt'), keys[-1], -1, keys[0]])
+            # GotoF jumps here
             endJump = stackJumps.pop()
             listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
-    # While ends
+    # Inner while ends
     doEndGoto()
 
 def generateWinCode():
     global functionDirectory, listCode, stackJumps, stackOp, stackOpVisible, stackTypes, stackOperators
     goals = functionDirectory['SimpleGame']['sections']['TerminationGoals']
+    # Iterate each goal and check again
     for key, goal in goals.iteritems():
         if (goal['type'] == 'spriteCounter'):
             listCode.append([convertOperatorToCode('spriteCounter'), key[0], goal['attrs']['limit'], avail[2][convertAtomicTypeToCode('boolean')]])
@@ -1891,10 +1959,14 @@ def generateWinCode():
         stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
         stackTypes.append(convertAtomicTypeToCode('boolean'))
         avail[2][convertAtomicTypeToCode('boolean')] += 1
+        # Check if condition of goal was met, if not jump
         doGotoF()
+        # If goal was met
         listCode.append([convertOperatorToCode('printEndGame'), -1, -1, goal['attrs']['win']])
+        # GotoF jumps here
         endJump = stackJumps.pop()
         listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
+    # End of game
     listCode.append([convertOperatorToCode('endGame'), -1, -1, -1])
 
 def generateIntermediateCodeFile():
@@ -1906,6 +1978,7 @@ def generateIntermediateCodeFile():
     if (functionDirectory.has_key('SimpleGame')):
         sprites = functionDirectory['SimpleGame']['sections']['SpriteSet']
         for spriteKey, spriteValue in sprites.iteritems():
+            # Save spriteName and spriteType
             file.write('\t\t\t<sprite>\n\t\t\t\t<spriteName>' + spriteKey + '</spriteName>\n')
             file.write('\t\t\t\t<type>' + str(spriteValue['type']) + '</type>\n')
             file.write('\t\t\t</sprite>\n')
@@ -1916,19 +1989,27 @@ def generateIntermediateCodeFile():
     for function in functionDirectory:
         if (not (function == 'global' or function == 'main' or function == 'constants' or function == 'SimpleGame')):
             spaceForEra = [0, 0, 0, 0, 0]
+            # Save functionName
             file.write('\t\t<function>\n\t\t<functionName>' + str(function) + '</functionName>\n')
+            # For every parameter save param.
             for param in functionDirectory[function]['parameters']:
                 file.write('\t\t\t<parameter>' + str(param) + '</parameter>\n')
+            # Save return type
             file.write('\t\t\t<return>' + str(functionDirectory[function]['return']) + '</return>\n')
+            # Save virtual memory value
             file.write('\t\t\t<memory>' + str(functionDirectory[function]['memory']) + '</memory>\n')
-            file.write('\t\t\t<quadruplet>' + str(functionDirectory[function]['start_cuadruplet']) + '</quadruplet>\n')
+            # Save initial quadruplet
+            file.write('\t\t\t<quadruplet>' + str(functionDirectory[function]['start_quadruplet']) + '</quadruplet>\n')
+            # For var in variables, add 1 to the respective type in spaceForEra (a temporal list)
             for var in functionDirectory[function]['variables']:
                 spaceForEra[functionDirectory[function]['variables'][var]['type'] - 101] += 1
+            # Sum the temporals too, not only variables
             spaceForEra[0] += functionDirectory[function]['temporals'][101]
             spaceForEra[1] += functionDirectory[function]['temporals'][102]
             spaceForEra[2] += functionDirectory[function]['temporals'][103]
             spaceForEra[3] += functionDirectory[function]['temporals'][104]
             spaceForEra[4] += functionDirectory[function]['temporals'][105]
+            # Write era based on the variables and temporals
             file.write('\t\t\t<era>\n' +
                        '\t\t\t\t<int>' + str(spaceForEra[0]) + '</int>\n' +
                        '\t\t\t\t<float>' + str(spaceForEra[1]) + '</float>\n' +
@@ -1943,6 +2024,7 @@ def generateIntermediateCodeFile():
     file.write('\t<constants>\n')
     constants = functionDirectory['constants']
     for constant in constants:
+        # Save constant value, type and virtual memory direction
         file.write('\t\t<constant>\n\t\t\t<constantValue>' + str(constant) + '</constantValue>\n')
         file.write('\t\t\t<type>' + str(constants[constant]['type']) + '</type>\n')
         file.write('\t\t\t<memory>' + str(constants[constant]['memory']) + '</memory>\n')
@@ -1952,6 +2034,7 @@ def generateIntermediateCodeFile():
     # Quadruplets
     file.write('\t<quadruplets>\n')
     for index, quadruplet in enumerate(listCode):
+        # For each quadruplet save index and 4 elements.
         file.write('\t\t<quadruplet>\n\t\t\t<index>' + str(index + 1) + '</index>\n')
         file.write('\t\t\t<operation>' + str(quadruplet[0]) + '</operation>\n')
         file.write('\t\t\t<element1>' + str(quadruplet[1]) + '</element1>\n')
@@ -1960,6 +2043,35 @@ def generateIntermediateCodeFile():
         file.write('\t\t</quadruplet>\n')
     file.write('\t</quadruplets>\n\n')
     file.write('</intermediateCode>\n')
+
+# Helper function to initialize variables
+def initializeVariables():
+    global functionDirectory, avail, stackJumps, stackTypes, stackOperators, stackOp, stackOpVisible, listCode, listSprites, killSprites, gameAttrs, gameActions, gameSections, variables, constants, parameters, globalVariables, typeOfVariable, functionId, listId, sureListId, paramCounter, goSubFunction, spriteId, temporalStamp
+    functionDirectory = {"global": {}}
+    avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000}, 1: {101: 7000, 102: 8000, 103:9000, 104: 10000, 105: 11000}, 2: {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105:16000}, 3: {101: 17000, 102: 18000, 103: 19000, 104: 20000, 105: 21000}}
+    stackJumps = []
+    stackTypes = []
+    stackOperators = []
+    stackOp = []
+    stackOpVisible = []
+    listCode = []
+    listSprites = []
+    killSprites = []
+    gameAttrs = {}
+    gameActions = []
+    gameSections = {}
+    variables = {}
+    constants = {}
+    parameters = []
+    globalVariables = {}
+    typeOfVariable = ""
+    functionId = ""
+    listId = ""
+    sureListId = ""
+    paramCounter = 0
+    goSubFunction = ""
+    spriteId = ""
+    temporalStamp = {}
 
 # Import yacc
 import ply.yacc as yacc
@@ -1974,22 +2086,7 @@ if (len(argv) == 0):
         except EOFError:
             break
         # Initialize the global variables in each run
-        functionDirectory = {"global": {}}
-        avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000}, 1: {101: 7000, 102: 8000, 103:9000, 104: 10000, 105: 11000}, 2: {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105:16000}, 3: {101: 17000, 102: 18000, 103: 19000, 104: 20000, 105: 21000}}
-        variables = {}
-        constants = {}
-        parameters = []
-        globalVariables = {}
-        gameSections = {}
-        gameAttrs = {}
-        killSprites = []
-        listSprites = []
-        listCode = []
-        stackTypes = []
-        stackOperators = []
-        stackOp = []
-        stackOpVisible = []
-        stackJumps = []
+        initializeVariables()
 
         # Start the scanning and parsing
         with open(s) as fp:
@@ -2000,12 +2097,13 @@ if (len(argv) == 0):
                 parser.parse(completeString)
                 if (debug):
                     print "dictionary of functions: ", functionDirectory
-                    print "list of cuadruplets: ", listCode
+                    print "list of quadruplets: ", listCode
                 generateIntermediateCodeFile()
                 print("Correct program")
             except EOFError:
                 break
 else:
+    # Check for special arguments in the execution of this file
     inputFile = ""
     try:
         opts, args = getopt.getopt(argv,"hi:d:",["ifile=","debug="])
@@ -2013,31 +2111,19 @@ else:
         print 'python arcadame.py [-i <inputfile>, -d <True|False>, default = False]'
         sys.exit(99)
     for opt, arg in opts:
+        # Help
         if opt == '-h':
             print 'python arcadame.py [-i <inputfile>,-d <True|False>, default = False]'
             sys.exit(1)
+        # Set input file
         elif opt in ("-i", "--ifile"):
             inputFile = arg
+        # Set debug to True or False
         elif opt in ("-d", "--debug"):
             debug = arg == 'True'
 
     # Initialize the global variables
-    functionDirectory = {"global": {}}
-    avail = {0: {101: 2000, 102:3000, 103:4000, 104:5000, 105:6000}, 1: {101: 7000, 102: 8000, 103:9000, 104: 10000, 105: 11000}, 2: {101: 12000, 102: 13000, 103: 14000, 104: 15000, 105:16000}, 3: {101: 17000, 102: 18000, 103: 19000, 104: 20000, 105: 21000}}
-    variables = {}
-    constants = {}
-    parameters = []
-    globalVariables = {}
-    gameSections = {}
-    gameAttrs = {}
-    killSprites = []
-    listSprites = []
-    listCode = []
-    stackTypes = []
-    stackOperators = []
-    stackOp = []
-    stackOpVisible = []
-    stackJumps = []
+    initializeVariables()
     
     # Start the scanning and parsing
     with open(inputFile) as fp:
@@ -2048,7 +2134,7 @@ else:
             parser.parse(completeString)
             if (debug):
                 print "dictionary of functions: ", functionDirectory
-                print "list of cuadruplets: ", listCode
+                print "list of quadruplets: ", listCode
             generateIntermediateCodeFile()
             print("Correct program")
         except EOFError:
