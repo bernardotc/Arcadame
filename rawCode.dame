@@ -65,20 +65,20 @@
 			<operation>11</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>124</result>
+			<result>123</result>
 		</quadruplet>
 		<quadruplet>
 			<index>2</index>
 			<operation>30</operation>
-			<element1>None</element1>
+			<element1>303</element1>
 			<element2>left</element2>
 			<result>log</result>
 		</quadruplet>
 		<quadruplet>
 			<index>3</index>
 			<operation>30</operation>
-			<element1>None</element1>
-			<element2>0.1</element2>
+			<element1>304</element1>
+			<element2>4.0</element2>
 			<result>log</result>
 		</quadruplet>
 		<quadruplet>
@@ -91,43 +91,43 @@
 		<quadruplet>
 			<index>5</index>
 			<operation>30</operation>
-			<element1>None</element1>
+			<element1>305</element1>
 			<element2>log</element2>
 			<result>forestDense</result>
 		</quadruplet>
 		<quadruplet>
 			<index>6</index>
 			<operation>30</operation>
-			<element1>None</element1>
+			<element1>306</element1>
 			<element2>0.4</element2>
 			<result>forestDense</result>
 		</quadruplet>
 		<quadruplet>
 			<index>7</index>
 			<operation>30</operation>
-			<element1>None</element1>
-			<element2>10</element2>
+			<element1>307</element1>
+			<element2>3</element2>
 			<result>forestDense</result>
 		</quadruplet>
 		<quadruplet>
 			<index>8</index>
 			<operation>30</operation>
-			<element1>None</element1>
+			<element1>305</element1>
 			<element2>log</element2>
 			<result>forestSparse</result>
 		</quadruplet>
 		<quadruplet>
 			<index>9</index>
 			<operation>30</operation>
-			<element1>None</element1>
+			<element1>306</element1>
 			<element2>0.1</element2>
 			<result>forestSparse</result>
 		</quadruplet>
 		<quadruplet>
 			<index>10</index>
 			<operation>30</operation>
-			<element1>None</element1>
-			<element2>5</element2>
+			<element1>307</element1>
+			<element2>1</element2>
 			<result>forestSparse</result>
 		</quadruplet>
 		<quadruplet>
@@ -154,15 +154,15 @@
 		<quadruplet>
 			<index>14</index>
 			<operation>30</operation>
-			<element1>None</element1>
-			<element2>right</element2>
+			<element1>303</element1>
+			<element2>left</element2>
 			<result>fasttruck</result>
 		</quadruplet>
 		<quadruplet>
 			<index>15</index>
 			<operation>30</operation>
-			<element1>None</element1>
-			<element2>0.2</element2>
+			<element1>304</element1>
+			<element2>6.0</element2>
 			<result>fasttruck</result>
 		</quadruplet>
 		<quadruplet>
@@ -175,15 +175,15 @@
 		<quadruplet>
 			<index>17</index>
 			<operation>30</operation>
-			<element1>None</element1>
+			<element1>303</element1>
 			<element2>right</element2>
 			<result>slowtruck</result>
 		</quadruplet>
 		<quadruplet>
 			<index>18</index>
 			<operation>30</operation>
-			<element1>None</element1>
-			<element2>0.1</element2>
+			<element1>304</element1>
+			<element2>3.0</element2>
 			<result>slowtruck</result>
 		</quadruplet>
 		<quadruplet>
@@ -196,43 +196,43 @@
 		<quadruplet>
 			<index>20</index>
 			<operation>30</operation>
-			<element1>None</element1>
+			<element1>305</element1>
 			<element2>fasttruck</element2>
 			<result>city</result>
 		</quadruplet>
 		<quadruplet>
 			<index>21</index>
 			<operation>30</operation>
-			<element1>None</element1>
+			<element1>306</element1>
 			<element2>0.5</element2>
 			<result>city</result>
 		</quadruplet>
 		<quadruplet>
 			<index>22</index>
 			<operation>30</operation>
-			<element1>None</element1>
-			<element2>4</element2>
+			<element1>307</element1>
+			<element2>2</element2>
 			<result>city</result>
 		</quadruplet>
 		<quadruplet>
 			<index>23</index>
 			<operation>30</operation>
-			<element1>None</element1>
+			<element1>305</element1>
 			<element2>slowtruck</element2>
 			<result>city2</result>
 		</quadruplet>
 		<quadruplet>
 			<index>24</index>
 			<operation>30</operation>
-			<element1>None</element1>
-			<element2>0.6</element2>
+			<element1>306</element1>
+			<element2>0.7</element2>
 			<result>city2</result>
 		</quadruplet>
 		<quadruplet>
 			<index>25</index>
 			<operation>30</operation>
-			<element1>None</element1>
-			<element2>8</element2>
+			<element1>307</element1>
+			<element2>2</element2>
 			<result>city2</result>
 		</quadruplet>
 		<quadruplet>
@@ -287,541 +287,541 @@
 		<quadruplet>
 			<index>33</index>
 			<operation>43</operation>
-			<element1>2</element1>
-			<element2>-1</element2>
-			<result>forestDense</result>
-		</quadruplet>
-		<quadruplet>
-			<index>34</index>
-			<operation>43</operation>
-			<element1>2</element1>
-			<element2>-1</element2>
-			<result>log</result>
-		</quadruplet>
-		<quadruplet>
-			<index>35</index>
-			<operation>43</operation>
-			<element1>2</element1>
-			<element2>-1</element2>
-			<result>wall</result>
-		</quadruplet>
-		<quadruplet>
-			<index>36</index>
-			<operation>43</operation>
 			<element1>3</element1>
 			<element2>-1</element2>
 			<result>forestSparse</result>
 		</quadruplet>
 		<quadruplet>
-			<index>37</index>
+			<index>34</index>
 			<operation>43</operation>
 			<element1>3</element1>
 			<element2>-1</element2>
 			<result>water</result>
 		</quadruplet>
 		<quadruplet>
-			<index>38</index>
-			<operation>43</operation>
-			<element1>4</element1>
-			<element2>-1</element2>
-			<result>forestSparse</result>
-		</quadruplet>
-		<quadruplet>
-			<index>39</index>
-			<operation>43</operation>
-			<element1>4</element1>
-			<element2>-1</element2>
-			<result>log</result>
-		</quadruplet>
-		<quadruplet>
-			<index>40</index>
-			<operation>43</operation>
-			<element1>4</element1>
-			<element2>-1</element2>
-			<result>wall</result>
-		</quadruplet>
-		<quadruplet>
-			<index>41</index>
+			<index>35</index>
 			<operation>43</operation>
 			<element1>-</element1>
 			<element2>-1</element2>
 			<result>slowtruck</result>
 		</quadruplet>
 		<quadruplet>
-			<index>42</index>
+			<index>36</index>
 			<operation>43</operation>
 			<element1>x</element1>
 			<element2>-1</element2>
 			<result>fasttruck</result>
 		</quadruplet>
 		<quadruplet>
-			<index>43</index>
-			<operation>43</operation>
-			<element1>=</element1>
-			<element2>-1</element2>
-			<result>log</result>
-		</quadruplet>
-		<quadruplet>
-			<index>44</index>
+			<index>37</index>
 			<operation>43</operation>
 			<element1>=</element1>
 			<element2>-1</element2>
 			<result>water</result>
 		</quadruplet>
 		<quadruplet>
-			<index>45</index>
+			<index>38</index>
+			<operation>43</operation>
+			<element1>=</element1>
+			<element2>-1</element2>
+			<result>log</result>
+		</quadruplet>
+		<quadruplet>
+			<index>39</index>
 			<operation>43</operation>
 			<element1>A</element1>
 			<element2>-1</element2>
 			<result>avatar</result>
 		</quadruplet>
 		<quadruplet>
-			<index>46</index>
+			<index>40</index>
+			<operation>43</operation>
+			<element1>c</element1>
+			<element2>-1</element2>
+			<result>floor</result>
+		</quadruplet>
+		<quadruplet>
+			<index>41</index>
 			<operation>43</operation>
 			<element1>c</element1>
 			<element2>-1</element2>
 			<result>city</result>
 		</quadruplet>
 		<quadruplet>
-			<index>47</index>
+			<index>42</index>
+			<operation>43</operation>
+			<element1>C</element1>
+			<element2>-1</element2>
+			<result>floor</result>
+		</quadruplet>
+		<quadruplet>
+			<index>43</index>
 			<operation>43</operation>
 			<element1>C</element1>
 			<element2>-1</element2>
 			<result>city2</result>
 		</quadruplet>
 		<quadruplet>
-			<index>48</index>
+			<index>44</index>
 			<operation>43</operation>
 			<element1>w</element1>
 			<element2>-1</element2>
 			<result>wall</result>
 		</quadruplet>
 		<quadruplet>
-			<index>49</index>
+			<index>45</index>
 			<operation>43</operation>
 			<element1>f</element1>
 			<element2>-1</element2>
 			<result>floor</result>
 		</quadruplet>
 		<quadruplet>
-			<index>50</index>
+			<index>46</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>wwwwwwwwwwwwwwwwwwwwwwwwwwww</result>
 		</quadruplet>
 		<quadruplet>
-			<index>51</index>
+			<index>47</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>wfffffffffffwgwffffffffffffw</result>
 		</quadruplet>
 		<quadruplet>
-			<index>52</index>
+			<index>48</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>w00==000000===0000=====000=4</result>
+			<result>w00==000000===0000=====0003w</result>
 		</quadruplet>
 		<quadruplet>
-			<index>53</index>
+			<index>49</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>w0000====0000000000====00012</result>
+			<result>w0000====0000000000====00=1w</result>
 		</quadruplet>
 		<quadruplet>
-			<index>54</index>
+			<index>50</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>w00===000===000====0000===04</result>
+			<result>w00===000===000====0000===3w</result>
 		</quadruplet>
 		<quadruplet>
-			<index>55</index>
+			<index>51</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>wwwfffwwfffwwwffffwwwffwwwww</result>
 		</quadruplet>
 		<quadruplet>
-			<index>56</index>
+			<index>52</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>wfff----fff---fff-ff----fffw</result>
+			<result>wCff----fff---fff-ff----fffw</result>
 		</quadruplet>
 		<quadruplet>
-			<index>57</index>
+			<index>53</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>w-fffffxxxfffffffxxxffffxxfw</result>
+			<result>wxxxxffxxxfffffffxxxffffxxcw</result>
 		</quadruplet>
 		<quadruplet>
-			<index>58</index>
+			<index>54</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>wf-fff---fffff-fff----f--ffw</result>
+			<result>wC-fff---fffff-fff----f--ffw</result>
 		</quadruplet>
 		<quadruplet>
-			<index>59</index>
+			<index>55</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>wfffffffAffffffffffffffffffw</result>
 		</quadruplet>
 		<quadruplet>
-			<index>60</index>
+			<index>56</index>
 			<operation>31</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>wwwwwwwwwwwwwwwwwwwwwwwwwwww</result>
 		</quadruplet>
 		<quadruplet>
-			<index>61</index>
+			<index>57</index>
 			<operation>32</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>-1</result>
 		</quadruplet>
 		<quadruplet>
-			<index>62</index>
+			<index>58</index>
 			<operation>33</operation>
 			<element1>goal</element1>
 			<element2>0</element2>
 			<result>16000</result>
 		</quadruplet>
 		<quadruplet>
-			<index>63</index>
+			<index>59</index>
 			<operation>33</operation>
 			<element1>avatar</element1>
 			<element2>0</element2>
 			<result>16001</result>
 		</quadruplet>
 		<quadruplet>
-			<index>64</index>
+			<index>60</index>
 			<operation>5</operation>
 			<element1>16000</element1>
 			<element2>16001</element2>
 			<result>16002</result>
 		</quadruplet>
 		<quadruplet>
-			<index>65</index>
+			<index>61</index>
 			<operation>35</operation>
 			<element1>16002</element1>
 			<element2>-1</element2>
 			<result>16003</result>
 		</quadruplet>
 		<quadruplet>
-			<index>66</index>
+			<index>62</index>
 			<operation>12</operation>
 			<element1>16003</element1>
 			<element2>-1</element2>
 			<result>116</result>
 		</quadruplet>
 		<quadruplet>
-			<index>67</index>
+			<index>63</index>
 			<operation>42</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>-1</result>
 		</quadruplet>
 		<quadruplet>
-			<index>68</index>
+			<index>64</index>
 			<operation>36</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>avatar</result>
 		</quadruplet>
 		<quadruplet>
-			<index>69</index>
+			<index>65</index>
 			<operation>37</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>16004</result>
 		</quadruplet>
 		<quadruplet>
-			<index>70</index>
+			<index>66</index>
 			<operation>12</operation>
 			<element1>16004</element1>
 			<element2>-1</element2>
 			<result>115</result>
 		</quadruplet>
 		<quadruplet>
-			<index>71</index>
+			<index>67</index>
 			<operation>38</operation>
-			<element1>slowtruck</element1>
+			<element1>goal</element1>
 			<element2>tile</element2>
 			<result>16005</result>
 		</quadruplet>
 		<quadruplet>
-			<index>72</index>
+			<index>68</index>
 			<operation>38</operation>
-			<element1>wall</element1>
+			<element1>avatar</element1>
 			<element2>tile</element2>
 			<result>16006</result>
 		</quadruplet>
 		<quadruplet>
-			<index>73</index>
+			<index>69</index>
 			<operation>4</operation>
 			<element1>16005</element1>
 			<element2>16006</element2>
 			<result>16007</result>
 		</quadruplet>
 		<quadruplet>
-			<index>74</index>
+			<index>70</index>
 			<operation>12</operation>
 			<element1>16007</element1>
 			<element2>-1</element2>
-			<result>76</result>
+			<result>73</result>
 		</quadruplet>
 		<quadruplet>
-			<index>75</index>
+			<index>71</index>
 			<operation>39</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>slowtruck</result>
+			<result>goal</result>
 		</quadruplet>
 		<quadruplet>
-			<index>76</index>
-			<operation>38</operation>
-			<element1>slowtruck</element1>
-			<element2>tile</element2>
-			<result>16008</result>
-		</quadruplet>
-		<quadruplet>
-			<index>77</index>
-			<operation>38</operation>
-			<element1>avatar</element1>
-			<element2>tile</element2>
-			<result>16009</result>
-		</quadruplet>
-		<quadruplet>
-			<index>78</index>
-			<operation>4</operation>
-			<element1>16008</element1>
-			<element2>16009</element2>
-			<result>16010</result>
-		</quadruplet>
-		<quadruplet>
-			<index>79</index>
-			<operation>38</operation>
-			<element1>water</element1>
-			<element2>tile</element2>
-			<result>16011</result>
-		</quadruplet>
-		<quadruplet>
-			<index>80</index>
-			<operation>4</operation>
-			<element1>16010</element1>
-			<element2>16011</element2>
-			<result>16012</result>
-		</quadruplet>
-		<quadruplet>
-			<index>81</index>
-			<operation>12</operation>
-			<element1>16012</element1>
-			<element2>-1</element2>
-			<result>83</result>
-		</quadruplet>
-		<quadruplet>
-			<index>82</index>
-			<operation>39</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>slowtruck</result>
-		</quadruplet>
-		<quadruplet>
-			<index>83</index>
-			<operation>38</operation>
-			<element1>avatar</element1>
-			<element2>tile</element2>
-			<result>16013</result>
-		</quadruplet>
-		<quadruplet>
-			<index>84</index>
-			<operation>38</operation>
-			<element1>wall</element1>
-			<element2>tile</element2>
-			<result>16014</result>
-		</quadruplet>
-		<quadruplet>
-			<index>85</index>
-			<operation>4</operation>
-			<element1>16013</element1>
-			<element2>16014</element2>
-			<result>16015</result>
-		</quadruplet>
-		<quadruplet>
-			<index>86</index>
-			<operation>12</operation>
-			<element1>16015</element1>
-			<element2>-1</element2>
-			<result>88</result>
-		</quadruplet>
-		<quadruplet>
-			<index>87</index>
-			<operation>41</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>avatar</result>
-		</quadruplet>
-		<quadruplet>
-			<index>88</index>
-			<operation>38</operation>
-			<element1>goal</element1>
-			<element2>tile</element2>
-			<result>16016</result>
-		</quadruplet>
-		<quadruplet>
-			<index>89</index>
-			<operation>38</operation>
-			<element1>avatar</element1>
-			<element2>tile</element2>
-			<result>16017</result>
-		</quadruplet>
-		<quadruplet>
-			<index>90</index>
-			<operation>4</operation>
-			<element1>16016</element1>
-			<element2>16017</element2>
-			<result>16018</result>
-		</quadruplet>
-		<quadruplet>
-			<index>91</index>
-			<operation>12</operation>
-			<element1>16018</element1>
-			<element2>-1</element2>
-			<result>93</result>
-		</quadruplet>
-		<quadruplet>
-			<index>92</index>
+			<index>72</index>
 			<operation>40</operation>
 			<element1>1.0</element1>
 			<element2>-1</element2>
 			<result>score</result>
 		</quadruplet>
 		<quadruplet>
-			<index>93</index>
+			<index>73</index>
 			<operation>38</operation>
-			<element1>fasttruck</element1>
+			<element1>avatar</element1>
 			<element2>tile</element2>
+			<result>16008</result>
+		</quadruplet>
+		<quadruplet>
+			<index>74</index>
+			<operation>38</operation>
+			<element1>log</element1>
+			<element2>tile</element2>
+			<result>16009</result>
+		</quadruplet>
+		<quadruplet>
+			<index>75</index>
+			<operation>4</operation>
+			<element1>16008</element1>
+			<element2>16009</element2>
+			<result>16010</result>
+		</quadruplet>
+		<quadruplet>
+			<index>76</index>
+			<operation>12</operation>
+			<element1>16010</element1>
+			<element2>-1</element2>
+			<result>79</result>
+		</quadruplet>
+		<quadruplet>
+			<index>77</index>
+			<operation>46</operation>
+			<element1>water</element1>
+			<element2>-1</element2>
+			<result>avatar</result>
+		</quadruplet>
+		<quadruplet>
+			<index>78</index>
+			<operation>47</operation>
+			<element1>log</element1>
+			<element2>-1</element2>
+			<result>avatar</result>
+		</quadruplet>
+		<quadruplet>
+			<index>79</index>
+			<operation>38</operation>
+			<element1>avatar</element1>
+			<element2>tile</element2>
+			<result>16011</result>
+		</quadruplet>
+		<quadruplet>
+			<index>80</index>
+			<operation>38</operation>
+			<element1>wall</element1>
+			<element2>tile</element2>
+			<result>16012</result>
+		</quadruplet>
+		<quadruplet>
+			<index>81</index>
+			<operation>4</operation>
+			<element1>16011</element1>
+			<element2>16012</element2>
+			<result>16013</result>
+		</quadruplet>
+		<quadruplet>
+			<index>82</index>
+			<operation>12</operation>
+			<element1>16013</element1>
+			<element2>-1</element2>
+			<result>84</result>
+		</quadruplet>
+		<quadruplet>
+			<index>83</index>
+			<operation>41</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>avatar</result>
+		</quadruplet>
+		<quadruplet>
+			<index>84</index>
+			<operation>38</operation>
+			<element1>avatar</element1>
+			<element2>tile</element2>
+			<result>16014</result>
+		</quadruplet>
+		<quadruplet>
+			<index>85</index>
+			<operation>38</operation>
+			<element1>water</element1>
+			<element2>tile</element2>
+			<result>16015</result>
+		</quadruplet>
+		<quadruplet>
+			<index>86</index>
+			<operation>4</operation>
+			<element1>16014</element1>
+			<element2>16015</element2>
+			<result>16016</result>
+		</quadruplet>
+		<quadruplet>
+			<index>87</index>
+			<operation>12</operation>
+			<element1>16016</element1>
+			<element2>-1</element2>
+			<result>89</result>
+		</quadruplet>
+		<quadruplet>
+			<index>88</index>
+			<operation>39</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>avatar</result>
+		</quadruplet>
+		<quadruplet>
+			<index>89</index>
+			<operation>38</operation>
+			<element1>log</element1>
+			<element2>tile</element2>
+			<result>16017</result>
+		</quadruplet>
+		<quadruplet>
+			<index>90</index>
+			<operation>38</operation>
+			<element1>wall</element1>
+			<element2>tile</element2>
+			<result>16018</result>
+		</quadruplet>
+		<quadruplet>
+			<index>91</index>
+			<operation>4</operation>
+			<element1>16017</element1>
+			<element2>16018</element2>
 			<result>16019</result>
+		</quadruplet>
+		<quadruplet>
+			<index>92</index>
+			<operation>12</operation>
+			<element1>16019</element1>
+			<element2>-1</element2>
+			<result>94</result>
+		</quadruplet>
+		<quadruplet>
+			<index>93</index>
+			<operation>39</operation>
+			<element1>-1</element1>
+			<element2>-1</element2>
+			<result>log</result>
 		</quadruplet>
 		<quadruplet>
 			<index>94</index>
 			<operation>38</operation>
-			<element1>avatar</element1>
+			<element1>fasttruck</element1>
 			<element2>tile</element2>
 			<result>16020</result>
 		</quadruplet>
 		<quadruplet>
 			<index>95</index>
-			<operation>4</operation>
-			<element1>16019</element1>
-			<element2>16020</element2>
+			<operation>38</operation>
+			<element1>wall</element1>
+			<element2>tile</element2>
 			<result>16021</result>
 		</quadruplet>
 		<quadruplet>
 			<index>96</index>
-			<operation>38</operation>
-			<element1>water</element1>
-			<element2>tile</element2>
+			<operation>4</operation>
+			<element1>16020</element1>
+			<element2>16021</element2>
 			<result>16022</result>
 		</quadruplet>
 		<quadruplet>
 			<index>97</index>
-			<operation>4</operation>
-			<element1>16021</element1>
-			<element2>16022</element2>
-			<result>16023</result>
+			<operation>12</operation>
+			<element1>16022</element1>
+			<element2>-1</element2>
+			<result>99</result>
 		</quadruplet>
 		<quadruplet>
 			<index>98</index>
-			<operation>12</operation>
-			<element1>16023</element1>
-			<element2>-1</element2>
-			<result>100</result>
-		</quadruplet>
-		<quadruplet>
-			<index>99</index>
 			<operation>39</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>fasttruck</result>
 		</quadruplet>
 		<quadruplet>
+			<index>99</index>
+			<operation>38</operation>
+			<element1>slowtruck</element1>
+			<element2>tile</element2>
+			<result>16023</result>
+		</quadruplet>
+		<quadruplet>
 			<index>100</index>
 			<operation>38</operation>
-			<element1>fasttruck</element1>
+			<element1>wall</element1>
 			<element2>tile</element2>
 			<result>16024</result>
 		</quadruplet>
 		<quadruplet>
 			<index>101</index>
-			<operation>38</operation>
-			<element1>wall</element1>
-			<element2>tile</element2>
+			<operation>4</operation>
+			<element1>16023</element1>
+			<element2>16024</element2>
 			<result>16025</result>
 		</quadruplet>
 		<quadruplet>
 			<index>102</index>
-			<operation>4</operation>
-			<element1>16024</element1>
-			<element2>16025</element2>
-			<result>16026</result>
+			<operation>12</operation>
+			<element1>16025</element1>
+			<element2>-1</element2>
+			<result>104</result>
 		</quadruplet>
 		<quadruplet>
 			<index>103</index>
-			<operation>12</operation>
-			<element1>16026</element1>
-			<element2>-1</element2>
-			<result>105</result>
-		</quadruplet>
-		<quadruplet>
-			<index>104</index>
 			<operation>39</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>fasttruck</result>
+			<result>slowtruck</result>
+		</quadruplet>
+		<quadruplet>
+			<index>104</index>
+			<operation>38</operation>
+			<element1>slowtruck</element1>
+			<element2>tile</element2>
+			<result>16026</result>
 		</quadruplet>
 		<quadruplet>
 			<index>105</index>
 			<operation>38</operation>
-			<element1>log</element1>
+			<element1>avatar</element1>
 			<element2>tile</element2>
 			<result>16027</result>
 		</quadruplet>
 		<quadruplet>
 			<index>106</index>
-			<operation>38</operation>
-			<element1>wall</element1>
-			<element2>tile</element2>
+			<operation>4</operation>
+			<element1>16026</element1>
+			<element2>16027</element2>
 			<result>16028</result>
 		</quadruplet>
 		<quadruplet>
 			<index>107</index>
-			<operation>4</operation>
-			<element1>16027</element1>
-			<element2>16028</element2>
-			<result>16029</result>
+			<operation>12</operation>
+			<element1>16028</element1>
+			<element2>-1</element2>
+			<result>109</result>
 		</quadruplet>
 		<quadruplet>
 			<index>108</index>
-			<operation>12</operation>
-			<element1>16029</element1>
-			<element2>-1</element2>
-			<result>110</result>
-		</quadruplet>
-		<quadruplet>
-			<index>109</index>
 			<operation>39</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>log</result>
+			<result>avatar</result>
+		</quadruplet>
+		<quadruplet>
+			<index>109</index>
+			<operation>38</operation>
+			<element1>fasttruck</element1>
+			<element2>tile</element2>
+			<result>16029</result>
 		</quadruplet>
 		<quadruplet>
 			<index>110</index>
@@ -832,50 +832,50 @@
 		</quadruplet>
 		<quadruplet>
 			<index>111</index>
-			<operation>38</operation>
-			<element1>log</element1>
-			<element2>tile</element2>
+			<operation>4</operation>
+			<element1>16029</element1>
+			<element2>16030</element2>
 			<result>16031</result>
 		</quadruplet>
 		<quadruplet>
 			<index>112</index>
-			<operation>4</operation>
-			<element1>16030</element1>
-			<element2>16031</element2>
-			<result>16032</result>
+			<operation>12</operation>
+			<element1>16031</element1>
+			<element2>-1</element2>
+			<result>114</result>
 		</quadruplet>
 		<quadruplet>
 			<index>113</index>
-			<operation>12</operation>
-			<element1>16032</element1>
+			<operation>39</operation>
+			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>114</result>
+			<result>avatar</result>
 		</quadruplet>
 		<quadruplet>
 			<index>114</index>
 			<operation>11</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>69</result>
+			<result>65</result>
 		</quadruplet>
 		<quadruplet>
 			<index>115</index>
 			<operation>11</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
-			<result>62</result>
+			<result>58</result>
 		</quadruplet>
 		<quadruplet>
 			<index>116</index>
 			<operation>33</operation>
 			<element1>goal</element1>
 			<element2>0</element2>
-			<result>16033</result>
+			<result>16032</result>
 		</quadruplet>
 		<quadruplet>
 			<index>117</index>
 			<operation>12</operation>
-			<element1>16033</element1>
+			<element1>16032</element1>
 			<element2>-1</element2>
 			<result>119</result>
 		</quadruplet>
@@ -888,48 +888,41 @@
 		</quadruplet>
 		<quadruplet>
 			<index>119</index>
-			<operation>50</operation>
-			<element1>-1</element1>
-			<element2>-1</element2>
-			<result>-1</result>
-		</quadruplet>
-		<quadruplet>
-			<index>120</index>
 			<operation>33</operation>
 			<element1>avatar</element1>
 			<element2>0</element2>
-			<result>16034</result>
+			<result>16033</result>
+		</quadruplet>
+		<quadruplet>
+			<index>120</index>
+			<operation>12</operation>
+			<element1>16033</element1>
+			<element2>-1</element2>
+			<result>122</result>
 		</quadruplet>
 		<quadruplet>
 			<index>121</index>
-			<operation>12</operation>
-			<element1>16034</element1>
-			<element2>-1</element2>
-			<result>123</result>
-		</quadruplet>
-		<quadruplet>
-			<index>122</index>
 			<operation>45</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>false</result>
 		</quadruplet>
 		<quadruplet>
-			<index>123</index>
+			<index>122</index>
 			<operation>50</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>-1</result>
 		</quadruplet>
 		<quadruplet>
-			<index>124</index>
+			<index>123</index>
 			<operation>44</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>
 			<result>-1</result>
 		</quadruplet>
 		<quadruplet>
-			<index>125</index>
+			<index>124</index>
 			<operation>99</operation>
 			<element1>-1</element1>
 			<element2>-1</element2>

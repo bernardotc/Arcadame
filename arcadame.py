@@ -36,7 +36,7 @@ sys.path.insert(0, "../..")
 if sys.version_info[0] >= 3:
     raw_input = input
 
-debug = False
+debug = True
 
 # Global variables, dictionaries and lists
 avail = {}
@@ -49,6 +49,7 @@ listCode = []
 listSprites = []
 killSprites = []
 gameAttrs = {}
+gameActions = []
 gameSections = {}
 functionDirectory = {}
 variables = {}
@@ -116,6 +117,16 @@ def convertAtomicTypeToCode(type):
         return 301
     elif (type == "portal"):
         return 302
+    elif (type == "orientation"):
+        return 303
+    elif (type == "speed"):
+        return 304
+    elif (type == "generatedSprite"):
+        return 305
+    elif (type == "prob"):
+        return 306
+    elif (type == "cooldown"):
+        return 307
 
 def convertOperatorToCode(type):
     if (type == '+'):
@@ -198,6 +209,10 @@ def convertOperatorToCode(type):
         return 44
     elif (type == 'printEndGame'):
         return 45
+    elif (type == 'shieldFrom'):
+        return 46
+    elif (type == 'pullWithIt'):
+        return 47
     elif (type == 'endGame'):
         return 50
     elif (type == 'end'):
@@ -862,10 +877,10 @@ def p_sprite_attr(p):
 
 def p_interactions(p):
     '''interactions : INTERACTIONLIST D_2P interaction D_PYC more_interactions SMALL_END'''
-    global gameSections, variables
+    global gameSections, gameActions
     # Add the interaction section to the game dictionary
-    gameSections[p[1]] = variables
-    variables = {}
+    gameSections[p[1]] = gameActions
+    gameActions = []
 
 def p_more_interactions(p):
     '''more_interactions : interaction D_PYC more_interactions
@@ -873,7 +888,7 @@ def p_more_interactions(p):
 
 def p_interaction(p):
     '''interaction : ID more_spritesid ENCOUNTERS ID EQUAL action more_actions'''
-    global gameSections, listSprites, gameAttrs, variables
+    global gameSections, listSprites, gameAttrs, gameActions
     sprites = gameSections["SpriteSet"]
     # Check if the sprite ids were declared before
     if (not sprites.has_key(p[1])):
@@ -884,7 +899,7 @@ def p_interaction(p):
     listSprites.append(p[4])
     # gameAttrs contain the special actions of some functions
     # listSprites is used as a key in the dictionary (the last is the one that encounters)
-    variables[tuple(listSprites)] = gameAttrs
+    gameActions.append({tuple(listSprites): gameAttrs})
     listSprites = []
     gameAttrs = {}
 
@@ -1830,29 +1845,37 @@ def generateInteractionsCode():
     # While starts for the first tile
     doGotoF()
     interactions = functionDirectory['SimpleGame']['sections']['InteractionList']
-    for keys, actions in interactions.iteritems():
-        count = 0
-        for key in keys:
-            listCode.append([convertOperatorToCode('inTile'), key, 'tile', avail[2][convertAtomicTypeToCode('boolean')]])
-            stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
-            stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
-            stackTypes.append(convertAtomicTypeToCode('boolean'))
-            avail[2][convertAtomicTypeToCode('boolean')] += 1
-            count += 1
-            if (count > 1):
-                stackOperators.append('&&')
-                generateArithmeticCode()
-        doGotoF()
-        for action, value in actions.iteritems():
-            if (action == 'killSprite'):
-                if (len(value) == 0):
-                    listCode.append([convertOperatorToCode('killSprite'), -1, -1, keys[0]])
-            if (action == 'scoreChange'):
-                listCode.append([convertOperatorToCode('scoreChange'), float(value), -1, 'score'])
-            if (action == 'stepBack'):
-                listCode.append([convertOperatorToCode('stepBack'), -1, -1, keys[0]])
-        endJump = stackJumps.pop()
-        listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
+    for interaction in interactions:
+        for keys, actions in interaction.iteritems():
+            count = 0
+            for key in keys:
+                listCode.append([convertOperatorToCode('inTile'), key, 'tile', avail[2][convertAtomicTypeToCode('boolean')]])
+                stackOp.append(avail[2][convertAtomicTypeToCode('boolean')])
+                stackOpVisible.append(avail[2][convertAtomicTypeToCode('boolean')])
+                stackTypes.append(convertAtomicTypeToCode('boolean'))
+                avail[2][convertAtomicTypeToCode('boolean')] += 1
+                count += 1
+                if (count > 1):
+                    stackOperators.append('&&')
+                    generateArithmeticCode()
+            doGotoF()
+            for action, value in actions.iteritems():
+                if (action == 'killSprite'):
+                    if (len(value) == 0):
+                        listCode.append([convertOperatorToCode('killSprite'), -1, -1, keys[0]])
+                    else:
+                        for val in value:
+                            listCode.append([convertOperatorToCode('killSprite'), -1, -1, val])
+                elif (action == 'scoreChange'):
+                    listCode.append([convertOperatorToCode('scoreChange'), float(value), -1, 'score'])
+                elif (action == 'stepBack'):
+                    listCode.append([convertOperatorToCode('stepBack'), -1, -1, keys[0]])
+                elif (action == 'shieldFrom'):
+                    listCode.append([convertOperatorToCode('shieldFrom'), value, -1, keys[0]])
+                elif (action == 'pullWithIt'):
+                    listCode.append([convertOperatorToCode('pullWithIt'), keys[-1], -1, keys[0]])
+            endJump = stackJumps.pop()
+            listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
     # While ends
     doEndGoto()
 
@@ -1872,7 +1895,7 @@ def generateWinCode():
         listCode.append([convertOperatorToCode('printEndGame'), -1, -1, goal['attrs']['win']])
         endJump = stackJumps.pop()
         listCode[endJump][3] = len(listCode) + 1 # Because it needs to point to the next one
-        listCode.append([convertOperatorToCode('endGame'), -1, -1, -1])
+    listCode.append([convertOperatorToCode('endGame'), -1, -1, -1])
 
 def generateIntermediateCodeFile():
     global functionDirectory, listCode

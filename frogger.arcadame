@@ -1,28 +1,29 @@
 SimpleGame Frogger:
     SpriteSet:
-        log = Missile orientation=left, speed=0.1, color=brown;
-        forestDense = Spawner generatedSprite=log, prob=0.4, cooldown=10;
-        forestSparse = Spawner generatedSprite=log, prob=0.1,  cooldown=5;
+        log = Missile orientation=left, speed=4.0, color=brown;
+        forestDense = Spawner generatedSprite=log, prob=0.4, cooldown=3;
+        forestSparse = Spawner generatedSprite=log, prob=0.1,  cooldown=1;
         water = Immovable color=blue;
         goal  = Immovable color=purple, portal=true;
-        fasttruck = Missile orientation=right, speed=0.2,  color=orange;
-        slowtruck = Missile orientation=right, speed=0.1,  color=red;
-        city = Spawner generatedSprite=fasttruck, prob=0.5, cooldown=4;
-        city2 = Spawner generatedSprite=slowtruck, prob=0.6, cooldown=8;
+        fasttruck = Missile orientation=left, speed=6.0,  color=orange;
+        slowtruck = Missile orientation=right, speed=3.0,  color=red;
+        city = Spawner generatedSprite=fasttruck, prob=0.5, cooldown=2;
+        city2 = Spawner generatedSprite=slowtruck, prob=0.7, cooldown=2;
         wall = Immovable color=black;
         floor = Immovable color=white;
         avatar = MovingAvatar color=green;
     end
         
     InteractionList:
-        goal encounters avatar = killSprite(avatar), scoreChange(1.0);
+        goal encounters avatar = killSprite(), scoreChange(1.0);
         avatar encounters log = shieldFrom(killSprite, water), pullWithIt;
         avatar encounters wall = stepBack;
-        avatar, fasttruck encounters water = killSprite();
-        avatar, slowtruck encounters water = killSprite();
+        avatar encounters water = killSprite();
         log encounters wall = killSprite();
         fasttruck encounters wall = killSprite();
         slowtruck encounters wall = killSprite();
+        slowtruck encounters avatar = killSprite(avatar);
+        fasttruck encounters avatar = killSprite(avatar);
     end
     
     TerminationGoals:
@@ -34,15 +35,13 @@ SimpleGame Frogger:
         'g' = goal;
         '0' = water;
         '1' = forestDense, water;
-        '2' = forestDense, wall, log;
         '3' = forestSparse, water;
-        '4' = forestSparse, wall, log;
         '-' = slowtruck;
         'x' = fasttruck;
-        '=' = log, water;
+        '=' = water, log;
         'A' = avatar;
-        'c' = city;
-        'C' = city2;
+        'c' = floor, city;
+        'C' = floor, city2;
         'w' = wall;
         'f' = floor;
     end
@@ -50,13 +49,13 @@ SimpleGame Frogger:
     Map:
         "wwwwwwwwwwwwwwwwwwwwwwwwwwww";
         "wfffffffffffwgwffffffffffffw";
-        "w00==000000===0000=====000=4";
-        "w0000====0000000000====00012";
-        "w00===000===000====0000===04";
+        "w00==000000===0000=====0003w";
+        "w0000====0000000000====00=1w";
+        "w00===000===000====0000===3w";
         "wwwfffwwfffwwwffffwwwffwwwww";
-        "wfff----fff---fff-ff----fffw";
-        "w-fffffxxxfffffffxxxffffxxfw";
-        "wf-fff---fffff-fff----f--ffw";
+        "wCff----fff---fff-ff----fffw";
+        "wxxxxffxxxfffffffxxxffffxxcw";
+        "wC-fff---fffff-fff----f--ffw";
         "wfffffffAffffffffffffffffffw";
         "wwwwwwwwwwwwwwwwwwwwwwwwwwww";
     end

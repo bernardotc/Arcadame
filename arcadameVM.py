@@ -10,6 +10,8 @@ import sys, getopt
 import pygame
 import time as tm
 import xml.etree.ElementTree as ET
+import random
+from math import ceil
 
 timeDebug = False
 debug = False
@@ -19,6 +21,8 @@ spriteSet = {}
 mapping = {}
 map = {}
 objectsCount = {}
+movableObjects = []
+spawnerObjects = []
 mapRow = 0
 mapCol = 0
 maxMapRow = 0
@@ -34,6 +38,10 @@ instructionStack = []
 functionScope = []
 parametersMemoryValues = {101: 7000, 102: 8000, 103: 9000, 104: 10000, 105: 11000}
 offset = 0
+protectFrom = ""
+protect = ""
+protectTile = ()
+spriteInTile = []
 win = None
 clock = None
 avatarPos = (0,0)
@@ -44,6 +52,10 @@ color_blue = (0, 0, 255)
 color_green = (0, 255, 0)
 color_red = (255, 0, 0)
 color_black = (0, 0, 0)
+color_purple = (128, 0, 128)
+color_brown = (139, 69, 19)
+color_cyan = (0, 255, 255)
+color_orange = (255, 165, 0)
 
 # Memory of execution
 memory = memory = [{}, [{}], [{}], constants]
@@ -167,8 +179,101 @@ def readRawCode(fileName):
         print "sprites: ", spriteSet
         print "quadruplets: ", quadruplets
 
+def moveObjects():
+    global map, time, movableObjects, spriteSet, maxMapRow, objectsCount, avatarPos
+    for object in movableObjects:
+        if (timeDebug):
+            print time, spriteSet[object[0]]['speed'], object[2]
+            print time - object[2]
+        try:
+            if (time * spriteSet[object[0]]['speed'] - object[2] >= 0 and object[3] == 'avatar'):
+                object[2] += 1
+                spriteListWithObject = map[object[1]]
+                for index in range(0, len(spriteListWithObject)):
+                    if (spriteListWithObject[index].has_key(object[0])):
+                        sprite = spriteListWithObject.pop(index)
+                        sprite[object[0]]['last-position'] = object[1]
+                        if (spriteSet[object[0]]['orientation'] == 'up'):
+                            object[1] = (object[1][0] - 1, object[1][1])
+                        elif (spriteSet[object[0]]['orientation'] == 'down'):
+                            object[1] = (object[1][0] + 1, object[1][1])
+                        elif (spriteSet[object[0]]['orientation'] == 'left'):
+                            object[1] = (object[1][0], object[1][1] - 1)
+                        else:
+                            object[1] = (object[1][0], object[1][1] + 1)
+                        if (object[1][0] < maxMapRow and object[1][0] >= 0 and object[1][1] < maxMapCol and object[1][1] >= 0):
+                            map[object[1]].append(sprite)
+                            if (object[3] == 'avatar'):
+                                for index in range(0, len(spriteListWithObject)):
+                                    if (spriteListWithObject[index].has_key('avatar')):
+                                        avatar = spriteListWithObject.pop(index)
+                                        avatar['avatar']['last-position'] = sprite[object[0]]['last-position']
+                                        avatarPos = object[1]
+                                        map[object[1]].append(avatar)
+                        break
+            object.pop(3)
+        except IndexError:
+            if (time * spriteSet[object[0]]['speed'] - object[2] >= 0):
+                object[2] += 1
+                spriteListWithObject = map[object[1]]
+                for index in range(0, len(spriteListWithObject)):
+                    if (debug):
+                        print index
+                        print len(spriteListWithObject)
+                        print spriteListWithObject[index]
+                        print spriteListWithObject[index].has_key(object[0]), object[0]
+                    if (spriteListWithObject[index].has_key(object[0])):
+                        sprite = spriteListWithObject.pop(index)
+                        sprite[object[0]]['last-position'] = object[1]
+                        if (spriteSet[object[0]]['orientation'] == 'up'):
+                            object[1] = (object[1][0] - 1, object[1][1])
+                        elif (spriteSet[object[0]]['orientation'] == 'down'):
+                            object[1] = (object[1][0] + 1, object[1][1])
+                        elif (spriteSet[object[0]]['orientation'] == 'left'):
+                            object[1] = (object[1][0], object[1][1] - 1)
+                        else:
+                            object[1] = (object[1][0], object[1][1] + 1)
+                        if (object[1][0] < maxMapRow and object[1][0] >= 0 and object[1][1] < maxMapCol and object[1][1] >= 0):
+                            map[object[1]].append(sprite)
+                        else:
+                            objectsCount[object[0]] -= 1
+                            movableObjects.remove(object)
+                        break
+
+def spawnObjects():
+    global spriteSet, map, movableObjects, time
+    for spawn in spawnerObjects:
+        spawner = spriteSet[spawn[0]]
+        if (random.random() <= spawner['prob'] and int(time) % spawner['cooldown'] == 0):
+            sprites = map[spawn[1]]
+            spawnNew = True
+            for index in range(0, len(sprites)):
+                if (sprites[index].has_key(spawner['generatedSprite'])):
+                    spawnNew = False
+                    break
+            if (spawnNew):
+                map[spawn[1]].append({spawner['generatedSprite'] : spriteSet[spawner['generatedSprite']]})
+                movableObjects.append([spawner['generatedSprite'], spawn[1], ceil(time * spriteSet[spawner['generatedSprite']]['speed'])])
+
+def drawObjects():
+    global map, maxMapRow, maxMapCol
+    win.fill(globals()['color_white'])
+    for r in range(0, maxMapRow):
+        for c in range(0, maxMapCol):
+            sprites = map[(r, c)]
+            if (len(sprites) == 0):
+                pygame.draw.rect(win, globals()['color_white'], [c * tileWidth, r * tileHeight, (c+1) * tileWidth, (r+1) * tileHeight])
+            else:
+                sprite = sprites[-1]
+                for spriteKey, spritAttrib in sprite.iteritems():
+                    if (debug):
+                        print [c * tileWidth, r * tileHeight, (c+1) * tileWidth, (r+1) * tileHeight]
+                    if (spritAttrib.has_key('color')):
+                        pygame.draw.rect(win, globals()['color_' + spritAttrib['color']], [c * tileWidth, r * tileHeight, (c+1) * tileWidth, (r+1) * tileHeight])
+    pygame.display.flip()
+
 def doOperation(quadruplet):
-    global instructionCounter, functionDictionary, instructionStack, functionScope, offset, spriteSet, map, score, mapRow, mapCol, mapping, objectsCount, time, maxMapRow, maxMapCol, tileWidth, tileHeight, win, clock, avatarPos, tile, file
+    global instructionCounter, functionDictionary, instructionStack, functionScope, offset, spriteSet, map, score, mapRow, mapCol, mapping, objectsCount, time, maxMapRow, maxMapCol, tileWidth, tileHeight, win, clock, avatarPos, tile, file, movableObjects, protect, spriteInTile, protectFrom, protectTile, spawnerObjects
     if (debug):
         print instructionCounter, quadruplet
     if (quadruplet[0] < 10):
@@ -314,18 +419,32 @@ def doOperation(quadruplet):
             spriteSet[quadruplet[3]]['color'] = quadruplet[2]
         elif (quadruplet[1] == 302):
             spriteSet[quadruplet[3]]['portal'] = quadruplet[2]
+        elif (quadruplet[1] == 303):
+            spriteSet[quadruplet[3]]['orientation'] = quadruplet[2]
+        elif (quadruplet[1] == 304):
+            spriteSet[quadruplet[3]]['speed'] = float(quadruplet[2])
+        elif (quadruplet[1] == 305):
+            spriteSet[quadruplet[3]]['generatedSprite'] = quadruplet[2]
+        elif (quadruplet[1] == 306):
+            spriteSet[quadruplet[3]]['prob'] = float(quadruplet[2])
+        elif (quadruplet[1] == 307):
+            spriteSet[quadruplet[3]]['cooldown'] = quadruplet[2]
         return True
     elif (quadruplet[0] == 31):
         for k in quadruplet[3]:
             map[(mapRow, mapCol)] = list(mapping[k])
             for sprite in mapping[k]:
-                for spr in sprite:
+                for spr, attr in sprite.iteritems():
                     if (spr == 'avatar'):
                         avatarPos = (mapRow, mapCol)
                     if (objectsCount.has_key(spr)):
                         objectsCount[spr] += 1
                     else:
                         objectsCount[spr] = 1
+                    if (attr['type'] == 204):
+                        movableObjects.append([spr, (mapRow, mapCol), 0])
+                    elif (attr['type'] == 205):
+                        spawnerObjects.append([spr, (mapRow, mapCol)])
             mapCol += 1
         mapRow += 1
         if (mapCol > maxMapCol):
@@ -348,10 +467,6 @@ def doOperation(quadruplet):
         return True
     elif (quadruplet[0] == 34):
         assignValueInMemory(quadruplet[3], time >= quadruplet[2])
-        clock.tick(20)
-        time += 1.0 / 20
-        if (timeDebug):
-            print "------------------------------------>", time
         return True
     elif (quadruplet[0] == 35):
         elem1 = accessValueInMemory(quadruplet[1])
@@ -371,6 +486,7 @@ def doOperation(quadruplet):
                                 avatar['avatar']['last-position'] = avatarPos
                                 avatarPos = (avatarPos[0] + 1, avatarPos[1])
                                 map[avatarPos].append(avatar)
+                                break
                 # UP
                 if (event.key == pygame.K_UP):
                     if (avatarPos[0] > 0):
@@ -381,6 +497,7 @@ def doOperation(quadruplet):
                                 avatar['avatar']['last-position'] = avatarPos
                                 avatarPos = (avatarPos[0] - 1, avatarPos[1])
                                 map[avatarPos].append(avatar)
+                                break
                 # LEFT
                 if (event.key == pygame.K_LEFT):
                     if (avatarPos[1] > 0):
@@ -391,6 +508,7 @@ def doOperation(quadruplet):
                                 avatar['avatar']['last-position'] = avatarPos
                                 avatarPos = (avatarPos[0], avatarPos[1] - 1)
                                 map[avatarPos].append(avatar)
+                                break
                 # RIGHT
                 if (event.key == pygame.K_RIGHT):
                     if (avatarPos[1] < maxMapCol - 1):
@@ -401,6 +519,7 @@ def doOperation(quadruplet):
                                 avatar['avatar']['last-position'] = avatarPos
                                 avatarPos = (avatarPos[0], avatarPos[1] + 1)
                                 map[avatarPos].append(avatar)
+                                break
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit(1)
@@ -417,12 +536,14 @@ def doOperation(quadruplet):
             tile = (0,-1)
         if (debug):
             print tile
+        spriteInTile = []
         return True
     elif (quadruplet[0] == 38):
         sprites = map[tile]
         result = False
         for sprite in sprites:
             if (sprite.has_key(quadruplet[1])):
+                spriteInTile.append(quadruplet[1])
                 result = True
                 break;
         assignValueInMemory(quadruplet[3], result)
@@ -435,9 +556,15 @@ def doOperation(quadruplet):
             if (debug):
                 print index, quadruplet[3]
             if (spriteList[index].has_key(quadruplet[3])):
-                spriteList.pop(index)
-                objectsCount[quadruplet[3]] -= 1
-                break
+                if (debug):
+                    print protectTile, protect, protectFrom, spriteInTile
+                if (protect in spriteInTile and protectFrom in spriteInTile and tile == protectTile):
+                    protect = ""
+                    protectFrom = ""
+                else:
+                    spriteList.pop(index)
+                    objectsCount[quadruplet[3]] -= 1
+                    break
         return True
     elif (quadruplet[0] == 40):
         score += float(quadruplet[1])
@@ -459,25 +586,22 @@ def doOperation(quadruplet):
                     map[lastPos].append(sprite)
         return True
     elif (quadruplet[0] == 42):
-        win.fill(globals()['color_white'])
-        for r in range(0, maxMapRow):
-            for c in range(0, maxMapCol):
-                sprites = map[(r, c)]
-                if (len(sprites) == 0):
-                    pygame.draw.rect(win, globals()['color_white'], [c * tileWidth, r * tileHeight, (c+1) * tileWidth, (r+1) * tileHeight])
-                else:
-                    for sprite in sprites:
-                        for spriteKey, spritAttrib in sprite.iteritems():
-                            if (debug):
-                                print [c * tileWidth, r * tileHeight, (c+1) * tileWidth, (r+1) * tileHeight]
-                            pygame.draw.rect(win, globals()['color_' + spritAttrib['color']], [c * tileWidth, r * tileHeight, (c+1) * tileWidth, (r+1) * tileHeight])
-        pygame.display.flip()
+        clock.tick(20)
+        time += 1.0 / 20
+        spawnObjects()
+        moveObjects()
+        if (timeDebug):
+            print "------------------------------------>", time
+        drawObjects()
         return True
     elif (quadruplet[0] == 43):
-        if (mapping.has_key(quadruplet[1])):
-            mapping[quadruplet[1]].append({quadruplet[3]: spriteSet[quadruplet[3]]})
+        value = quadruplet[1]
+        if (value is not str):
+            value = str(value)
+        if (mapping.has_key(value)):
+            mapping[value].append({quadruplet[3]: spriteSet[quadruplet[3]]})
         else:
-            mapping[quadruplet[1]] = [{quadruplet[3]: spriteSet[quadruplet[3]]}]
+            mapping[value] = [{quadruplet[3]: spriteSet[quadruplet[3]]}]
         return True
     elif (quadruplet[0] == 44):
         createERAInMemory()
@@ -486,6 +610,26 @@ def doOperation(quadruplet):
         instructionStack.append(instructionCounter)
         instructionCounter = 1
         resetParametersMemoryValues()
+        return True
+    elif (quadruplet[0] == 45):
+        drawObjects()
+        if (quadruplet[3] == 'true'):
+            print "WINNER!"
+        else:
+            print "YOU LOSE!"
+        return True
+    elif (quadruplet[0] == 46):
+        protectFrom = quadruplet[1]
+        protect = quadruplet[3]
+        protectTile = tile
+        if (debug):
+            print protect, protectFrom, protectTile, spriteInTile
+        return True
+    elif (quadruplet[0] == 47):
+        for object in movableObjects:
+            if (object[0] == quadruplet[1] and object[1] == tile):
+                object.append(quadruplet[3])
+#movableObjects.append([quadruplet[3], tile, ceil(time * spriteSet[quadruplet[1]]['speed']), quadruplet[1]])
         return True
     elif (quadruplet[0] == 50):
         deleteERAInMemory()
