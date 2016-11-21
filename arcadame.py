@@ -60,6 +60,7 @@ typeOfVariable = ""
 functionId = ""
 listId = ""
 sureListId = ""
+listScope = ""
 paramCounter = 0
 goSubFunction = ""
 spriteId = ""
@@ -1100,12 +1101,17 @@ def p_block(p):
 def p_save_vars_in_global_memory(p):
     '''save_vars_in_global_memory : '''
     global functionDirectory, globalVariables, variables, avail
-    # TODO: - Virtual memory for lists
 
     # Assign virtual memory to variables in global scope
     for key in variables.keys():
-        variables[key]["memory"] = avail[0][variables[key]["type"]]
-        avail[0][variables[key]["type"]] += 1
+        typeInNumber = variables[key]['type']
+        if (not variables[key].has_key('dimension')):
+            variables[key]["memory"] = avail[0][typeInNumber]
+            avail[0][typeInNumber] += 1
+        else:
+            # Virtual memory for a list
+            variables[key]["memory"] = avail[0][typeInNumber]
+            avail[0][typeInNumber] += variables[key]['dimension']['superior']
 
     # Save global variables with its attributes.
     globalVariables = variables
@@ -1372,7 +1378,7 @@ def p_push_equal(p):
 def p_value_list(p):
     '''value_list : check_dimension D_CA expression D_CC
                   | '''
-    global variables, sureListId, stackOp, stackTypes, listCode, avail, constants
+    global variables, sureListId, stackOp, stackTypes, listCode, avail, constants, listScope
     try:
         # Check if the id has dimension
         if (p[2] == '['):
@@ -1385,11 +1391,20 @@ def p_value_list(p):
             if (operandType != convertAtomicTypeToCode('int')):
                 raise SemanticError("Expected int value to acess list, recieved: ", operandType)
             # Generate verify quadruplet
-            listCode.append([convertOperatorToCode('verify'), operand, variables[sureListId]['dimension']['inferior'], variables[sureListId]['dimension']['superior']])
-            
-            # Patch for constants, save the value before useing it so it can be a virtual
-            # memory direction
-            constant = variables[sureListId]['memory']
+            if (listScope == 'local'):
+                listCode.append([convertOperatorToCode('verify'), operand, variables[sureListId]['dimension']['inferior'], variables[sureListId]['dimension']['superior']])
+                
+                # Patch for constants, save the value before useing it so it can be a virtual
+                # memory direction
+                constant = variables[sureListId]['memory']
+                type = variables[sureListId]['type']
+            else: # Is in the global scope
+                listCode.append([convertOperatorToCode('verify'), operand, functionDirectory['global'][sureListId]['dimension']['inferior'], functionDirectory['global'][sureListId]['dimension']['superior']])
+                
+                # Patch for constants, save the value before useing it so it can be a virtual
+                # memory direction
+                constant = functionDirectory['global'][sureListId]['memory']
+                type = functionDirectory['global'][sureListId]['type']
             if (not constants.has_key(constant)):
                 constants[constant] = {"type": 101, "memory": avail[3][convertAtomicTypeToCode('int')]}
                 avail[3][convertAtomicTypeToCode('int')] += 1
@@ -1397,16 +1412,22 @@ def p_value_list(p):
           # Add virtual memory value to the direction used for list
             listCode.append([convertOperatorToCode('+'), operand, constants[constant]['memory'], avail[2][convertAtomicTypeToCode('int')]])
             stackOp.append(-avail[2][convertAtomicTypeToCode('int')])
-            stackTypes.append(variables[sureListId]['type'])
+            stackTypes.append(type)
             avail[2][convertAtomicTypeToCode('int')] += 1
     except IndexError:
         return
 
 def p_check_dimension(p):
     '''check_dimension : '''
-    global listId, sureListId, stackOp, stackTypes
-    if (not variables[listId].has_key('dimension')):
-        raise SemanticError("Trying to access an id that does not have dimension.")
+    global listId, sureListId, stackOp, stackTypes, listScope
+    try:
+        if (not variables[listId].has_key('dimension')):
+            raise SemanticError("Trying to access an id that does not have dimension.")
+        listScope = 'local'
+    except KeyError:
+        if (not functionDirectory['global'][listId].has_key('dimension')):
+            raise SemanticError("Trying to access an id that does not have dimension.")
+        listScope = 'global'
     # You are now sure the id is a list
     stackOp.pop()
     stackTypes.pop()
@@ -2068,6 +2089,7 @@ def initializeVariables():
     functionId = ""
     listId = ""
     sureListId = ""
+    listScope = ""
     paramCounter = 0
     goSubFunction = ""
     spriteId = ""

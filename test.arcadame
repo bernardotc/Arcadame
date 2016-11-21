@@ -1,10 +1,121 @@
-Program Example2:
+Program Testing:
+    var int[10]: array1;
+    var char[10]: array2;
+
+    func factorialR(int: n) = int:
+        if (n == 1):
+            return 1;
+        end;
+        return n * factorialR(n - 1);
+    end
+    func factorialI(int: n) = int:
+        var int: result;
+        var int: count;
+        count = 2;
+        result = 1;
+        while (count < n + 1):
+            result = result * count;
+            count = count + 1;
+        end;
+        return result;
+    end
+    func fibonacciR(int: n) = int:
+        if (n == 0):
+            return 0;
+        end;
+        if (n == 1):
+            return 1;
+        end;
+        return fibonacciR(n - 1) + fibonacciR(n -1);
+    end
+    func fibonacciI(int: n) = int:
+        var int: a;
+        var int: b;
+        var int: count;
+        a = 0;
+        b = 1;
+        count = 0;
+        while (count < n):
+            a = b;
+            b = a + b;
+            count = count + 1;
+        end;
+        return a;
+    end
+    func initializeArrays() = int:
+        array1[0] = 10;
+        array1[1] = 20;
+        array1[2] = 1;
+        array1[3] = 9;
+        array1[4] = 13;
+        array1[5] = 102;
+        array1[6] = 2;
+        array1[7] = 49;
+        array1[8] = 12;
+        array1[9] = 11;
+
+        array2[0] = 'a';
+        array2[1] = 'i';
+        array2[2] = 'f';
+        array2[3] = 'h';
+        array2[4] = 'w';
+        array2[5] = 'r';
+        array2[6] = 'l';
+        array2[7] = 'q';
+        array2[8] = 'd';
+        array2[9] = 'b';
+    end
+    func findInArray2(char: f) = boolean:
+        var int: count;
+        count = 0;
+        while (count < 10):
+            if (array2[count] == f):
+                return true;
+            end;
+            count = count + 1;
+        end;
+        return false;
+    end
+    func sortArray1() = int:
+        var int: count1;
+        var int: count2;
+        var int: aux;
+        count1 = 0;
+        print("Unsorted list");
+        while (count1 < 10):
+            print(array1[count1]);
+            count1 = count1 + 1;
+        end;
+        count1 = 0;
+        while (count1 < 10):
+            count2 = count1 + 1;
+            while (count2 < 10):
+                if (array1[count1] > array1[count2]):
+                    aux = array1[count1];
+                    array1[count1] = array1[count2];
+                    array1[count2] = aux;
+                end;
+                count2 = count2 + 1;
+            end;
+            count1 = count1 + 1;
+        end;
+        count1 = 0;
+        print("Sorted list");
+        while (count1 < 10):
+            print(array1[count1]);
+            count1 = count1 + 1;
+        end;
+    end
     Main:
-        var int[1]: x;
-        var int: j;
-        j = 10;
-        x[0] = j;
-        print(x[0]);
+        initializeArrays();
+        print(factorialR(3));
+        print(factorialI(3));
+        print(fibonacciR(5));
+        print(fibonacciI(5));
+        print(findInArray2('q'));
+        print(findInArray2('x'));
+        sortArray1();
     end
 End
+
 

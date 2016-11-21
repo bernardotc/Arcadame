@@ -177,9 +177,9 @@ def readRawCode(fileName):
     
     # Get all functions and its attributes like parameters, quadruplet, returnType and memory
     # Save those values in a function directory
-    parameters = []
     for function in tree.find('functions').findall('function'):
         name = function.find('functionName').text
+        parameters = []
         for parameter in function.findall('parameter'):
             parameters.append(int(parameter.text))
         returnType = function.find('return').text
@@ -199,6 +199,8 @@ def readRawCode(fileName):
             constants[memory] = {'type': type, 'value': int(value)}
         elif (int(type) == 102):
             constants[memory] = {'type': type, 'value': float(value)}
+        elif (int(type) == 103 or int(type) == 104):
+            constants[memory] = {'type': type, 'value': value.replace("'", "")}
         else:
             constants[memory] = {'type': type, 'value': value}
 
@@ -424,7 +426,7 @@ def doOperation(quadruplet):
     elif (quadruplet[0] == 13):
         result = accessValueInMemory(quadruplet[3])
         print "-----> AVM PRINT: ", result
-        if (file):
+        if (not file.closed):
             file.write("-> AVM PRINT: " + str(result) + '\n')
         return True
     # Get value (int or float)
@@ -435,7 +437,8 @@ def doOperation(quadruplet):
                 result = int(scan.strip())
             else:
                 result = float(scan.strip())
-            file.write("-> AVM GET_VALUE: " + str(result) + '\n')
+            if (not file.closed):
+                file.write("-> AVM GET_VALUE: " + str(result) + '\n')
             assignValueInMemory(quadruplet[3], result)
             return True
         except:
@@ -444,7 +447,8 @@ def doOperation(quadruplet):
     # Get line (char or string)
     elif (quadruplet[0] == 15):
         scan = raw_input('-----> AVM GET_LINE: ')
-        file.write("-> AVM GET_LINE: " + str(result) + '\n')
+        if (not file.closed):
+            file.write("-> AVM GET_LINE: " + str(result) + '\n')
         assignValueInMemory(quadruplet[3], scan)
         return True
     # Get boolean ('true or false')
@@ -452,7 +456,8 @@ def doOperation(quadruplet):
         scan = raw_input('-----> AVM GET_BOOLEAN: ')
         result = scan.strip()
         if (result == 'true' or result == 'false'):
-            file.write("-> AVM GET_BOOLEAN: " + str(result) + '\n')
+            if (not file.closed):
+                file.write("-> AVM GET_BOOLEAN: " + str(result) + '\n')
             assignValueInMemory(quadruplet[3], result)
             return True
         else:
@@ -463,7 +468,8 @@ def doOperation(quadruplet):
         scan = raw_input('-----> AVM GET_CHAR: ')
         if (len(scan) > 0):
             result = scan[0]
-            file.write("-> AVM GET_CHAR: " + str(result) + '\n')
+            if (not file.closed):
+                file.write("-> AVM GET_CHAR: " + str(result) + '\n')
             return True
         else:
             # raise ERROR
@@ -474,6 +480,7 @@ def doOperation(quadruplet):
         deleteERAInMemory()
         if (debug):
             print "Memory after deleting ERA: ", memory
+        assignValueInMemory(functionDictionary[functionScope[-1]]['memory'], -1)
         instructionCounter = instructionStack.pop()
         functionScope.pop()
         resetParametersMemoryValues()
