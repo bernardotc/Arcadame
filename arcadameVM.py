@@ -784,8 +784,12 @@ def doOperation(quadruplet):
         drawObjects()
         if (quadruplet[3] == 'true'):
             print "WINNER!"
+            if (not file.closed):
+                file.write("WINNER!" + '\n')
         else:
             print "YOU LOSE!"
+            if (not file.closed):
+                file.write("YOU LOSE!" + '\n')
         return True
     # ShieldFrom. A predefined operation to protect a particular sprite from killSprite.
     elif (quadruplet[0] == 46):

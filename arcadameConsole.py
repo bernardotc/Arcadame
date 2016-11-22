@@ -28,28 +28,31 @@ def compile():
     file = save()
     if file:
         os.system('python arcadame.py -i ' + file)
+        return True
+    return False
 
 def compileSaved():
     file = tkFileDialog.askopenfile()
     if file:
         os.system('python arcadame.py -i ' + file.name)
+        return True
+    return False
 
 def execute():
-    compile()
-    os.system('python2.7-32 arcadameVM.py -o output.txt')
-    output['text'] = ""
-    with open('output.txt') as fp:
-        for line in fp:
-            output['text'] += line
-
+    if (compile()):
+        os.system('python2.7-32 arcadameVM.py -o output.txt')
+        output['text'] = ""
+        with open('output.txt') as fp:
+            for line in fp:
+                output['text'] += line
 
 def executeSaved():
-    compileSaved()
-    os.system('python2.7-32 arcadameVM.py -o output.txt')
-    output['text'] = ""
-    with open('output.txt') as fp:
-        for line in fp:
-            output['text'] += line
+    if (compileSaved()):
+        os.system('python2.7-32 arcadameVM.py -o output.txt')
+        output['text'] = ""
+        with open('output.txt') as fp:
+            for line in fp:
+                output['text'] += line
 
 for r in range(7):
     root.rowconfigure(r, weight=1)
